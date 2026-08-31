@@ -3,6 +3,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
     <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
     <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
   </ItemGroup>

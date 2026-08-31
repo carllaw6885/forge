@@ -4,6 +4,7 @@
     <Project Path="modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />
     <Project Path="src/Forge.Core/Forge.Core.csproj" />
     <Project Path="src/Forge.Events/Forge.Events.csproj" />
@@ -14,6 +15,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />
+    <Project Path="tests/Forge.AuditingTests/Forge.AuditingTests.csproj" />
     <Project Path="tests/Forge.Cli.Tests/Forge.Cli.Tests.csproj" />
     <Project Path="tests/Forge.EventsTests/Forge.EventsTests.csproj" />
     <Project Path="tests/Forge.ModularityTests/Forge.ModularityTests.csproj" />

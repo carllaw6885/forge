@@ -111,6 +111,37 @@ public class CliTests : IDisposable
     }
 
     [Fact]
+    public async Task Audit_verify_passes_intact_export_and_fails_tampered_one()
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var store = new Forge.Auditing.InMemoryAuditStore(new Forge.Auditing.DefaultAuditRedactionPolicy());
+        await store.AppendAsync(new Forge.Auditing.AuditEvent
+        {
+            Action = "a.1",
+            TenantId = null,
+            Actor = "system",
+            CorrelationId = "c1",
+            Subject = "s1",
+            Outcome = "success",
+            OccurredAt = DateTimeOffset.UnixEpoch,
+        }, ct);
+        var records = await store.ReadAllAsync(ct);
+        var export = Path.Combine(_root, "export.jsonl");
+        await File.WriteAllLinesAsync(export,
+            records.Select(r => System.Text.Json.JsonSerializer.Serialize(r)), ct);
+
+        var ok = Run("audit", "verify", export);
+        Assert.Equal(0, ok.ExitCode);
+        Assert.Contains("chain intact", ok.Out);
+
+        await File.WriteAllTextAsync(export,
+            (await File.ReadAllTextAsync(export, ct)).Replace("success", "denied", StringComparison.Ordinal), ct);
+        var tampered = Run("audit", "verify", export);
+        Assert.Equal(1, tampered.ExitCode);
+        Assert.Contains("tampered", tampered.Err);
+    }
+
+    [Fact]
     public void Dry_run_option_is_accepted_globally()
     {
         WriteManifest("a", """{"id":"Alpha","name":"Alpha","version":"0.1.0"}""");

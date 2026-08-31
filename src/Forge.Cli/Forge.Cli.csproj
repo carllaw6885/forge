@@ -8,6 +8,7 @@
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
     <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
   </ItemGroup>
 </Project>

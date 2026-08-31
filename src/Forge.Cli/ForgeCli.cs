@@ -105,6 +105,39 @@ public static class ForgeCli
         });
         root.Subcommands.Add(doctor);
 
+        var audit = new Command("audit", "Audit evidence tooling.");
+        var fileArgument = new Argument<string>("export-file")
+        {
+            Description = "Path to a JSON Lines audit export (produced by AuditExporter).",
+        };
+        var verify = new Command("verify", "Verify the hash chain of an audit export; non-zero exit on any break.");
+        verify.Arguments.Add(fileArgument);
+        verify.SetAction(pr =>
+        {
+            var path = pr.GetValue(fileArgument)!;
+            if (!File.Exists(path))
+            {
+                Console.Error.WriteLine($"error: export file '{path}' does not exist");
+                return 1;
+            }
+
+            var records = Auditing.AuditExportReader.Parse(File.ReadAllText(path));
+            var errors = Auditing.AuditChainVerifier.Verify(records);
+            foreach (var error in errors)
+            {
+                Console.Error.WriteLine($"error: {error}");
+            }
+
+            if (errors.Count == 0)
+            {
+                Console.WriteLine($"ok: {records.Count} record(s), chain intact");
+            }
+
+            return errors.Count == 0 ? 0 : 1;
+        });
+        audit.Subcommands.Add(verify);
+        root.Subcommands.Add(audit);
+
         return root;
     }
 

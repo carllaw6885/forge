@@ -1,3 +1,4 @@
+using Forge.Auditing;
 using Forge.Core.Modules;
 using Forge.Events;
 using Forge.Modularity;
@@ -22,8 +23,8 @@ public sealed class CatalogModule(string connectionString) : IForgeModule
     {
         services.AddModuleDbContext<CatalogDbContext>(connectionString, schema: "catalog");
         services.AddForgeEvents();
+        services.AddForgeAuditing(); // host may replace the store (e.g. AddSqlServerAuditStore)
         services.AddScoped<ICatalogReader, CatalogReader>();
-        services.AddSingleton<ICatalogAuditTrail, InMemoryCatalogAuditTrail>();
         services.AddScoped<IDomainEventHandler<CatalogItemAdded>, CatalogItemAddedAuditHandler>();
     }
 }

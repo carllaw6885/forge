@@ -194,11 +194,12 @@ public class CatalogSliceTests(SliceFixture fx) : IClassFixture<SliceFixture>
         Assert.Equal(1, envelope.SchemaVersion);
         Assert.Equal("tenant-a", envelope.TenantId);
 
-        var audit = Assert.Single(
-            fx.App!.Services.GetRequiredService<ICatalogAuditTrail>().Snapshot(),
-            a => a.Subject == item!.Id.ToString("N"));
+        var store = fx.App!.Services.GetRequiredService<Forge.Auditing.IAuditStore>();
+        var records = await store.ReadAllAsync(ct);
+        var audit = Assert.Single(records.Select(r => r.Event), a => a.Subject == item!.Id.ToString("N"));
         Assert.Equal("tenant-a", audit.TenantId);
         Assert.Equal(envelope.CorrelationId.ToString(), audit.CorrelationId);
+        Assert.Empty(Forge.Auditing.AuditChainVerifier.Verify(records));
     }
 
     [Fact]

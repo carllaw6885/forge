@@ -3,6 +3,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../../src/Forge.Auditing/Forge.Auditing.csproj" />
     <ProjectReference Include="../../../src/Forge.Events/Forge.Events.csproj" />
     <ProjectReference Include="../../../src/Forge.Tenancy/Forge.Tenancy.csproj" />
     <ProjectReference Include="../../../src/Forge.Modularity/Forge.Modularity.csproj" />

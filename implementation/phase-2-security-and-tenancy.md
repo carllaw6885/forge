@@ -21,11 +21,11 @@
 
 ## 2.3 Audit evidence
 
-- [ ] Implement structured audit event model distinct from ILogger and entity history.
-- [ ] Implement append-only audit store abstraction with no update/delete methods.
-- [ ] Implement hash-chained tamper-evident records and forge audit verify.
-- [ ] Implement immutable evidence provider contract and local reference proving write-once semantics; production cloud WORM adapters may follow.
-- [ ] Implement redaction/exclusion policy and audit retention/export events.
+- [x] Implement structured audit event model distinct from ILogger and entity history.
+- [x] Implement append-only audit store abstraction with no update/delete methods.
+- [x] Implement hash-chained tamper-evident records and forge audit verify.
+- [x] Implement immutable evidence provider contract and local reference proving write-once semantics; production cloud WORM adapters may follow.
+- [x] Implement redaction/exclusion policy and audit retention/export events.
 
 ## 2.4 Security baseline
 
