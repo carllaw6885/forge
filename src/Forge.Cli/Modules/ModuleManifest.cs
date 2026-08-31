@@ -3,6 +3,11 @@ using System.Text.Json.Serialization;
 
 namespace Forge.Cli.Modules;
 
+/// <summary>
+/// A module's declared identity, dependencies and owned database schemas, read
+/// from its forge-module.json (schema: eng/module-manifest.schema.json).
+/// Inspectable metadata only — never an activation mechanism (ADR 01).
+/// </summary>
 public sealed record ModuleManifest
 {
     public required string Id { get; init; }
