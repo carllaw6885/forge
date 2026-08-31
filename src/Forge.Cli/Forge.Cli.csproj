@@ -4,4 +4,7 @@
     <RootNamespace>Forge.Cli</RootNamespace>
     <AssemblyName>forge</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+  </ItemGroup>
 </Project>

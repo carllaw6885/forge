@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />
+    <Project Path="tests/Forge.Cli.Tests/Forge.Cli.Tests.csproj" />
     <Project Path="tests/Forge.TenancyTests/Forge.TenancyTests.csproj" />
   </Folder>
 </Solution>

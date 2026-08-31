@@ -1,3 +1,4 @@
-// Command host lands in Phase 0.4; the assembly exists now so the graph
-// validator is testable and shared.
-return 0;
+using System.CommandLine;
+using Forge.Cli;
+
+return ForgeCli.Build().Parse(args).Invoke();

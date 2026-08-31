@@ -6,26 +6,26 @@
 
 ## 0.1 Repository baseline
 
-- [ ] Create solution, Directory.Build.props/targets, package version policy, analyzers, formatting and deterministic build settings.
-- [ ] Import all 39 ADRs as individual accepted ADR files with stable identifiers and front matter.
-- [ ] Define module manifest schema and repository conventions.
-- [ ] Create AGENTS.md rules that reference deterministic checks rather than vendor-specific prompts.
+- [x] Create solution, Directory.Build.props/targets, package version policy, analyzers, formatting and deterministic build settings.
+- [x] Import all 39 ADRs as individual accepted ADR files with stable identifiers and front matter.
+- [x] Define module manifest schema and repository conventions.
+- [x] Create AGENTS.md rules that reference deterministic checks rather than vendor-specific prompts.
 
 ## 0.2 Architecture enforcement
 
-- [ ] Add architecture tests preventing cross-module DbContext access, domain-entity sharing and forbidden UI/infrastructure references.
-- [ ] Add module dependency graph validator and cycle detection.
-- [ ] Add first tenant-isolation invariant test harness.
-- [ ] Add dependency licence/security policy and SBOM generation.
+- [x] Add architecture tests preventing cross-module DbContext access, domain-entity sharing and forbidden UI/infrastructure references.
+- [x] Add module dependency graph validator and cycle detection.
+- [x] Add first tenant-isolation invariant test harness.
+- [x] Add dependency licence/security policy and SBOM generation.
 
 ## 0.3 CI baseline
 
-- [ ] Build, format, unit tests, architecture tests, secret scan, vulnerability scan, licence scan and SBOM.
-- [ ] Add PR quality gate summary and artefact retention.
-- [ ] Create security disclosure and contribution templates.
+- [x] Build, format, unit tests, architecture tests, secret scan, vulnerability scan, licence scan and SBOM.
+- [x] Add PR quality gate summary and artefact retention.
+- [x] Create security disclosure and contribution templates.
 
 ## 0.4 CLI skeleton
 
-- [ ] Create Forge.Cli command host with deterministic output.
-- [ ] Implement forge modules list/graph/validate against manifests.
-- [ ] Implement forge doctor skeleton and --dry-run plumbing.
+- [x] Create Forge.Cli command host with deterministic output.
+- [x] Implement forge modules list/graph/validate against manifests.
+- [x] Implement forge doctor skeleton and --dry-run plumbing.
