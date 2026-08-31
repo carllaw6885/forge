@@ -16,6 +16,8 @@ Transitive packages whose metadata carries no SPDX licence id, reviewed and allo
 |---|---|---|
 | Microsoft.Identity.Client.NativeInterop | MIT (file-based metadata, no SPDX id) | Native transitive dependency of Microsoft.Data.SqlClient |
 | Microsoft.Data.SqlClient.SNI.runtime | Microsoft redistributable licence file | Unavoidable native SNI component of the ADR-mandated SQL Server provider; free to use and redistribute |
+| Fractions | MIT/BSD-2-Clause (file-based metadata on the pinned version) | Transitive dependency of Aspire.Hosting |
+| Json.More.Net, JsonPatch.Net, JsonPointer.Net | MIT (file-based metadata on the pinned versions) | json-everything suite, transitive dependencies of Aspire.Hosting |
 
 Adding to this table requires the same review as the case-by-case licence tier.
 

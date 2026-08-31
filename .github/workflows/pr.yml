@@ -122,6 +122,10 @@ jobs:
           awk -F'\t' '
             $1 == "Microsoft.Data.SqlClient.SNI.runtime" { next }
             $1 == "Microsoft.Identity.Client.NativeInterop" { next }
+            $1 == "Fractions" { next }
+            $1 == "Json.More.Net" { next }
+            $1 == "JsonPatch.Net" { next }
+            $1 == "JsonPointer.Net" { next }
             $2 !~ /^(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0)(,(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0))*$/ { print "DISALLOWED: " $0; found=1 }
             END { exit found }' licences.txt
 
