@@ -29,7 +29,7 @@
 
 ## 2.4 Security baseline
 
-- [ ] Ship hardened ASP.NET defaults: HSTS production, secure cookies, antiforgery where relevant, safe CORS, request limits, rate-limit hooks and CSP-ready shell.
-- [ ] Add unsafe-production-configuration validators.
-- [ ] Add threat model template and security event taxonomy.
-- [ ] Gate release on authorization and tenant-boundary regression suites.
+- [x] Ship hardened ASP.NET defaults: HSTS production, secure cookies, antiforgery where relevant, safe CORS, request limits, rate-limit hooks and CSP-ready shell.
+- [x] Add unsafe-production-configuration validators.
+- [x] Add threat model template and security event taxonomy.
+- [x] Gate release on authorization and tenant-boundary regression suites.

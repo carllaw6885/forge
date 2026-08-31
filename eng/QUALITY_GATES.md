@@ -15,6 +15,8 @@
 - accessibility tests where UI changed
 
 ## Release
+- authorization regression suite (Forge.SecurityTests) — blocking
+- tenant-boundary suite (Forge.TenancyTests + tenant isolation tests in Forge.Persistence.SqlServer.Tests and slice tests) — blocking; a tenant isolation failure blocks release unconditionally
 - full conformance suite
 - fresh database install + supported upgrade
 - OCI smoke test without Aspire runtime
