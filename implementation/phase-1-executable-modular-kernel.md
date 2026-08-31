@@ -13,10 +13,10 @@
 
 ## 1.2 Persistence ownership
 
-- [ ] Create module-owned DbContext pattern with SQL Server reference provider.
-- [ ] Create module-owned migrations and independent migration metadata.
-- [ ] Add no-cross-module-foreign-key architecture tests.
-- [ ] Add provider test harness using real SQL Server container.
+- [x] Create module-owned DbContext pattern with SQL Server reference provider.
+- [x] Create module-owned migrations and independent migration metadata.
+- [x] Add no-cross-module-foreign-key architecture tests.
+- [x] Add provider test harness using real SQL Server container.
 
 ## 1.3 Communication primitives
 

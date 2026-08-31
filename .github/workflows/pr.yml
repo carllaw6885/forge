@@ -9,6 +9,20 @@ permissions:
   contents: read
 
 jobs:
+  integration:
+    # Affected-integration tier (eng/QUALITY_GATES.md): real SQL Server via
+    # Testcontainers, kept out of the fast gate job.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: SQL Server provider tests
+        run: dotnet test tests/Forge.Persistence.SqlServer.Tests -c Release
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
+
   gate:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +53,7 @@ jobs:
         run: dotnet format Forge.slnx --verify-no-changes --no-restore
 
       - name: Tests (unit + architecture + tenancy invariants)
-        run: dotnet test Forge.slnx --no-build -c Release
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests"
 
       - name: Vulnerability scan
         run: |
