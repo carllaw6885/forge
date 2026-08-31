@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Forge.Events;
 using Forge.Modularity;
+using Forge.Observability;
 using Forge.Persistence.SqlServer;
 using Forge.ReferenceCatalog;
 using Forge.ReferenceCatalog.Contracts;
@@ -27,6 +28,7 @@ public sealed class SliceFixture : IAsyncLifetime
     public WebApplication? App { get; private set; }
     public HttpClient Client { get; private set; } = null!;
     public List<EventEnvelope> PublishedIntegrationEvents { get; } = [];
+    public List<System.Diagnostics.Activity> ExportedActivities { get; } = [];
 
     public string? UnavailableReason { get; private set; }
 
@@ -64,6 +66,9 @@ public sealed class SliceFixture : IAsyncLifetime
         builder.Services.AddOpenApi();
         builder.Services.AddForgeTenancy();
         builder.Services.AddForgeIdempotency();
+        builder.Services.AddForgeObservability("forge-slice-tests",
+            configureTracing: tracing => OpenTelemetry.Trace.InMemoryExporterHelperExtensions
+                .AddInMemoryExporter(tracing, ExportedActivities));
         builder.Services.AddForge(new CatalogModule(_container.GetConnectionString()));
         builder.Services.AddSingleton<IIntegrationEventHandler<CatalogItemCreated>>(
             new RecordingHandler(PublishedIntegrationEvents));
@@ -73,6 +78,7 @@ public sealed class SliceFixture : IAsyncLifetime
         App.UseForgeTenancy();
         App.UseForgeIdempotency();
         App.MapOpenApi().WithHostScope();
+        App.MapForgeHealth(endpoint => endpoint.WithHostScope());
         App.MapCatalogEndpoints();
         await App.StartAsync();
 

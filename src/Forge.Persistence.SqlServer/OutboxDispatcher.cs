@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Forge.Events;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public sealed class OutboxDispatcher(
     OutboxContextRegistry registry,
     TimeProvider clock) : BackgroundService
 {
+    private static readonly ActivitySource ActivitySource = new("Forge.Outbox");
     public static readonly Meter Meter = new("Forge.Outbox");
     private static readonly Counter<long> Dispatched = Meter.CreateCounter<long>("forge.outbox.dispatched");
     private static readonly Counter<long> Failed = Meter.CreateCounter<long>("forge.outbox.dispatch_failures");
@@ -89,6 +91,13 @@ public sealed class OutboxDispatcher(
 
         foreach (var entry in due)
         {
+            var parent = entry.TraceParent is not null
+                && ActivityContext.TryParse(entry.TraceParent, null, out var parsed) ? parsed : default;
+            using var activity = ActivitySource.StartActivity("outbox.dispatch", ActivityKind.Consumer, parent);
+            activity?.SetTag("forge.event_type", entry.EventType);
+            activity?.SetTag("forge.tenant_id", entry.TenantId);
+            activity?.SetTag("forge.correlation_id", entry.CorrelationId);
+
             try
             {
                 await bus.PublishAsync(OutboxEnvelope.ToEnvelope(entry), cancellationToken);

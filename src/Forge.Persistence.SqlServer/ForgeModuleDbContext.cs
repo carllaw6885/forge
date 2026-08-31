@@ -38,6 +38,7 @@ public abstract class ForgeModuleDbContext(DbContextOptions options, ICurrentTen
             entry.Property(x => x.EventType).HasMaxLength(256);
             entry.Property(x => x.TenantId).HasMaxLength(64);
             entry.Property(x => x.CorrelationId).HasMaxLength(64);
+            entry.Property(x => x.TraceParent).HasMaxLength(128);
             entry.Property(x => x.PayloadType).HasMaxLength(512);
             entry.HasIndex(x => new { x.DispatchedAt, x.NextAttemptAt });
         });

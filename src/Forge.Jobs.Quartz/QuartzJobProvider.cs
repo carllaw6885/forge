@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Forge.Auditing;
 using Forge.Core.Validation;
 using Forge.Jobs;
@@ -22,6 +23,8 @@ public sealed class ForgeJobWrapper(
     IAuditStore audit,
     TimeProvider clock) : IJob
 {
+    private static readonly ActivitySource ActivitySource = new("Forge.Jobs");
+
     public const int MaxAttempts = 3;
 
     public async Task Execute(IJobExecutionContext context)
@@ -36,6 +39,13 @@ public sealed class ForgeJobWrapper(
 
         var jobType = Type.GetType(jobTypeName)
             ?? throw new JobExecutionException($"unknown job type '{jobTypeName}'") { UnscheduleAllTriggers = true };
+
+        var parent = data.GetString("forge:traceparent") is { Length: > 0 } tp
+            && ActivityContext.TryParse(tp, null, out var parsed) ? parsed : default;
+        using var activity = ActivitySource.StartActivity("job.execute", ActivityKind.Consumer, parent);
+        activity?.SetTag("forge.job_type", jobTypeName);
+        activity?.SetTag("forge.tenant_id", jobContext.TenantId);
+        activity?.SetTag("forge.correlation_id", jobContext.CorrelationId);
 
         // restore ambient tenant context for the job's flow
         if (jobContext.TenantId is not null)
@@ -107,6 +117,7 @@ public sealed class QuartzJobScheduler(ISchedulerFactory schedulerFactory) : IJo
             .UsingJobData("forge:tenantId", context.TenantId ?? string.Empty)
             .UsingJobData("forge:correlationId", context.CorrelationId)
             .UsingJobData("forge:idempotencyKey", context.IdempotencyKey ?? string.Empty)
+            .UsingJobData("forge:traceparent", Activity.Current?.Id ?? string.Empty)
             .StoreDurably()
             .Build();
         var trigger = TriggerBuilder.Create().ForJob(job).StartNow().Build();

@@ -21,6 +21,9 @@ public static class ServiceCollectionExtensions
             options.UseSqlServer(connectionString, sql =>
                 sql.MigrationsHistoryTable("__EFMigrationsHistory", schema)));
 
+        // each module context is a readiness dependency (ADR 15)
+        services.AddHealthChecks().AddDbContextCheck<TContext>(name: $"db:{schema}", tags: ["ready"]);
+
         // Reliable publication (ADR 04): the module's IOutbox writes into its
         // own context, and the dispatcher drains this context's outbox table.
         services.AddScoped<Forge.Events.IOutbox>(sp =>

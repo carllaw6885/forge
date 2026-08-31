@@ -112,6 +112,7 @@ public sealed class AddKernelOutbox : Migration
                 SchemaVersion = table.Column<int>(nullable: false),
                 TenantId = table.Column<string>(maxLength: 64, nullable: true),
                 CorrelationId = table.Column<string>(maxLength: 64, nullable: false),
+                TraceParent = table.Column<string>(maxLength: 128, nullable: true),
                 CausationId = table.Column<Guid>(nullable: true),
                 PayloadType = table.Column<string>(maxLength: 512, nullable: false),
                 PayloadJson = table.Column<string>(nullable: false),

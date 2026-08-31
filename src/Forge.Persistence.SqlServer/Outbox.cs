@@ -17,6 +17,9 @@ public sealed class OutboxEntry
     public int SchemaVersion { get; set; }
     public string? TenantId { get; set; }
     public required string CorrelationId { get; set; }
+
+    /// <summary>W3C traceparent of the originating operation, for span continuity (ADR 15).</summary>
+    public string? TraceParent { get; set; }
     public Guid? CausationId { get; set; }
     public required string PayloadType { get; set; }
     public required string PayloadJson { get; set; }
@@ -40,6 +43,7 @@ public sealed class DbContextOutbox<TContext>(TContext db) : IOutbox where TCont
             SchemaVersion = envelope.SchemaVersion,
             TenantId = envelope.TenantId,
             CorrelationId = envelope.CorrelationId.ToString(),
+            TraceParent = System.Diagnostics.Activity.Current?.Id,
             CausationId = envelope.CausationId,
             PayloadType = envelope.Payload.GetType().AssemblyQualifiedName!,
             PayloadJson = JsonSerializer.Serialize(envelope.Payload, envelope.Payload.GetType()),

@@ -28,7 +28,7 @@
 
 ## 3.4 Observability and health
 
-- [ ] Implement OpenTelemetry traces/metrics using standard .NET primitives.
-- [ ] Propagate context across HTTP, EF, outbox and jobs.
-- [ ] Implement liveness/readiness distinction and dependency health registration.
-- [ ] Prove seeded sensitive values do not appear in logs/traces.
+- [x] Implement OpenTelemetry traces/metrics using standard .NET primitives.
+- [x] Propagate context across HTTP, EF, outbox and jobs.
+- [x] Implement liveness/readiness distinction and dependency health registration.
+- [x] Prove seeded sensitive values do not appear in logs/traces.
