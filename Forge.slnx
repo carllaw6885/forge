@@ -1,10 +1,13 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />
+    <Project Path="src/Forge.Core/Forge.Core.csproj" />
+    <Project Path="src/Forge.Modularity/Forge.Modularity.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />
     <Project Path="tests/Forge.Cli.Tests/Forge.Cli.Tests.csproj" />
+    <Project Path="tests/Forge.ModularityTests/Forge.ModularityTests.csproj" />
     <Project Path="tests/Forge.TenancyTests/Forge.TenancyTests.csproj" />
   </Folder>
 </Solution>

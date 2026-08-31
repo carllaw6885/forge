@@ -6,10 +6,10 @@
 
 ## 1.1 Module kernel
 
-- [ ] Implement AddForge and explicit module registration.
-- [ ] Implement minimal ConfigureServices/ConfigureApplication lifecycle.
-- [ ] Validate declared dependencies; no assembly-wide auto-discovery.
-- [ ] Expose inspectable module graph to CLI and diagnostics.
+- [x] Implement AddForge and explicit module registration.
+- [x] Implement minimal ConfigureServices/ConfigureApplication lifecycle.
+- [x] Validate declared dependencies; no assembly-wide auto-discovery.
+- [x] Expose inspectable module graph to CLI and diagnostics.
 
 ## 1.2 Persistence ownership
 

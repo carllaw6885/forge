@@ -1,5 +1,5 @@
 using System.CommandLine;
-using Forge.Cli.Modules;
+using Forge.Core.Modules;
 
 namespace Forge.Cli;
 

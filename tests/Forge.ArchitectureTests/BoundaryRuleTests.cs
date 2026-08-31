@@ -56,6 +56,23 @@ public class BoundaryRuleTests
     }
 
     [Fact]
+    public void Core_has_no_package_references_at_all()
+    {
+        var core = RepoModel.SourceProjects().Single(p => p.Name == "Forge.Core");
+        Assert.Empty(core.PackageReferences);
+    }
+
+    [Fact]
+    public void Modularity_references_only_extensions_abstractions()
+    {
+        var modularity = RepoModel.SourceProjects().Single(p => p.Name == "Forge.Modularity");
+        Assert.All(modularity.PackageReferences, pkg =>
+            Assert.StartsWith("Microsoft.Extensions.", pkg, StringComparison.Ordinal));
+        Assert.All(modularity.PackageReferences, pkg =>
+            Assert.EndsWith(".Abstractions", pkg, StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Cli_stays_free_of_web_ui_and_ef_dependencies()
     {
         var cli = RepoModel.SourceProjects().Single(p => p.Name == "Forge.Cli");

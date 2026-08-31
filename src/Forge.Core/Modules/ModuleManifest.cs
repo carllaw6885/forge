@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Forge.Cli.Modules;
+namespace Forge.Core.Modules;
 
 /// <summary>
 /// A module's declared identity, dependencies and owned database schemas, read

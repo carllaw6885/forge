@@ -1,4 +1,4 @@
-using Forge.Cli.Modules;
+using Forge.Core.Modules;
 using Xunit;
 
 namespace Forge.TenancyTests;

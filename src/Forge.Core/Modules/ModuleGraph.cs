@@ -1,4 +1,4 @@
-namespace Forge.Cli.Modules;
+namespace Forge.Core.Modules;
 
 public static class ModuleGraph
 {

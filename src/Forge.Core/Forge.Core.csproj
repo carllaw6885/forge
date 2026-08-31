@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Core contracts and primitives only. No package references: no ASP.NET, EF,
+       or provider-specific dependencies may enter this project (enforced by
+       Forge.ArchitectureTests). -->
+  <PropertyGroup>
+    <!-- CA1716: 'Error' clashes with a VB keyword; it is the idiomatic name for
+         result-pattern error types and stays. -->
+    <NoWarn>$(NoWarn);CA1716</NoWarn>
+  </PropertyGroup>
+</Project>

@@ -7,4 +7,7 @@
   <ItemGroup>
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
+  </ItemGroup>
 </Project>
