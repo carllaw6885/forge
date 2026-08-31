@@ -34,10 +34,10 @@
 
 ## 4.5 Notifications/templates
 
-- [ ] Implement notification intents, preferences, policy override and durable delivery state.
-- [ ] Implement constrained template rendering with allow-listed variables, localisation and sanitisation.
-- [ ] Demonstrate one in-app/email-style provider adapter without coupling Core to vendor delivery.
-- [ ] Audit security-critical delivery and template lifecycle changes.
+- [x] Implement notification intents, preferences, policy override and durable delivery state.
+- [x] Implement constrained template rendering with allow-listed variables, localisation and sanitisation.
+- [x] Demonstrate one in-app/email-style provider adapter without coupling Core to vendor delivery.
+- [x] Audit security-critical delivery and template lifecycle changes.
 
 ## 4.6 Redis adapter
 
