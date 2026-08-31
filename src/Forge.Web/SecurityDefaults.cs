@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading.RateLimiting;
+using Forge.Core.Validation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -9,16 +10,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Forge.Web;
-
-/// <summary>
-/// A check that must hold before a production host may start (ADR 18). Modules
-/// contribute their own validators (e.g. Phase 3 rejects in-memory job stores);
-/// all failures are reported together and startup is refused.
-/// </summary>
-public interface IProductionConfigurationValidator
-{
-    IEnumerable<string> Validate();
-}
 
 internal sealed class WebSecurityConfigurationValidator(IConfiguration config) : IProductionConfigurationValidator
 {

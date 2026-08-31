@@ -13,11 +13,11 @@
 
 ## 3.2 Quartz jobs
 
-- [ ] Implement provider-neutral durable job contracts.
-- [ ] Implement Quartz reference provider with persistent SQL-backed store.
-- [ ] Capture/restore tenant and correlation context automatically.
-- [ ] Implement idempotency key support, retry policy and observable terminal failure/dead-letter projection.
-- [ ] Reject in-memory job provider under production validation.
+- [x] Implement provider-neutral durable job contracts.
+- [x] Implement Quartz reference provider with persistent SQL-backed store.
+- [x] Capture/restore tenant and correlation context automatically.
+- [x] Implement idempotency key support, retry policy and observable terminal failure/dead-letter projection.
+- [x] Reject in-memory job provider under production validation.
 
 ## 3.3 API platform
 

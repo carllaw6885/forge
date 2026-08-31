@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Quartz.Extensions.DependencyInjection" />
+    <PackageReference Include="Quartz.Serialization.SystemTextJson" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
+    <ProjectReference Include="../Forge.Jobs/Forge.Jobs.csproj" />
+    <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="quartz_tables_sqlServer.sql" />
+  </ItemGroup>
+</Project>
