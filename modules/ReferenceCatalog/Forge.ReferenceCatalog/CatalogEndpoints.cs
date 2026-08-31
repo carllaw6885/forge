@@ -32,7 +32,7 @@ public static class CatalogEndpoints
             CreateCatalogItemRequest request,
             CatalogDbContext db,
             DomainEventCollector domainEvents,
-            IIntegrationEventBus bus,
+            IOutbox outbox,
             ICurrentTenant tenant,
             TimeProvider clock,
             IStringLocalizer<CatalogResources> localizer,
@@ -55,15 +55,12 @@ public static class CatalogEndpoints
             };
 
             db.Items.Add(item); // TenantId stamped centrally on save
-            await db.SaveChangesAsync(ct);
-            domainEvents.Raise(new CatalogItemAdded(item.Id, item.Name, item.TenantId, correlation));
-            await domainEvents.DispatchAsync(ct);
-
-            // ponytail: direct in-process publish; the transactional outbox
-            // replaces this call in Phase 3 (IOutbox contract already exists).
-            await bus.PublishAsync(
+            await outbox.EnqueueAsync(
                 EventEnvelope.Create(new CatalogItemCreated(item.Id, item.Name), correlation, tenantId: tenant.Id),
                 ct);
+            await db.SaveChangesAsync(ct); // entity + outbox entry commit atomically (ADR 04)
+            domainEvents.Raise(new CatalogItemAdded(item.Id, item.Name, item.TenantId, correlation));
+            await domainEvents.DispatchAsync(ct);
 
             var response = new CatalogItemResponse(item.Id, item.Name, item.CreatedAt, localizer["ItemCreated"]);
             return TypedResults.Created($"/api/catalog/items/{item.Id}", response);

@@ -6,10 +6,10 @@
 
 ## 3.1 Transactional outbox
 
-- [ ] Persist entity changes and outbox entries atomically in the owning module transaction.
-- [ ] Implement outbox dispatcher with duplicate-tolerant delivery.
-- [ ] Preserve tenant, correlation and causation context.
-- [ ] Add retry/backoff and operational lag metrics.
+- [x] Persist entity changes and outbox entries atomically in the owning module transaction.
+- [x] Implement outbox dispatcher with duplicate-tolerant delivery.
+- [x] Preserve tenant, correlation and causation context.
+- [x] Add retry/backoff and operational lag metrics.
 
 ## 3.2 Quartz jobs
 

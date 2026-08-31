@@ -28,6 +28,20 @@ public abstract class ForgeModuleDbContext(DbContextOptions options, ICurrentTen
     {
         modelBuilder.HasDefaultSchema(Schema);
 
+        // Every module context carries its own outbox table (ADR 04): entries
+        // commit in the module's own transaction, in the module's own schema.
+        modelBuilder.Entity<OutboxEntry>(entry =>
+        {
+            entry.ToTable("__ForgeOutbox");
+            entry.HasKey(x => x.Sequence);
+            entry.Property(x => x.Sequence).ValueGeneratedOnAdd();
+            entry.Property(x => x.EventType).HasMaxLength(256);
+            entry.Property(x => x.TenantId).HasMaxLength(64);
+            entry.Property(x => x.CorrelationId).HasMaxLength(64);
+            entry.Property(x => x.PayloadType).HasMaxLength(512);
+            entry.HasIndex(x => new { x.DispatchedAt, x.NextAttemptAt });
+        });
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes()
                      .Where(e => typeof(ITenantOwned).IsAssignableFrom(e.ClrType)))
         {

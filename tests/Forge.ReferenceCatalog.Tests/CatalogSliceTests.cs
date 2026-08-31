@@ -188,8 +188,20 @@ public class CatalogSliceTests(SliceFixture fx) : IClassFixture<SliceFixture>
             Request(HttpMethod.Post, "/api/catalog/items/", "tenant-a", new { name = "Traceable" }), ct);
         var item = await created.Content.ReadFromJsonAsync<CatalogItemResponse>(ct);
 
-        var envelope = Assert.Single(fx.PublishedIntegrationEvents,
-            e => ((CatalogItemCreated)e.Payload).ItemId == item!.Id);
+        // the event now travels through the transactional outbox; wait for the dispatcher
+        EventEnvelope? found = null;
+        for (var i = 0; i < 100 && found is null; i++)
+        {
+            found = fx.PublishedIntegrationEvents.FirstOrDefault(
+                e => ((CatalogItemCreated)e.Payload).ItemId == item!.Id);
+            if (found is null)
+            {
+                await Task.Delay(100, ct);
+            }
+        }
+
+        Assert.NotNull(found);
+        var envelope = found;
         Assert.Equal("catalog.item.created", envelope.EventType);
         Assert.Equal(1, envelope.SchemaVersion);
         Assert.Equal("tenant-a", envelope.TenantId);

@@ -51,3 +51,33 @@ public sealed class InitCatalog : Migration
     protected override void Down(MigrationBuilder migrationBuilder) =>
         migrationBuilder.DropTable(name: "Items", schema: "catalog");
 }
+
+/// <summary>Adds the module-owned outbox table (ADR 04).</summary>
+[DbContext(typeof(CatalogDbContext))]
+[Migration("20260831000006_AddCatalogOutbox")]
+public sealed class AddCatalogOutbox : Migration
+{
+    protected override void Up(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.CreateTable(
+            name: "__ForgeOutbox",
+            schema: "catalog",
+            columns: table => new
+            {
+                Sequence = table.Column<long>(nullable: false).Annotation("SqlServer:Identity", "1, 1"),
+                EventId = table.Column<Guid>(nullable: false),
+                EventType = table.Column<string>(maxLength: 256, nullable: false),
+                SchemaVersion = table.Column<int>(nullable: false),
+                TenantId = table.Column<string>(maxLength: 64, nullable: true),
+                CorrelationId = table.Column<string>(maxLength: 64, nullable: false),
+                CausationId = table.Column<Guid>(nullable: true),
+                PayloadType = table.Column<string>(maxLength: 512, nullable: false),
+                PayloadJson = table.Column<string>(nullable: false),
+                Attempts = table.Column<int>(nullable: false),
+                NextAttemptAt = table.Column<DateTimeOffset>(nullable: false),
+                DispatchedAt = table.Column<DateTimeOffset>(nullable: true),
+            },
+            constraints: table => table.PrimaryKey("PK___ForgeOutbox", x => x.Sequence));
+
+    protected override void Down(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.DropTable(name: "__ForgeOutbox", schema: "catalog");
+}

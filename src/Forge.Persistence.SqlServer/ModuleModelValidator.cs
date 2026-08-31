@@ -27,6 +27,11 @@ public static class ModuleModelValidator
                 errors.Add($"entity '{entity.ClrType.Name}' maps to schema '{schema ?? "(default)"}' not owned by module '{manifest.Id}'");
             }
 
+            if (entity.ClrType.Assembly == typeof(ForgeModuleDbContext).Assembly)
+            {
+                continue; // infrastructure-owned shapes (e.g. the outbox) are not domain entities
+            }
+
             if (entity.ClrType.Assembly != contextAssembly)
             {
                 errors.Add($"entity '{entity.ClrType.FullName}' lives in '{entity.ClrType.Assembly.GetName().Name}', not the module assembly '{contextAssembly.GetName().Name}' — domain entities are never shared across modules");

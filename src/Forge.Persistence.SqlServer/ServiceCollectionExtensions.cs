@@ -17,8 +17,27 @@ public static class ServiceCollectionExtensions
         string schema)
         where TContext : ForgeModuleDbContext
     {
-        return services.AddDbContext<TContext>(options =>
+        services.AddDbContext<TContext>(options =>
             options.UseSqlServer(connectionString, sql =>
                 sql.MigrationsHistoryTable("__EFMigrationsHistory", schema)));
+
+        // Reliable publication (ADR 04): the module's IOutbox writes into its
+        // own context, and the dispatcher drains this context's outbox table.
+        services.AddScoped<Forge.Events.IOutbox>(sp =>
+            new DbContextOutbox<TContext>(sp.GetRequiredService<TContext>()));
+
+        var registry = (OutboxContextRegistry?)services
+            .FirstOrDefault(d => d.ServiceType == typeof(OutboxContextRegistry))?.ImplementationInstance;
+        if (registry is null)
+        {
+            registry = new OutboxContextRegistry();
+            services.AddSingleton(registry);
+            services.AddSingleton<OutboxDispatcher>();
+            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(sp =>
+                sp.GetRequiredService<OutboxDispatcher>());
+        }
+
+        registry.Register<TContext>();
+        return services;
     }
 }
