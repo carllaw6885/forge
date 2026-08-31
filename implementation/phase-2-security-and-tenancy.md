@@ -6,10 +6,10 @@
 
 ## 2.1 Tenancy core
 
-- [ ] Implement ICurrentTenant and explicit host/tenant scope changes.
-- [ ] Implement trusted tenant resolution pipeline and deny-by-default missing/invalid tenant behaviour.
-- [ ] Implement EF tenant query filters for opted-in entities.
-- [ ] Add shared-database tenant isolation negative tests across API, cache key helper, events and jobs.
+- [x] Implement ICurrentTenant and explicit host/tenant scope changes.
+- [x] Implement trusted tenant resolution pipeline and deny-by-default missing/invalid tenant behaviour.
+- [x] Implement EF tenant query filters for opted-in entities.
+- [x] Add shared-database tenant isolation negative tests across API, cache key helper, events and jobs. (Jobs scenarios land with Quartz in Phase 3.)
 
 ## 2.2 Identity and permissions
 

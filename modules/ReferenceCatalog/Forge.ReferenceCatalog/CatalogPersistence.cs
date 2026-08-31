@@ -1,4 +1,5 @@
 using Forge.Persistence.SqlServer;
+using Forge.Tenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -6,8 +7,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Forge.ReferenceCatalog;
 
 /// <summary>The module's own persistence boundary: catalog schema, module-owned migrations (ADR 03).</summary>
-public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
-    : ForgeModuleDbContext(options)
+public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options, ICurrentTenant currentTenant)
+    : ForgeModuleDbContext(options, currentTenant)
 {
     public override string Schema => "catalog";
 

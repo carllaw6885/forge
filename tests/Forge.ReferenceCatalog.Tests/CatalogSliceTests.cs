@@ -5,6 +5,8 @@ using Forge.Modularity;
 using Forge.Persistence.SqlServer;
 using Forge.ReferenceCatalog;
 using Forge.ReferenceCatalog.Contracts;
+using Forge.Tenancy;
+using Forge.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -60,17 +62,20 @@ public sealed class SliceFixture : IAsyncLifetime
         builder.Services.AddProblemDetails();
         builder.Services.AddLocalization();
         builder.Services.AddOpenApi();
+        builder.Services.AddForgeTenancy();
         builder.Services.AddForge(new CatalogModule(_container.GetConnectionString()));
         builder.Services.AddSingleton<IIntegrationEventHandler<CatalogItemCreated>>(
             new RecordingHandler(PublishedIntegrationEvents));
 
         App = builder.Build();
         App.Services.UseForge();
-        App.MapOpenApi();
+        App.UseForgeTenancy();
+        App.MapOpenApi().WithHostScope();
         App.MapCatalogEndpoints();
         await App.StartAsync();
 
         using (var scope = App.Services.CreateScope())
+        using (scope.ServiceProvider.GetRequiredService<CurrentTenant>().BeginHostScope())
         {
             await scope.ServiceProvider.GetRequiredService<CatalogDbContext>().Database.MigrateAsync();
         }
@@ -208,10 +213,14 @@ public class CatalogSliceTests(SliceFixture fx) : IClassFixture<SliceFixture>
 
         using var scope = fx.App!.Services.CreateScope();
         var reader = scope.ServiceProvider.GetRequiredService<ICatalogReader>();
+        var currentTenant = scope.ServiceProvider.GetRequiredService<CurrentTenant>();
 
-        var dto = await reader.FindAsync("tenant-a", item!.Id, ct);
+        currentTenant.SetTenant("tenant-a");
+        var dto = await reader.FindAsync(item!.Id, ct);
         Assert.Equal("ViaContract", dto!.Name);
-        Assert.Null(await reader.FindAsync("tenant-b", item.Id, ct));
+
+        currentTenant.SetTenant("tenant-b");
+        Assert.Null(await reader.FindAsync(item.Id, ct));
     }
 
     [Fact]

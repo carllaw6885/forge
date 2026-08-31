@@ -9,5 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Forge.Cli/Forge.Cli.csproj" />
+    <ProjectReference Include="../../src/Forge.Tenancy/Forge.Tenancy.csproj" />
   </ItemGroup>
 </Project>

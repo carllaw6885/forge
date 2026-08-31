@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
+    <ProjectReference Include="../../src/Forge.Web/Forge.Web.csproj" />
   </ItemGroup>
 </Project>

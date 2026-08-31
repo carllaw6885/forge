@@ -1,13 +1,17 @@
 using Forge.Core.Primitives;
 using Forge.Events;
+using Forge.Tenancy;
 
 namespace Forge.ReferenceCatalog;
 
 /// <summary>Tenant-owned catalog item. Domain entity — never leaves this module (ADR 04).</summary>
-public sealed class CatalogItem
+public sealed class CatalogItem : ITenantOwned
 {
     public Guid Id { get; set; }
-    public required string TenantId { get; set; }
+
+    /// <summary>Stamped centrally from the ambient tenant on insert (ADR 05).</summary>
+    public string TenantId { get; set; } = string.Empty;
+
     public required string Name { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

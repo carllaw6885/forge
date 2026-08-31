@@ -15,8 +15,17 @@ public sealed class Widget
     public required string Name { get; set; }
 }
 
-public sealed class KernelTestDbContext(DbContextOptions<KernelTestDbContext> options)
-    : ForgeModuleDbContext(options)
+public sealed class TenantNote : Forge.Tenancy.ITenantOwned
+{
+    public Guid Id { get; set; }
+    public string TenantId { get; set; } = string.Empty;
+    public required string Text { get; set; }
+}
+
+public sealed class KernelTestDbContext(
+    DbContextOptions<KernelTestDbContext> options,
+    Forge.Tenancy.ICurrentTenant? currentTenant = null)
+    : ForgeModuleDbContext(options, currentTenant)
 {
     public static readonly ModuleManifest Manifest = new()
     {
@@ -30,11 +39,38 @@ public sealed class KernelTestDbContext(DbContextOptions<KernelTestDbContext> op
 
     public DbSet<Widget> Widgets => Set<Widget>();
 
+    public DbSet<TenantNote> Notes => Set<TenantNote>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Widget>(w => w.Property(x => x.Name).HasMaxLength(64));
+        modelBuilder.Entity<TenantNote>(n =>
+        {
+            n.Property(x => x.TenantId).HasMaxLength(64);
+            n.Property(x => x.Text).HasMaxLength(256);
+        });
     }
+}
+
+[DbContext(typeof(KernelTestDbContext))]
+[Migration("20260831000003_AddNotes")]
+public sealed class AddNotes : Migration
+{
+    protected override void Up(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.CreateTable(
+            name: "Notes",
+            schema: "kerneltest",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(nullable: false),
+                TenantId = table.Column<string>(maxLength: 64, nullable: false),
+                Text = table.Column<string>(maxLength: 256, nullable: false),
+            },
+            constraints: table => table.PrimaryKey("PK_Notes", x => x.Id));
+
+    protected override void Down(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.DropTable(name: "Notes", schema: "kerneltest");
 }
 
 [DbContext(typeof(KernelTestDbContext))]

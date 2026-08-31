@@ -9,6 +9,8 @@
     <Project Path="src/Forge.Events/Forge.Events.csproj" />
     <Project Path="src/Forge.Modularity/Forge.Modularity.csproj" />
     <Project Path="src/Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
+    <Project Path="src/Forge.Tenancy/Forge.Tenancy.csproj" />
+    <Project Path="src/Forge.Web/Forge.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />

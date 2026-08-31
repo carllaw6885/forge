@@ -66,7 +66,7 @@ public class SqlServerContainerTests(SqlServerFixture fixture) : IClassFixture<S
         await context.Database.MigrateAsync(TestContext.Current.CancellationToken); // second run must be a no-op
 
         var applied = await context.Database.GetAppliedMigrationsAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(["20260831000001_Init"], applied);
+        Assert.Equal(["20260831000001_Init", "20260831000003_AddNotes"], applied);
 
         // The migrations history table itself must live in the module's schema,
         // keeping each module's migration metadata independent (ADR 03).
