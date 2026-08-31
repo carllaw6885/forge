@@ -163,9 +163,20 @@ public class QuartzJobTests(QuartzTestFixture fx) : IClassFixture<QuartzTestFixt
         Assert.Equal(ForgeJobWrapper.MaxAttempts, failure.Attempts);
         Assert.Equal("tenant-a", failure.TenantId);
 
+        // the audit append happens after the sink record; wait for it too
         var audit = fx.Provider.GetRequiredService<IAuditStore>();
-        var events = (await audit.ReadAllAsync(ct)).Select(r => r.Event);
-        Assert.Contains(events, e => e.Action == "jobs.terminal-failure" && e.CorrelationId == "corr-dead");
+        var found = false;
+        for (var waited = 0; !found && waited < 10000; waited += 100)
+        {
+            found = (await audit.ReadAllAsync(ct)).Select(r => r.Event)
+                .Any(e => e.Action == "jobs.terminal-failure" && e.CorrelationId == "corr-dead");
+            if (!found)
+            {
+                await Task.Delay(100, ct);
+            }
+        }
+
+        Assert.True(found, "jobs.terminal-failure audit event not appended");
     }
 
     [Fact]
