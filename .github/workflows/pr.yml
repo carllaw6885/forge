@@ -68,8 +68,11 @@ jobs:
           jq -r '.components[]? | "\(.name)\t\([.licenses[]?.license.id // empty] | join(","))"' artifacts/sbom.json | tee licences.txt
           # allowlist per eng/dependency-policy.md; empty licence field is flagged for manual review.
           # Reviewed exceptions (recorded in eng/dependency-policy.md) are filtered out first.
-          grep -v -E '^(Microsoft\.Data\.SqlClient\.SNI\.runtime|Microsoft\.Identity\.Client\.NativeInterop)\t' licences.txt > licences-to-check.txt || true
-          awk -F'\t' '$2 !~ /^(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0)(,(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0))*$/ {print "DISALLOWED: " $0; found=1} END {exit found}' licences-to-check.txt
+          awk -F'\t' '
+            $1 == "Microsoft.Data.SqlClient.SNI.runtime" { next }
+            $1 == "Microsoft.Identity.Client.NativeInterop" { next }
+            $2 !~ /^(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0)(,(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0))*$/ { print "DISALLOWED: " $0; found=1 }
+            END { exit found }' licences.txt
 
       - name: Quality gate summary
         if: always()
