@@ -11,7 +11,7 @@ using Microsoft.Extensions.Localization;
 namespace Forge.ReferenceCatalog;
 
 /// <summary>Request DTO for creating a catalog item.</summary>
-public sealed record CreateCatalogItemRequest(string? Name);
+public sealed record CreateCatalogItemRequest(string? Name, [property: Forge.Core.Privacy.Classified(Forge.Core.Privacy.DataClassification.Personal)] string? CreatedBy = null);
 
 /// <summary>Response DTO; Message is localised (ADR 12).</summary>
 public sealed record CatalogItemResponse(Guid Id, string Name, DateTimeOffset CreatedAt, string Message);
@@ -52,6 +52,7 @@ public static class CatalogEndpoints
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name.Trim(),
+                CreatedBy = request.CreatedBy,
                 CreatedAt = clock.GetUtcNow(),
             };
 

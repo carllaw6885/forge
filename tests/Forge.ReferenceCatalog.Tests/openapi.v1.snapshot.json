@@ -28,6 +28,12 @@
       },
       "CreateCatalogItemRequest": {
         "properties": {
+          "createdBy": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "name": {
             "type": [
               "null",

@@ -1,4 +1,5 @@
 using Forge.Core.Primitives;
+using Forge.Core.Privacy;
 using Forge.Events;
 using Forge.Tenancy;
 
@@ -13,6 +14,11 @@ public sealed class CatalogItem : ITenantOwned
     public string TenantId { get; set; } = string.Empty;
 
     public required string Name { get; set; }
+
+    /// <summary>Who created the item; personal data enumerated by the module's privacy contributor (ADR 09).</summary>
+    [Classified(DataClassification.Personal)]
+    public string? CreatedBy { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 }
 

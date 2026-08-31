@@ -20,10 +20,10 @@
 
 ## 4.3 Privacy/classification
 
-- [ ] Implement data classification primitives, retention classes and legal-hold flag model.
-- [ ] Implement privacy contributor contract and acceptance demonstration.
-- [ ] Ensure audit/storage/template paths respect classification metadata.
-- [ ] Do not build the full GDPR workbench in v0.1.
+- [x] Implement data classification primitives, retention classes and legal-hold flag model.
+- [x] Implement privacy contributor contract and acceptance demonstration.
+- [x] Ensure audit/storage/template paths respect classification metadata.
+- [x] Do not build the full GDPR workbench in v0.1.
 
 ## 4.4 Storage pipeline
 

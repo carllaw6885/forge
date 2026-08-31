@@ -21,6 +21,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options,
         {
             item.Property(x => x.TenantId).HasMaxLength(64);
             item.Property(x => x.Name).HasMaxLength(128);
+            item.Property(x => x.CreatedBy).HasMaxLength(128);
             item.HasIndex(x => new { x.TenantId, x.Id });
         });
     }
@@ -81,4 +82,16 @@ public sealed class AddCatalogOutbox : Migration
 
     protected override void Down(MigrationBuilder migrationBuilder) =>
         migrationBuilder.DropTable(name: "__ForgeOutbox", schema: "catalog");
+}
+
+/// <summary>Adds the personal-data CreatedBy column (ADR 09 demonstration).</summary>
+[DbContext(typeof(CatalogDbContext))]
+[Migration("20260831000008_AddCreatedBy")]
+public sealed class AddCreatedBy : Migration
+{
+    protected override void Up(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.AddColumn<string>("CreatedBy", "Items", schema: "catalog", maxLength: 128, nullable: true);
+
+    protected override void Down(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.DropColumn("CreatedBy", "Items", schema: "catalog");
 }
