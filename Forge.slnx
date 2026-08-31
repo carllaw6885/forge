@@ -26,6 +26,7 @@
     <Project Path="src/Forge.Web/Forge.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Forge.AccessibilityTests/Forge.AccessibilityTests.csproj" />
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />
     <Project Path="tests/Forge.AuditingTests/Forge.AuditingTests.csproj" />
     <Project Path="tests/Forge.CachingTests/Forge.CachingTests.csproj" />

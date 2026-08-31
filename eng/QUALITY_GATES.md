@@ -15,6 +15,7 @@
 - accessibility tests where UI changed
 
 ## Release
+- WCAG 2.2 AA: automated axe/Playwright suite (Forge.AccessibilityTests) green AND the manual checklist (docs/accessibility/manual-checklist.md) signed off — a known first-party AA failure blocks release unconditionally
 - authorization regression suite (Forge.SecurityTests) — blocking
 - tenant-boundary suite (Forge.TenancyTests + tenant isolation tests in Forge.Persistence.SqlServer.Tests and slice tests) — blocking; a tenant isolation failure blocks release unconditionally
 - full conformance suite

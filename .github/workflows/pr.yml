@@ -43,6 +43,22 @@ jobs:
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
 
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Build accessibility tests
+        run: dotnet build tests/Forge.AccessibilityTests -c Release
+      - name: Install Playwright browsers
+        run: pwsh tests/Forge.AccessibilityTests/bin/Release/net10.0/playwright.ps1 install chromium --with-deps
+      - name: WCAG 2.2 AA gate
+        run: dotnet test tests/Forge.AccessibilityTests -c Release --no-build
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
+
   gate:
     runs-on: ubuntu-latest
     steps:
@@ -73,7 +89,7 @@ jobs:
         run: dotnet format Forge.slnx --verify-no-changes --no-restore
 
       - name: Tests (unit + architecture + tenancy invariants)
-        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests&FullyQualifiedName!~RedisTenantCacheTests"
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests&FullyQualifiedName!~RedisTenantCacheTests&FullyQualifiedName!~AccessibilityTests"
 
       - name: Vulnerability scan
         run: |

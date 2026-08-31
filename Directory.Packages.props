@@ -30,5 +30,7 @@
     <PackageVersion Include="xunit.v3" Version="3.0.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.Playwright" Version="1.62.0" />
+    <PackageVersion Include="Deque.AxeCore.Playwright" Version="4.13.0" />
   </ItemGroup>
 </Project>

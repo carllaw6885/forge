@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Deque.AxeCore.Playwright" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Playwright" />
+    <PackageReference Include="Testcontainers.MsSql" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
+    <ProjectReference Include="../../src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
+    <ProjectReference Include="../../src/Forge.Jobs.Quartz/Forge.Jobs.Quartz.csproj" />
+    <ProjectReference Include="../../src/Forge.Localization/Forge.Localization.csproj" />
+    <ProjectReference Include="../../src/Forge.Web/Forge.Web.csproj" />
+  </ItemGroup>
+</Project>

@@ -13,10 +13,10 @@
 
 ## 5.2 Accessibility
 
-- [ ] Integrate axe/Playwright automated WCAG checks for acceptance journeys.
-- [ ] Add keyboard/focus/semantic regression tests.
-- [ ] Document manual assistive-technology release checklist.
-- [ ] Block release on known first-party WCAG 2.2 AA failures.
+- [x] Integrate axe/Playwright automated WCAG checks for acceptance journeys.
+- [x] Add keyboard/focus/semantic regression tests.
+- [x] Document manual assistive-technology release checklist.
+- [x] Block release on known first-party WCAG 2.2 AA failures.
 
 ## 5.3 Aspire and packaging
 

@@ -6,7 +6,8 @@
 @inject IEnumerable<IAdminContribution> Contributions
 @inject IHttpContextAccessor HttpContextAccessor
 
-<a class="skip-link" href="#main">Skip to main content</a>
+@* with <base href="/"> a bare #main would resolve to the site root — anchor to the current path *@
+<a class="skip-link" href="@($"{CurrentPath}#main")">Skip to main content</a>
 
 <header class="context-banner" role="banner">
     <span class="banner-tenant" data-testid="tenant-banner">
