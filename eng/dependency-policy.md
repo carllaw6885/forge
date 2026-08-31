@@ -8,6 +8,17 @@ Applies to every new or upgraded package (ADRs 18, 21, 35). Review happens in th
 - **Case-by-case (maintainer approval recorded in the PR):** MPL-2.0, EPL, LGPL (dynamic linking only).
 - **Forbidden:** GPL/AGPL, source-available/commercial-restricted (BUSL, SSPL, Elastic), any licence gating features behind payment. Forge itself is Apache-2.0 and must remain fully usable in proprietary software.
 
+## Reviewed exceptions
+
+Transitive packages whose metadata carries no SPDX licence id, reviewed and allowed by name in the CI licence gate:
+
+| Package | Actual licence | Rationale |
+|---|---|---|
+| Microsoft.Identity.Client.NativeInterop | MIT (file-based metadata, no SPDX id) | Native transitive dependency of Microsoft.Data.SqlClient |
+| Microsoft.Data.SqlClient.SNI.runtime | Microsoft redistributable licence file | Unavoidable native SNI component of the ADR-mandated SQL Server provider; free to use and redistribute |
+
+Adding to this table requires the same review as the case-by-case licence tier.
+
 ## Security policy
 
 - `dotnet list package --vulnerable --include-transitive` must be clean; CI fails on any known vulnerability. Fixes are upgrades, never suppressions.
