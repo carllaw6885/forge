@@ -20,10 +20,10 @@
 
 ## 1.3 Communication primitives
 
-- [ ] Implement synchronous public contract guidance and sample.
-- [ ] Implement internal domain event collector/dispatcher.
-- [ ] Define versioned integration event envelope including tenant, correlation, causation, event id and schema version.
-- [ ] Implement in-process integration event bus for v0.1.
+- [x] Implement synchronous public contract guidance and sample.
+- [x] Implement internal domain event collector/dispatcher.
+- [x] Define versioned integration event envelope including tenant, correlation, causation, event id and schema version.
+- [x] Implement in-process integration event bus for v0.1.
 
 ## 1.4 First vertical slice
 

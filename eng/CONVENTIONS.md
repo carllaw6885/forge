@@ -11,6 +11,22 @@
 
 Every module project carries a `forge-module.json` in its project root, valid against `eng/module-manifest.schema.json`. The manifest declares identity, explicit dependencies and owned database schemas. It is metadata for inspection and validation (`forge modules list|graph|validate`) — never an auto-discovery or activation mechanism (ADR 01).
 
+## Module communication (ADR 04)
+
+- **Immediate cross-module requests** use explicit synchronous contracts: a public interface plus DTO records in the owning module's `Contracts` surface, registered in DI by the owning module's `ConfigureServices`. Consumers depend on the contract, never on the module's internals or entities. Sample:
+
+  ```csharp
+  // Owning module's public contract — DTOs only, no domain entities.
+  public interface ICatalogReader
+  {
+      Task<CatalogItemDto?> FindAsync(Guid id, CancellationToken ct);
+  }
+  public sealed record CatalogItemDto(Guid Id, string Name);
+  ```
+
+- **Internal facts** are `IDomainEvent`s: raised into the scoped `DomainEventCollector`, dispatched explicitly by the owning module, and never visible outside it.
+- **Cross-boundary facts** are `IIntegrationEvent`s: pure data records marked `[IntegrationEvent("dotted.name", schemaVersion)]`, travelling in an `EventEnvelope` (event id, tenant, correlation, causation, schema version). Delivery is at-least-once — consumers are idempotent. Reliable publication goes through the `IOutbox` contract (implementation lands in Phase 3).
+
 ## Packages and versions
 
 - Central package management via `Directory.Packages.props`; no `Version=` attributes in project files.
