@@ -1,0 +1,76 @@
+name: PR gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans history
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: |
+          dotnet tool restore
+          dotnet restore Forge.slnx
+
+      - name: Build (warnings as errors, deterministic)
+        run: dotnet build Forge.slnx --no-restore -c Release
+
+      - name: Format
+        run: dotnet format Forge.slnx --verify-no-changes --no-restore
+
+      - name: Tests (unit + architecture + tenancy invariants)
+        run: dotnet test Forge.slnx --no-build -c Release
+
+      - name: Vulnerability scan
+        run: |
+          dotnet list Forge.slnx package --vulnerable --include-transitive | tee vulns.txt
+          ! grep -q "has the following vulnerable packages" vulns.txt
+
+      - name: SBOM
+        run: dotnet tool run dotnet-CycloneDX -- Forge.slnx --json --output artifacts --filename sbom.json
+
+      - name: Licence scan (SBOM allowlist)
+        run: |
+          jq -r '.components[]? | "\(.name)\t\([.licenses[]?.license.id // empty] | join(","))"' artifacts/sbom.json | tee licences.txt
+          # allowlist per eng/dependency-policy.md; empty licence field is flagged for manual review
+          awk -F'\t' '$2 !~ /^(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0)(,(Apache-2\.0|MIT|BSD-2-Clause|BSD-3-Clause|ISC|MS-PL|Unlicense|CC0-1\.0|MPL-2\.0))*$/ {print "DISALLOWED: " $0; found=1} END {exit found}' licences.txt
+
+      - name: Quality gate summary
+        if: always()
+        run: |
+          {
+            echo "## PR quality gate"
+            echo "Per eng/QUALITY_GATES.md: build, format, tests, secret/vulnerability/licence scans, SBOM."
+            echo '```'
+            tail -5 vulns.txt 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-gate-artefacts
+          path: |
+            artifacts/sbom.json
+            licences.txt
+            vulns.txt
+          retention-days: 30
