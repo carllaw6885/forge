@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="13.5.3" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.ReferenceSaaS.Api/Forge.ReferenceSaaS.Api.csproj" />
+    <ProjectReference Include="../Forge.ReferenceSaaS.DbMigrator/Forge.ReferenceSaaS.DbMigrator.csproj" />
+  </ItemGroup>
+</Project>

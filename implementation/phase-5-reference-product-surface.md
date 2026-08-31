@@ -20,10 +20,10 @@
 
 ## 5.3 Aspire and packaging
 
-- [ ] Create Aspire AppHost for app, SQL Server, migrator and telemetry dependencies.
-- [ ] Provide ServiceDefaults and local developer diagnostics.
-- [ ] Create production OCI Dockerfiles/images running non-root where supported.
-- [ ] Ensure production runtime does not require AppHost.
+- [x] Create Aspire AppHost for app, SQL Server, migrator and telemetry dependencies.
+- [x] Provide ServiceDefaults and local developer diagnostics.
+- [x] Create production OCI Dockerfiles/images running non-root where supported.
+- [x] Ensure production runtime does not require AppHost.
 
 ## 5.4 CLI v0.1 completion
 

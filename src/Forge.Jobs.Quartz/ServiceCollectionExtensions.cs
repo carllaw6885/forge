@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Installs Quartz's official SQL Server schema (vendored verbatim) if the
     /// QRTZ_ tables are missing. Idempotent.
-    /// ponytail: raw script execution; forge db tooling owns this in Phase 5.
+    /// Executed by the DbMigrator (and forge db) — never by web startup.
     /// </summary>
     public static async Task EnsureQuartzSchemaAsync(string connectionString, CancellationToken cancellationToken)
     {

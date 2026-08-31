@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- OCI image via SDK container publish (ADR 25): no Dockerfile, non-root -->
+    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ContainerRepository>forge/referencesaas-dbmigrator</ContainerRepository>
+    <ContainerUser>$(APP_UID)</ContainerUser>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
+    <ProjectReference Include="../../src/Forge.Identity/Forge.Identity.csproj" />
+    <ProjectReference Include="../../src/Forge.Jobs.Quartz/Forge.Jobs.Quartz.csproj" />
+  </ItemGroup>
+</Project>

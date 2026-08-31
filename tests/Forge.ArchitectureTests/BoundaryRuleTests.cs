@@ -18,7 +18,7 @@ public class BoundaryRuleTests
         ["OpenIddict"] = ["Forge.Identity"],
         ["StackExchange.Redis"] = ["Forge.Caching.Redis"],
         ["Microsoft.AspNetCore.Components"] = ["Forge.Admin.Blazor"],
-        ["Aspire."] = ["Forge.AppHost"],
+        ["Aspire."] = ["Forge.ReferenceSaaS.AppHost"],
     };
 
     [Fact]

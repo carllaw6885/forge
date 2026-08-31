@@ -3,6 +3,12 @@
   <Folder Name="/modules/ReferenceCatalog/">
     <Project Path="modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Forge.ReferenceSaaS.Api/Forge.ReferenceSaaS.Api.csproj" />
+    <Project Path="samples/Forge.ReferenceSaaS.AppHost/Forge.ReferenceSaaS.AppHost.csproj" />
+    <Project Path="samples/Forge.ReferenceSaaS.DbMigrator/Forge.ReferenceSaaS.DbMigrator.csproj" />
+    <Project Path="samples/Forge.ReferenceSaaS.ServiceDefaults/Forge.ReferenceSaaS.ServiceDefaults.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
     <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
