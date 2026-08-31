@@ -38,6 +38,10 @@ jobs:
         run: dotnet test tests/Forge.SettingsTests -c Release --filter "FullyQualifiedName~SqlSettingStoreTests"
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
+      - name: Redis cache tests
+        run: dotnet test tests/Forge.CachingTests -c Release
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
 
   gate:
     runs-on: ubuntu-latest
@@ -69,7 +73,7 @@ jobs:
         run: dotnet format Forge.slnx --verify-no-changes --no-restore
 
       - name: Tests (unit + architecture + tenancy invariants)
-        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests"
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests&FullyQualifiedName!~RedisTenantCacheTests"
 
       - name: Vulnerability scan
         run: |

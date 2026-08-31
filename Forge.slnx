@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
+    <Project Path="src/Forge.Caching.Redis/Forge.Caching.Redis.csproj" />
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />
     <Project Path="src/Forge.Core/Forge.Core.csproj" />
     <Project Path="src/Forge.Events/Forge.Events.csproj" />
@@ -26,6 +27,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Forge.ArchitectureTests/Forge.ArchitectureTests.csproj" />
     <Project Path="tests/Forge.AuditingTests/Forge.AuditingTests.csproj" />
+    <Project Path="tests/Forge.CachingTests/Forge.CachingTests.csproj" />
     <Project Path="tests/Forge.Cli.Tests/Forge.Cli.Tests.csproj" />
     <Project Path="tests/Forge.EventsTests/Forge.EventsTests.csproj" />
     <Project Path="tests/Forge.JobsTests/Forge.JobsTests.csproj" />

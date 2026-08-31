@@ -41,6 +41,6 @@
 
 ## 4.6 Redis adapter
 
-- [ ] Implement optional Redis distributed cache provider and tenant-safe key conventions.
-- [ ] Keep cache failure degradable where authoritative source exists.
-- [ ] Do not make Redis mandatory for single-instance v0.1 reference execution.
+- [x] Implement optional Redis distributed cache provider and tenant-safe key conventions.
+- [x] Keep cache failure degradable where authoritative source exists.
+- [x] Do not make Redis mandatory for single-instance v0.1 reference execution.
