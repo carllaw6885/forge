@@ -1,6 +1,7 @@
 using Forge.Core.Primitives;
 using Forge.Events;
 using Forge.Tenancy;
+using Forge.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -66,6 +67,7 @@ public static class CatalogEndpoints
             return TypedResults.Created($"/api/catalog/items/{item.Id}", response);
         })
         .WithName("CreateCatalogItem")
+        .WithIdempotency() // opted-in command (ADR 16)
         .Produces<CatalogItemResponse>(StatusCodes.Status201Created)
         .ProducesValidationProblem();
 

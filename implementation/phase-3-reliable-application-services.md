@@ -21,10 +21,10 @@
 
 ## 3.3 API platform
 
-- [ ] Standardise Minimal API conventions, DTO boundaries, Problem Details and OpenAPI.
-- [ ] Implement idempotency support for opted-in commands.
-- [ ] Implement tenant-safe request handling and reference rate-limit policy.
-- [ ] Add OpenAPI compatibility snapshot/diff gate.
+- [x] Standardise Minimal API conventions, DTO boundaries, Problem Details and OpenAPI.
+- [x] Implement idempotency support for opted-in commands.
+- [x] Implement tenant-safe request handling and reference rate-limit policy.
+- [x] Add OpenAPI compatibility snapshot/diff gate.
 
 ## 3.4 Observability and health
 

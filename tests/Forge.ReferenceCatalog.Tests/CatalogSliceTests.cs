@@ -63,6 +63,7 @@ public sealed class SliceFixture : IAsyncLifetime
         builder.Services.AddLocalization();
         builder.Services.AddOpenApi();
         builder.Services.AddForgeTenancy();
+        builder.Services.AddForgeIdempotency();
         builder.Services.AddForge(new CatalogModule(_container.GetConnectionString()));
         builder.Services.AddSingleton<IIntegrationEventHandler<CatalogItemCreated>>(
             new RecordingHandler(PublishedIntegrationEvents));
@@ -70,6 +71,7 @@ public sealed class SliceFixture : IAsyncLifetime
         App = builder.Build();
         App.Services.UseForge();
         App.UseForgeTenancy();
+        App.UseForgeIdempotency();
         App.MapOpenApi().WithHostScope();
         App.MapCatalogEndpoints();
         await App.StartAsync();

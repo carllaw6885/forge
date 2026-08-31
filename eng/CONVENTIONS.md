@@ -27,6 +27,13 @@ Every module project carries a `forge-module.json` in its project root, valid ag
 - **Internal facts** are `IDomainEvent`s: raised into the scoped `DomainEventCollector`, dispatched explicitly by the owning module, and never visible outside it.
 - **Cross-boundary facts** are `IIntegrationEvent`s: pure data records marked `[IntegrationEvent("dotted.name", schemaVersion)]`, travelling in an `EventEnvelope` (event id, tenant, correlation, causation, schema version). Delivery is at-least-once — consumers are idempotent. Reliable publication goes through the `IOutbox` contract (implementation lands in Phase 3).
 
+## API conventions (ADR 16)
+
+- Minimal APIs with DTO records in/out; domain entities never appear in signatures. Problem Details for every failure shape; OpenAPI metadata (`WithName`, `Produces`) on every endpoint.
+- Mutating commands opt into idempotency with `.WithIdempotency()`; clients send `Idempotency-Key`, replays return the stored response with `Idempotency-Replayed: true`, concurrent duplicates get 409. Keys are tenant-scoped.
+- The OpenAPI document is compatibility-gated: `tests/Forge.ReferenceCatalog.Tests/openapi.v1.snapshot.json` is the committed contract. A differing document fails CI; intentional changes regenerate it with `FORGE_UPDATE_OPENAPI=true` and commit the diff for review.
+- Tenant-safe request handling is the tenancy middleware (deny-by-default); the reference rate-limit policy lives in `Forge.Web` security defaults.
+
 ## Packages and versions
 
 - Central package management via `Directory.Packages.props`; no `Version=` attributes in project files.

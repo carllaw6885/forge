@@ -59,7 +59,12 @@ public sealed class QuartzTestFixture : IAsyncLifetime
     public async ValueTask InitializeAsync()
     {
         var services = new ServiceCollection();
-        services.AddLogging();
+        // NullLoggerFactory is static and dispose-proof: Quartz's static log
+        // bridge captures the first factory it sees, so a disposable one from
+        // another fixture would poison every later scheduler in the process.
+        services.AddSingleton<Microsoft.Extensions.Logging.ILoggerFactory>(
+            Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance);
+        services.AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger<>), typeof(Microsoft.Extensions.Logging.Logger<>));
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<CurrentTenant>();
         services.AddSingleton<ICurrentTenant>(sp => sp.GetRequiredService<CurrentTenant>());

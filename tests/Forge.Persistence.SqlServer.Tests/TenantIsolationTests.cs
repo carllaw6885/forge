@@ -56,8 +56,10 @@ public class TenantIsolationTests(SqlServerFixture fixture) : IClassFixture<SqlS
         await using var db = CreateContext(tenant);
         var notes = await db.Notes.AsNoTracking().ToListAsync(ct);
 
-        var note = Assert.Single(notes, n => n.Text == "alpha-note");
-        Assert.Equal("alpha", note.TenantId); // stamped centrally, never set by the caller
+        Assert.NotEmpty(notes);
+        Assert.All(notes, n => Assert.Equal("alpha", n.TenantId)); // filtered to current tenant
+        Assert.Contains(notes, n => n.Text == "alpha-note"); // stamped centrally, never set by the caller
+        Assert.DoesNotContain(notes, n => n.Text == "beta-note");
     }
 
     [Fact]
