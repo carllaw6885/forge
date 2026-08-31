@@ -61,7 +61,7 @@ public static class CatalogEndpoints
                 EventEnvelope.Create(new CatalogItemCreated(item.Id, item.Name), correlation, tenantId: tenant.Id),
                 ct);
             await db.SaveChangesAsync(ct); // entity + outbox entry commit atomically (ADR 04)
-            domainEvents.Raise(new CatalogItemAdded(item.Id, item.Name, item.TenantId, correlation));
+            domainEvents.Raise(new CatalogItemAdded(item.Id, item.Name, item.TenantId, correlation, item.CreatedBy));
             await domainEvents.DispatchAsync(ct);
 
             var response = new CatalogItemResponse(item.Id, item.Name, item.CreatedAt, localizer["ItemCreated"]);

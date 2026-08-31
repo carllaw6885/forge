@@ -8,6 +8,7 @@
     <ProjectReference Include="../../../src/Forge.Tenancy/Forge.Tenancy.csproj" />
     <ProjectReference Include="../../../src/Forge.Web/Forge.Web.csproj" />
     <ProjectReference Include="../../../src/Forge.Modularity/Forge.Modularity.csproj" />
+    <ProjectReference Include="../../../src/Forge.Notifications/Forge.Notifications.csproj" />
     <ProjectReference Include="../../../src/Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
   </ItemGroup>
 </Project>

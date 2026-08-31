@@ -40,6 +40,14 @@ Every module project carries a `forge-module.json` in its project root, valid ag
 - New dependencies require licence/security review against `eng/dependency-policy.md` before adoption.
 - Build settings (`net10.0`, nullable, warnings-as-errors, deterministic) come from `Directory.Build.props`; do not override per-project without a recorded reason.
 
+## Enterprise service conventions (Phase 4)
+
+- **Settings (ADR 13):** declare `SettingDefinition<T>` constants per module; precedence is user > tenant > application > default. Secret-looking keys are rejected at the seam — secrets go through `ISecretStore`, never settings. Operational flags (`OperationalFlag`) toggle rollout only; they can never grant an unentitled capability.
+- **Storage (ADR 14):** all uploads go through `StoragePipeline` — validated, hashed, quarantined before trust, scanned, then promoted or rejected. `IBlobStore` exposes no URL type; access is via time-limited `StorageAccessTokens`.
+- **Templates (ADR 38):** `{{variable}}` substitution against an allow-list, HTML-encoded output, culture fallback exact → parent → neutral. No logic in templates, by construction.
+- **Notifications (ADR 11):** channel-neutral `NotificationIntent`s; preferences honoured unless `SecurityCritical`, and that override is audited; every outcome lands in `IDeliveryStateStore`.
+- **Distributed cache (ADR 17):** optional; keys always via `TenantCacheKey`; failures degrade to misses where an authoritative source exists.
+
 ## Code style
 
 - `.editorconfig` is authoritative; `dotnet format` must be clean (`--verify-no-changes` gates PRs).

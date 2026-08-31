@@ -2,6 +2,7 @@ using Forge.Auditing;
 using Forge.Core.Modules;
 using Forge.Events;
 using Forge.Modularity;
+using Forge.Notifications;
 using Forge.Persistence.SqlServer;
 using Forge.ReferenceCatalog.Contracts;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,8 @@ public sealed class CatalogModule(string connectionString) : IForgeModule
         services.AddModuleDbContext<CatalogDbContext>(connectionString, schema: "catalog");
         services.AddForgeEvents();
         services.AddForgeAuditing(); // host may replace the store (e.g. AddSqlServerAuditStore)
+        services.AddForgeNotifications();
+        services.AddScoped<IDomainEventHandler<CatalogItemAdded>, CatalogItemAddedNotificationHandler>();
         services.AddScoped<ICatalogReader, CatalogReader>();
         services.AddScoped<Forge.Core.Privacy.IPrivacyContributor, CatalogPrivacyContributor>();
         services.AddScoped<IDomainEventHandler<CatalogItemAdded>, CatalogItemAddedAuditHandler>();

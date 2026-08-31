@@ -23,7 +23,7 @@ public sealed class CatalogItem : ITenantOwned
 }
 
 /// <summary>Internal fact; stays inside the module.</summary>
-public sealed record CatalogItemAdded(Guid ItemId, string Name, string TenantId, CorrelationId CorrelationId) : IDomainEvent;
+public sealed record CatalogItemAdded(Guid ItemId, string Name, string TenantId, CorrelationId CorrelationId, string? CreatedBy = null) : IDomainEvent;
 
 /// <summary>Versioned cross-boundary contract: pure data.</summary>
 [IntegrationEvent("catalog.item.created", 1)]
