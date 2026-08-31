@@ -27,7 +27,7 @@
 
 ## 1.4 First vertical slice
 
-- [ ] Create Reference Catalog module as deliberately simple tenant-owned CRUD capability.
-- [ ] Expose Minimal API DTOs, validation, Problem Details and OpenAPI.
-- [ ] Persist changes in module DbContext and emit domain/integration events.
-- [ ] Demonstrate localisation resources and structured audit contribution.
+- [x] Create Reference Catalog module as deliberately simple tenant-owned CRUD capability.
+- [x] Expose Minimal API DTOs, validation, Problem Details and OpenAPI.
+- [x] Persist changes in module DbContext and emit domain/integration events.
+- [x] Demonstrate localisation resources and structured audit contribution.

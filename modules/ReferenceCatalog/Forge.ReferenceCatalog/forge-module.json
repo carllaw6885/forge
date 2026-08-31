@@ -1,0 +1,7 @@
+{
+  "id": "Forge.ReferenceCatalog",
+  "name": "Reference Catalog",
+  "version": "0.1.0",
+  "description": "Deliberately simple tenant-owned CRUD capability proving the modular kernel.",
+  "ownedSchemas": ["catalog"]
+}

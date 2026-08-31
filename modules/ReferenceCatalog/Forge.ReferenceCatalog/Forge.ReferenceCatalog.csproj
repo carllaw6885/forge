@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../src/Forge.Events/Forge.Events.csproj" />
+    <ProjectReference Include="../../../src/Forge.Modularity/Forge.Modularity.csproj" />
+    <ProjectReference Include="../../../src/Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
+  </ItemGroup>
+</Project>

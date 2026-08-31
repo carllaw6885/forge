@@ -42,13 +42,18 @@ public class BoundaryRuleTests
             .Where(p => p.Path.Contains($"{Path.DirectorySeparatorChar}modules{Path.DirectorySeparatorChar}"))
             .ToList();
 
-        string ModuleOf(string projectName) => projectName.Split('.')[0];
+        static string ModuleOf(ProjectInfo p)
+        {
+            var parts = p.Path.Split(Path.DirectorySeparatorChar);
+            return parts[Array.IndexOf(parts, "modules") + 1];
+        }
 
         var violations =
             from p in moduleProjects
             from r in p.ProjectReferences
-            where moduleProjects.Any(other => other.Name == r)
-               && ModuleOf(r) != ModuleOf(p.Name)
+            let referenced = moduleProjects.FirstOrDefault(other => other.Name == r)
+            where referenced is not null
+               && ModuleOf(referenced) != ModuleOf(p)
                && !r.EndsWith(".Contracts", StringComparison.Ordinal)
             select $"{p.Name} references {r}";
 
