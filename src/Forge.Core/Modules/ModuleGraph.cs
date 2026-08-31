@@ -1,5 +1,6 @@
 namespace Forge.Core.Modules;
 
+/// <summary>Validation and ordering over a set of module manifests (ADR 01).</summary>
 public static class ModuleGraph
 {
     /// <summary>

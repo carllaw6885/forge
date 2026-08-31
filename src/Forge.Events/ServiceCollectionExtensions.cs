@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Forge.Events;
 
+/// <summary>DI registration for the Forge event primitives.</summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>

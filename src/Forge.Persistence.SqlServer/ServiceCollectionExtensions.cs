@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Forge.Persistence.SqlServer;
 
+/// <summary>DI registration for module-owned SQL Server contexts.</summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>

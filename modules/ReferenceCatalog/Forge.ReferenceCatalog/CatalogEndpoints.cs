@@ -8,10 +8,13 @@ using Microsoft.Extensions.Localization;
 
 namespace Forge.ReferenceCatalog;
 
+/// <summary>Request DTO for creating a catalog item.</summary>
 public sealed record CreateCatalogItemRequest(string? Name);
 
+/// <summary>Response DTO; Message is localised (ADR 12).</summary>
 public sealed record CatalogItemResponse(Guid Id, string Name, DateTimeOffset CreatedAt, string Message);
 
+/// <summary>The module's Minimal API surface: DTOs in/out, Problem Details, OpenAPI metadata (ADR 16).</summary>
 public static class CatalogEndpoints
 {
     // Tenant context seam: Phase 2 replaces the raw header with the trusted

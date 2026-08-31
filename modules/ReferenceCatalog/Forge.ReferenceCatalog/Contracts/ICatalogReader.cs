@@ -12,6 +12,7 @@ public interface ICatalogReader
     Task<CatalogItemDto?> FindAsync(string tenantId, Guid id, CancellationToken cancellationToken);
 }
 
+/// <summary>Public contract DTO — the only shape catalog data leaves the module in.</summary>
 public sealed record CatalogItemDto(Guid Id, string Name, DateTimeOffset CreatedAt);
 
 internal sealed class CatalogReader(CatalogDbContext db) : ICatalogReader

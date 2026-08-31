@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Forge.Modularity;
 
+/// <summary>Composition entry points: <see cref="AddForge"/> and <see cref="UseForge"/>.</summary>
 public static class ForgeServiceCollectionExtensions
 {
     /// <summary>

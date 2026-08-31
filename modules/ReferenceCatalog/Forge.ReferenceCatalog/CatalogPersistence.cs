@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Forge.ReferenceCatalog;
 
+/// <summary>The module's own persistence boundary: catalog schema, module-owned migrations (ADR 03).</summary>
 public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     : ForgeModuleDbContext(options)
 {
@@ -24,6 +25,7 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     }
 }
 
+/// <summary>Hand-written module-owned initial migration for the catalog schema.</summary>
 [DbContext(typeof(CatalogDbContext))]
 [Migration("20260831000002_InitCatalog")]
 public sealed class InitCatalog : Migration

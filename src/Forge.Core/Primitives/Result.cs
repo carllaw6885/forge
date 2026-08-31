@@ -30,6 +30,7 @@ public class Result
     public static Result<T> Failure<T>(Error error) => new(default, false, error);
 }
 
+/// <summary>A <see cref="Result"/> carrying a value on success.</summary>
 public sealed class Result<T> : Result
 {
     private readonly T? _value;

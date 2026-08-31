@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Forge.Events;
 
+/// <summary>Consumes one integration event type; registered explicitly in DI by its module.</summary>
 public interface IIntegrationEventHandler<in TEvent> where TEvent : IIntegrationEvent
 {
     /// <summary>
@@ -11,6 +12,7 @@ public interface IIntegrationEventHandler<in TEvent> where TEvent : IIntegration
     Task HandleAsync(EventEnvelope envelope, TEvent payload, CancellationToken cancellationToken);
 }
 
+/// <summary>Publishes an <see cref="EventEnvelope"/> to its consumers.</summary>
 public interface IIntegrationEventBus
 {
     Task PublishAsync(EventEnvelope envelope, CancellationToken cancellationToken);
