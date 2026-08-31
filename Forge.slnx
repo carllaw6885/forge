@@ -11,6 +11,7 @@
     <Project Path="src/Forge.Identity/Forge.Identity.csproj" />
     <Project Path="src/Forge.Jobs.Quartz/Forge.Jobs.Quartz.csproj" />
     <Project Path="src/Forge.Jobs/Forge.Jobs.csproj" />
+    <Project Path="src/Forge.Localization/Forge.Localization.csproj" />
     <Project Path="src/Forge.Modularity/Forge.Modularity.csproj" />
     <Project Path="src/Forge.Observability/Forge.Observability.csproj" />
     <Project Path="src/Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
@@ -25,6 +26,7 @@
     <Project Path="tests/Forge.Cli.Tests/Forge.Cli.Tests.csproj" />
     <Project Path="tests/Forge.EventsTests/Forge.EventsTests.csproj" />
     <Project Path="tests/Forge.JobsTests/Forge.JobsTests.csproj" />
+    <Project Path="tests/Forge.LocalizationTests/Forge.LocalizationTests.csproj" />
     <Project Path="tests/Forge.ModularityTests/Forge.ModularityTests.csproj" />
     <Project Path="tests/Forge.Persistence.SqlServer.Tests/Forge.Persistence.SqlServer.Tests.csproj" />
     <Project Path="tests/Forge.ReferenceCatalog.Tests/Forge.ReferenceCatalog.Tests.csproj" />

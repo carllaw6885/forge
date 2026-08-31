@@ -13,10 +13,10 @@
 
 ## 4.2 Localisation/globalisation
 
-- [ ] Implement application/tenant/user culture resolution.
-- [ ] Implement time-zone resolution and deterministic display conversion.
-- [ ] Implement module-owned resources, fallbacks and tenant/application overrides.
-- [ ] Add en-GB plus one RTL acceptance culture and CI checks for missing first-party strings.
+- [x] Implement application/tenant/user culture resolution.
+- [x] Implement time-zone resolution and deterministic display conversion.
+- [x] Implement module-owned resources, fallbacks and tenant/application overrides.
+- [x] Add en-GB plus one RTL acceptance culture and CI checks for missing first-party strings.
 
 ## 4.3 Privacy/classification
 
