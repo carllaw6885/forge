@@ -96,6 +96,10 @@ public class TenantIsolationTests(SqlServerFixture fixture) : IClassFixture<SqlS
         var ct = TestContext.Current.CancellationToken;
         var tenant = await SeedAsync(ct);
 
+        // AsyncLocal changes inside SeedAsync don't flow back here; enter
+        // tenant scope in this flow so the post-dispose restore is observable.
+        tenant.SetTenant("alpha");
+
         using (tenant.BeginHostScope())
         {
             await using var db = CreateContext(tenant);
