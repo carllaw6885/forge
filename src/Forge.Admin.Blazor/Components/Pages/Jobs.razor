@@ -1,0 +1,40 @@
+@page "/admin/jobs"
+@using Forge.Jobs
+@inject ITerminalFailureSink FailureSink
+
+<h1>Jobs</h1>
+
+<table>
+    <caption>Terminal job failures (dead letters)</caption>
+    <thead>
+        <tr>
+            <th scope="col">Job</th><th scope="col">Tenant</th><th scope="col">Correlation</th>
+            <th scope="col">Attempts</th><th scope="col">Error</th><th scope="col">Failed at (UTC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var failure in Failures)
+        {
+            <tr>
+                <td>@ShortName(failure.JobType)</td><td>@failure.TenantId</td><td>@failure.CorrelationId</td>
+                <td>@failure.Attempts</td><td>@failure.Error</td>
+                <td>@failure.FailedAt.ToString("u", System.Globalization.CultureInfo.InvariantCulture)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Failures.Any())
+{
+    <p>No terminal failures recorded.</p>
+}
+
+@code {
+    // ponytail: reads the in-memory reference sink; a queryable durable
+    // failure store replaces this when jobs get their SQL-backed projection.
+    private IReadOnlyList<TerminalJobFailure> Failures =>
+        FailureSink is InMemoryTerminalFailureSink sink ? sink.Failures : [];
+
+    private static string ShortName(string assemblyQualified) =>
+        assemblyQualified.Split(',')[0].Split('.')[^1];
+}

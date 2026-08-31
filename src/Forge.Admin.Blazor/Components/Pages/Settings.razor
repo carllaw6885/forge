@@ -1,0 +1,56 @@
+@page "/admin/settings"
+@using Forge.Settings
+@inject SettingsService SettingsService
+
+<h1>Settings</h1>
+<p>Set a typed setting for the current tenant. Precedence: user &gt; tenant &gt; application &gt; default.</p>
+
+<form method="post" @onsubmit="SetAsync" @formname="set-setting">
+    <AntiforgeryToken />
+    <label for="setting-key">Key</label>
+    <input id="setting-key" name="Model.Key" required @bind="Model!.Key" />
+    <label for="setting-value">Value (JSON string)</label>
+    <input id="setting-value" name="Model.Value" required @bind="Model!.Value" />
+    <label for="setting-scope">Scope</label>
+    <select id="setting-scope" name="Model.Scope" @bind="Model!.Scope">
+        <option value="Tenant">Tenant</option>
+        <option value="Application">Application</option>
+    </select>
+    <button type="submit">Save</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status">@_message</p>
+}
+
+@code {
+    private string? _message;
+
+    protected override void OnInitialized() => Model ??= new();
+
+    [SupplyParameterFromForm(FormName = "set-setting")]
+    public SetModel? Model { get; set; }
+
+    public sealed class SetModel
+    {
+        public string Key { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string Scope { get; set; } = "Tenant";
+    }
+
+    private async Task SetAsync()
+    {
+        try
+        {
+            var scope = Enum.Parse<SettingScope>(Model!.Scope);
+            await SettingsService.SetAsync(
+                new SettingDefinition<string>(Model.Key, ""), scope, null, Model.Value, CancellationToken.None);
+            _message = $"Setting '{Model.Key}' saved at {scope} scope.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            _message = ex.Message; // e.g. secret-like key rejected
+        }
+    }
+}

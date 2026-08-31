@@ -6,10 +6,10 @@
 
 ## 5.1 Blazor admin shell
 
-- [ ] Create Blazor Web App shell with explicit module contribution contracts.
-- [ ] Implement design tokens, light/dark/system modes and RTL layout support.
-- [ ] Make tenant and impersonation context visually obvious.
-- [ ] Implement admin surfaces for users/roles/permissions, audit, jobs, settings and localisation essentials.
+- [x] Create Blazor Web App shell with explicit module contribution contracts.
+- [x] Implement design tokens, light/dark/system modes and RTL layout support.
+- [x] Make tenant and impersonation context visually obvious.
+- [x] Implement admin surfaces for users/roles/permissions, audit, jobs, settings and localisation essentials.
 
 ## 5.2 Accessibility
 

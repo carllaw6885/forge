@@ -1,0 +1,104 @@
+@page "/admin/users"
+@using Forge.Identity
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@inject UserManager<ForgeUser> UserManager
+@inject ForgeIdentityDbContext Db
+
+<h1>Users</h1>
+
+<table>
+    <caption>Registered users</caption>
+    <thead><tr><th scope="col">User name</th><th scope="col">Roles</th></tr></thead>
+    <tbody>
+        @foreach (var (user, roles) in _users)
+        {
+            <tr><td>@user</td><td>@string.Join(", ", roles)</td></tr>
+        }
+    </tbody>
+</table>
+
+<h2>Create user</h2>
+<form method="post" @onsubmit="CreateAsync" @formname="create-user">
+    <AntiforgeryToken />
+    <label for="new-username">User name</label>
+    <input id="new-username" name="Model.UserName" required @bind="Model!.UserName" />
+    <label for="new-password">Initial password</label>
+    <input id="new-password" name="Model.Password" type="password" required @bind="Model!.Password" />
+    <button type="submit">Create</button>
+</form>
+
+<h2>Assign role</h2>
+<form method="post" @onsubmit="AssignAsync" @formname="assign-role">
+    <AntiforgeryToken />
+    <label for="assign-user">User name</label>
+    <input id="assign-user" name="Assign.UserName" required @bind="Assign!.UserName" />
+    <label for="assign-role">Role</label>
+    <input id="assign-role" name="Assign.Role" required @bind="Assign!.Role" />
+    <button type="submit">Assign</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status">@_message</p>
+}
+
+@code {
+    private List<(string User, IList<string> Roles)> _users = [];
+    private string? _message;
+
+    [SupplyParameterFromForm(FormName = "create-user")]
+    public CreateModel? Model { get; set; }
+
+    [SupplyParameterFromForm(FormName = "assign-role")]
+    public AssignModel? Assign { get; set; }
+
+    public sealed class CreateModel
+    {
+        public string UserName { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+
+    public sealed class AssignModel
+    {
+        public string UserName { get; set; } = "";
+        public string Role { get; set; } = "";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model ??= new();
+        Assign ??= new();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _users = [];
+        foreach (var user in await Db.Users.AsNoTracking().OrderBy(u => u.UserName).Take(50).ToListAsync())
+        {
+            _users.Add((user.UserName!, await UserManager.GetRolesAsync(user)));
+        }
+    }
+
+    private async Task CreateAsync()
+    {
+        var result = await UserManager.CreateAsync(new ForgeUser { UserName = Model!.UserName }, Model!.Password);
+        _message = result.Succeeded ? $"User '{Model!.UserName}' created." : string.Join("; ", result.Errors.Select(e => e.Description));
+        await LoadAsync();
+    }
+
+    private async Task AssignAsync()
+    {
+        var user = await UserManager.FindByNameAsync(Assign!.UserName);
+        if (user is null)
+        {
+            _message = $"No user '{Assign!.UserName}'.";
+            return;
+        }
+
+        var result = await UserManager.AddToRoleAsync(user, Assign!.Role);
+        _message = result.Succeeded ? $"Role '{Assign!.Role}' assigned." : string.Join("; ", result.Errors.Select(e => e.Description));
+        await LoadAsync();
+    }
+}

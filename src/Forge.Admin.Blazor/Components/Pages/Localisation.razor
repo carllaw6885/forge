@@ -1,0 +1,45 @@
+@page "/admin/localisation"
+@using Forge.Localization
+@using Forge.Settings
+@inject SettingsService SettingsService
+@inject CultureResolver Resolver
+
+<h1>Localisation</h1>
+
+<p data-testid="current-culture">
+    Current culture: <strong>@System.Globalization.CultureInfo.CurrentUICulture.Name</strong>
+    (@(System.Globalization.CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? "right-to-left" : "left-to-right"))
+</p>
+
+<h2>Tenant culture</h2>
+<form method="post" @onsubmit="SetCultureAsync" @formname="set-culture">
+    <AntiforgeryToken />
+    <label for="culture">Culture</label>
+    <select id="culture" name="Culture" @bind="Culture">
+        <option value="en-GB">English (UK)</option>
+        <option value="ar-SA">العربية (السعودية)</option>
+        <option value="fr-FR">Français</option>
+    </select>
+    <button type="submit">Save for tenant</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status">@_message</p>
+}
+
+@code {
+    private string? _message;
+
+    protected override void OnInitialized() => Culture ??= "en-GB";
+
+    [SupplyParameterFromForm(FormName = "set-culture")]
+    public string? Culture { get; set; }
+
+    private async Task SetCultureAsync()
+    {
+        await SettingsService.SetAsync(
+            LocalizationSettings.Culture, SettingScope.Tenant, null, Culture, CancellationToken.None);
+        _message = $"Tenant culture set to {Culture}. Reload to see it applied.";
+    }
+}

@@ -1,0 +1,54 @@
+@page "/admin/audit"
+@using Forge.Auditing
+@inject IAuditStore AuditStore
+
+<h1>Audit trail</h1>
+
+<form method="post" @onsubmit="VerifyAsync" @formname="verify-chain">
+    <AntiforgeryToken />
+    <button type="submit">Verify hash chain</button>
+</form>
+
+@if (_verifyResult is not null)
+{
+    <p role="status" data-testid="chain-result">@_verifyResult</p>
+}
+
+<table>
+    <caption>Most recent audit evidence</caption>
+    <thead>
+        <tr>
+            <th scope="col">Seq</th><th scope="col">Action</th><th scope="col">Tenant</th>
+            <th scope="col">Actor</th><th scope="col">Subject</th><th scope="col">Outcome</th><th scope="col">At (UTC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in _records.OrderByDescending(r => r.Sequence).Take(50))
+        {
+            var evt = record.Event;
+            <tr>
+                <td>@record.Sequence</td><td>@evt.Action</td><td>@evt.TenantId</td>
+                <td>@(evt.ImpersonatorActor is null ? evt.Actor : $"{evt.Actor} (by {evt.ImpersonatorActor})")</td>
+                <td>@evt.Subject</td><td>@evt.Outcome</td>
+                <td>@evt.OccurredAt.ToString("u", System.Globalization.CultureInfo.InvariantCulture)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private IReadOnlyList<AuditRecord> _records = [];
+    private string? _verifyResult;
+
+    protected override async Task OnInitializedAsync() =>
+        _records = await AuditStore.ReadAllAsync(CancellationToken.None);
+
+    private async Task VerifyAsync()
+    {
+        _records = await AuditStore.ReadAllAsync(CancellationToken.None);
+        var errors = AuditChainVerifier.Verify(_records);
+        _verifyResult = errors.Count == 0
+            ? $"Chain intact: {_records.Count} record(s)."
+            : $"CHAIN BROKEN: {string.Join("; ", errors)}";
+    }
+}

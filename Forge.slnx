@@ -4,6 +4,7 @@
     <Project Path="modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
     <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
     <Project Path="src/Forge.Caching.Redis/Forge.Caching.Redis.csproj" />
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />

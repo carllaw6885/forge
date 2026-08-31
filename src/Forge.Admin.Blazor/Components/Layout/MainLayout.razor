@@ -1,0 +1,72 @@
+@inherits LayoutComponentBase
+@using Forge.Security
+@using Forge.Tenancy
+@inject ICurrentTenant CurrentTenant
+@inject IImpersonationContext Impersonation
+@inject IEnumerable<IAdminContribution> Contributions
+@inject IHttpContextAccessor HttpContextAccessor
+
+<a class="skip-link" href="#main">Skip to main content</a>
+
+<header class="context-banner" role="banner">
+    <span class="banner-tenant" data-testid="tenant-banner">
+        @(CurrentTenant.Scope switch
+        {
+            TenantScope.Tenant => $"Tenant: {CurrentTenant.Id}",
+            TenantScope.Host => "Host scope",
+            _ => "No tenant resolved",
+        })
+    </span>
+    @if (Impersonation.IsImpersonating)
+    {
+        <span class="banner-impersonation" role="alert" data-testid="impersonation-banner">
+            Impersonating @Impersonation.Target as @Impersonation.Impersonator — @Impersonation.Reason
+        </span>
+    }
+    <nav class="theme-switch" aria-label="Theme">
+        <a href="/admin/theme/light?returnUrl=@CurrentPath">Light</a>
+        <a href="/admin/theme/dark?returnUrl=@CurrentPath">Dark</a>
+        <a href="/admin/theme/system?returnUrl=@CurrentPath">System</a>
+    </nav>
+</header>
+
+<div class="shell">
+    <nav class="sidebar" aria-label="Admin navigation">
+        <ul>
+            @foreach (var section in NavItems.GroupBy(i => i.Section))
+            {
+                <li>
+                    <span class="nav-section">@(section.Key)</span>
+                    <ul>
+                        @foreach (var item in section)
+                        {
+                            <li><a href="@item.Href">@item.Title</a></li>
+                        }
+                    </ul>
+                </li>
+            }
+        </ul>
+    </nav>
+    <main id="main" class="content">
+        @Body
+    </main>
+</div>
+
+@code {
+    private static readonly AdminNavItem[] ShellNav =
+    [
+        new("Platform", "Dashboard", "/admin"),
+        new("Identity", "Users", "/admin/users"),
+        new("Identity", "Roles & permissions", "/admin/roles"),
+        new("Operations", "Audit trail", "/admin/audit"),
+        new("Operations", "Jobs", "/admin/jobs"),
+        new("Configuration", "Settings", "/admin/settings"),
+        new("Configuration", "Localisation", "/admin/localisation"),
+    ];
+
+    private IEnumerable<AdminNavItem> NavItems =>
+        ShellNav.Concat(Contributions.SelectMany(c => c.NavItems));
+
+    private string CurrentPath =>
+        HttpContextAccessor.HttpContext?.Request.Path.Value ?? "/admin";
+}

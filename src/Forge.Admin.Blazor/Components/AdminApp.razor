@@ -1,0 +1,37 @@
+@using System.Globalization
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="@CultureInfo.CurrentUICulture.Name"
+      dir="@(CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? "rtl" : "ltr")"
+      data-theme="@Theme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forge Admin</title>
+    <base href="/" />
+    <link rel="stylesheet" href="_content/Forge.Admin.Blazor/admin.css" />
+    <HeadOutlet />
+</head>
+<body>
+    <Router AppAssembly="typeof(AdminApp).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        </Found>
+        <NotFound>
+            <main id="main"><h1>Not found</h1></main>
+        </NotFound>
+    </Router>
+</body>
+</html>
+
+@code {
+    private string Theme
+    {
+        get
+        {
+            var cookie = HttpContextAccessor.HttpContext?.Request.Cookies["forge-theme"];
+            return cookie is "light" or "dark" ? cookie : "system";
+        }
+    }
+}

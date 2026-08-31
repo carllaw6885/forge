@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
+    <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
+    <ProjectReference Include="../Forge.Identity/Forge.Identity.csproj" />
+    <ProjectReference Include="../Forge.Jobs/Forge.Jobs.csproj" />
+    <ProjectReference Include="../Forge.Localization/Forge.Localization.csproj" />
+    <ProjectReference Include="../Forge.Security/Forge.Security.csproj" />
+    <ProjectReference Include="../Forge.Settings/Forge.Settings.csproj" />
+    <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
+  </ItemGroup>
+</Project>
