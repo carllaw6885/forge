@@ -51,6 +51,10 @@ public sealed class IdentityFixture : IAsyncLifetime
         App.MapIdentityEndpoints();
         await App.StartAsync();
 
+        // OpenIddict rightly refuses plain HTTP; keep transport security ON in
+        // the module and present the in-memory server as HTTPS instead.
+        App.GetTestServer().BaseAddress = new Uri("https://localhost");
+
         using (var scope = App.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
