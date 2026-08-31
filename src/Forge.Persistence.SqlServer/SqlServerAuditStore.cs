@@ -75,7 +75,9 @@ public sealed class SqlServerAuditStore(
     IDbContextFactory<AuditDbContext> contextFactory,
     IAuditRedactionPolicy redaction) : IAuditStore
 {
-    private const int MaxAttempts = 3;
+    // Every lost race means another writer committed, so progress is global and
+    // retrying is safe; the cap only guards against a pathological store fault.
+    private const int MaxAttempts = 64;
 
     public async Task<AuditRecord> AppendAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
     {
@@ -105,6 +107,7 @@ public sealed class SqlServerAuditStore(
             catch (DbUpdateException) when (attempt < MaxAttempts)
             {
                 // lost a head-of-chain race (unique PreviousHash); retry on the new head
+                await Task.Delay(Random.Shared.Next(5, 25 * Math.Min(attempt, 8)), cancellationToken);
             }
         }
     }
