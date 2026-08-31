@@ -34,6 +34,10 @@ jobs:
         run: dotnet test tests/Forge.JobsTests -c Release --filter "FullyQualifiedName~QuartzSqlStoreTests"
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
+      - name: Settings SQL store tests
+        run: dotnet test tests/Forge.SettingsTests -c Release --filter "FullyQualifiedName~SqlSettingStoreTests"
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
 
   gate:
     runs-on: ubuntu-latest
@@ -65,7 +69,7 @@ jobs:
         run: dotnet format Forge.slnx --verify-no-changes --no-restore
 
       - name: Tests (unit + architecture + tenancy invariants)
-        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests"
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests"
 
       - name: Vulnerability scan
         run: |

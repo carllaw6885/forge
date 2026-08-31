@@ -6,10 +6,10 @@
 
 ## 4.1 Settings/secrets/flags
 
-- [ ] Implement typed setting definitions, scope precedence and validation.
-- [ ] Implement tenant-safe caching/invalidation for settings.
-- [ ] Implement secret-store abstraction only; no secrets in ordinary settings.
-- [ ] Implement operational flags distinct from entitlements.
+- [x] Implement typed setting definitions, scope precedence and validation.
+- [x] Implement tenant-safe caching/invalidation for settings.
+- [x] Implement secret-store abstraction only; no secrets in ordinary settings.
+- [x] Implement operational flags distinct from entitlements.
 
 ## 4.2 Localisation/globalisation
 

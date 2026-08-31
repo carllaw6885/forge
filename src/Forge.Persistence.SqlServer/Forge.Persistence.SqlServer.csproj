@@ -8,6 +8,7 @@
     <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
     <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
     <ProjectReference Include="../Forge.Events/Forge.Events.csproj" />
+    <ProjectReference Include="../Forge.Settings/Forge.Settings.csproj" />
     <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
   </ItemGroup>
 </Project>

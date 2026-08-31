@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
+    <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
+  </ItemGroup>
+</Project>
