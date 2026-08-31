@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.dev/schemas/module-manifest.schema.json",
+  "title": "Forge module manifest",
+  "description": "Declares a Forge module's identity, ownership and explicit dependencies. Lives as forge-module.json in the module project root. Composition remains explicit in startup code (ADR 01); the manifest is inspectable metadata, never an activation mechanism.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "version"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*(\\.[A-Za-z][A-Za-z0-9]*)*$",
+      "description": "Stable module identifier, e.g. 'Forge.ReferenceCatalog'. Only official Forge packages use the Forge namespace (ADR 36)."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable module name."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$",
+      "description": "Semantic version (ADR 21)."
+    },
+    "description": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "default": [],
+      "items": { "$ref": "#/properties/id" },
+      "description": "Ids of modules this module depends on. The graph must be acyclic; forge modules validate enforces this."
+    },
+    "ownedSchemas": {
+      "type": "array",
+      "uniqueItems": true,
+      "default": [],
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Database schemas owned exclusively by this module (ADR 03). No other module may reference them."
+    }
+  }
+}
