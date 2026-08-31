@@ -26,6 +26,10 @@ jobs:
         run: dotnet test tests/Forge.ReferenceCatalog.Tests -c Release
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
+      - name: Identity module tests
+        run: dotnet test tests/Forge.SecurityTests -c Release --filter "FullyQualifiedName~IdentityModuleTests"
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
 
   gate:
     runs-on: ubuntu-latest
@@ -57,7 +61,7 @@ jobs:
         run: dotnet format Forge.slnx --verify-no-changes --no-restore
 
       - name: Tests (unit + architecture + tenancy invariants)
-        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests"
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests"
 
       - name: Vulnerability scan
         run: |

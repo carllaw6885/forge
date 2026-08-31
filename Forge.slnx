@@ -8,8 +8,10 @@
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />
     <Project Path="src/Forge.Core/Forge.Core.csproj" />
     <Project Path="src/Forge.Events/Forge.Events.csproj" />
+    <Project Path="src/Forge.Identity/Forge.Identity.csproj" />
     <Project Path="src/Forge.Modularity/Forge.Modularity.csproj" />
     <Project Path="src/Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
+    <Project Path="src/Forge.Security/Forge.Security.csproj" />
     <Project Path="src/Forge.Tenancy/Forge.Tenancy.csproj" />
     <Project Path="src/Forge.Web/Forge.Web.csproj" />
   </Folder>
@@ -21,6 +23,7 @@
     <Project Path="tests/Forge.ModularityTests/Forge.ModularityTests.csproj" />
     <Project Path="tests/Forge.Persistence.SqlServer.Tests/Forge.Persistence.SqlServer.Tests.csproj" />
     <Project Path="tests/Forge.ReferenceCatalog.Tests/Forge.ReferenceCatalog.Tests.csproj" />
+    <Project Path="tests/Forge.SecurityTests/Forge.SecurityTests.csproj" />
     <Project Path="tests/Forge.TenancyTests/Forge.TenancyTests.csproj" />
   </Folder>
 </Solution>

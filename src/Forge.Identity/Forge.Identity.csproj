@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- CA1711: 'Permission' is the domain term itself (ADR 06), not a suffix. -->
+    <NoWarn>$(NoWarn);CA1711</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="OpenIddict.AspNetCore" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Modularity/Forge.Modularity.csproj" />
+    <ProjectReference Include="../Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
+    <ProjectReference Include="../Forge.Security/Forge.Security.csproj" />
+  </ItemGroup>
+</Project>

@@ -13,11 +13,11 @@
 
 ## 2.2 Identity and permissions
 
-- [ ] Implement ASP.NET Core Identity + OpenIddict reference module.
-- [ ] Implement first-class permission definitions and role aggregation.
-- [ ] Implement permission policy provider / authorization handlers.
-- [ ] Implement visible, reasoned, audited impersonation context.
-- [ ] Create seams and data model for future SSO/SCIM/SAML without requiring full v0.1 delivery.
+- [x] Implement ASP.NET Core Identity + OpenIddict reference module.
+- [x] Implement first-class permission definitions and role aggregation.
+- [x] Implement permission policy provider / authorization handlers.
+- [x] Implement visible, reasoned, audited impersonation context.
+- [x] Create seams and data model for future SSO/SCIM/SAML without requiring full v0.1 delivery.
 
 ## 2.3 Audit evidence
 

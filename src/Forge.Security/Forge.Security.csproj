@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- CA1711: 'Permission' is the domain term itself (ADR 06), not a suffix. -->
+    <NoWarn>$(NoWarn);CA1711</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
+    <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
+  </ItemGroup>
+</Project>
