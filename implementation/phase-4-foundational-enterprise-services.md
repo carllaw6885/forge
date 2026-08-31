@@ -27,10 +27,10 @@
 
 ## 4.4 Storage pipeline
 
-- [ ] Implement provider-neutral storage and local reference provider.
-- [ ] Validate size/type, quarantine before trust, record SHA-256 hash and classification metadata.
-- [ ] Add pluggable malware-scan contract and deterministic fake/reference scanner for acceptance.
-- [ ] Implement authorized private access path; no permanent public URLs.
+- [x] Implement provider-neutral storage and local reference provider.
+- [x] Validate size/type, quarantine before trust, record SHA-256 hash and classification metadata.
+- [x] Add pluggable malware-scan contract and deterministic fake/reference scanner for acceptance.
+- [x] Implement authorized private access path; no permanent public URLs.
 
 ## 4.5 Notifications/templates
 
