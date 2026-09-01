@@ -10,6 +10,7 @@ namespace Forge.Events;
 /// </summary>
 public interface IDomainEvent;
 
+/// <summary>Handles a domain event inside the module that raised it; domain events never cross module boundaries (ADR 04).</summary>
 public interface IDomainEventHandler<in TEvent> where TEvent : IDomainEvent
 {
     Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken);

@@ -33,7 +33,9 @@ public static class IdentityErrors
     public const string Invalid = "identity.invalid";
 }
 
+/// <summary>A user as the contract exposes it: name and role names, no store types.</summary>
 public sealed record UserSummary(string UserName, IReadOnlyList<string> Roles);
+/// <summary>A role and the permission names granted to it.</summary>
 public sealed record RoleSummary(string Name, IReadOnlyList<string> Permissions);
 
 /// <summary>
@@ -49,6 +51,7 @@ public interface IUserAdministration
     Task<Result> AssignRoleAsync(string userName, string role, CancellationToken cancellationToken);
 }
 
+/// <summary>Role and permission administration; requires <see cref="IdentityPermissions.RolesManage"/> in host scope.</summary>
 public interface IRoleAdministration
 {
     Task<Result<IReadOnlyList<RoleSummary>>> ListAsync(CancellationToken cancellationToken);

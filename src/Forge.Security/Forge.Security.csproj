@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <InternalsVisibleTo Include="Forge.SecurityTests" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />

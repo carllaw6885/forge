@@ -162,6 +162,7 @@ internal sealed class DurableJobStoreValidator(ForgeQuartzOptions options) : IPr
     }
 }
 
+/// <summary>Quartz provider settings: in-memory store for development, SQL store (connection string) for durable jobs.</summary>
 public sealed record ForgeQuartzOptions
 {
     public bool UseInMemoryStore { get; init; }

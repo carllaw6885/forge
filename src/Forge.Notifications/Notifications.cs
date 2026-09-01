@@ -15,6 +15,7 @@ public sealed record NotificationIntent(
     IReadOnlyDictionary<string, string> Variables,
     bool SecurityCritical = false);
 
+/// <summary>Terminal outcome of one notification delivery attempt.</summary>
 public enum DeliveryState
 {
     Delivered,
@@ -35,7 +36,7 @@ public interface IDeliveryStateStore
     Task<IReadOnlyList<DeliveryRecord>> ListForAsync(string recipient, CancellationToken cancellationToken);
 }
 
-public sealed class InMemoryDeliveryStateStore : IDeliveryStateStore
+internal sealed class InMemoryDeliveryStateStore : IDeliveryStateStore
 {
     private readonly ConcurrentQueue<DeliveryRecord> _records = new();
 
@@ -82,7 +83,7 @@ public interface INotificationPreferences
     Task SetOptOutAsync(string recipient, string type, bool optedOut, CancellationToken cancellationToken);
 }
 
-public sealed class InMemoryNotificationPreferences : INotificationPreferences
+internal sealed class InMemoryNotificationPreferences : INotificationPreferences
 {
     private readonly ConcurrentDictionary<(string, string), bool> _optOuts = new();
 

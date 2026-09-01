@@ -71,7 +71,7 @@ public interface IPermissionChecker
     Task<bool> HasAsync(ClaimsPrincipal user, string permission, CancellationToken cancellationToken);
 }
 
-public sealed class DefaultPermissionChecker(IRolePermissionMap rolePermissions) : IPermissionChecker
+internal sealed class DefaultPermissionChecker(IRolePermissionMap rolePermissions) : IPermissionChecker
 {
     public async Task<bool> HasAsync(ClaimsPrincipal user, string permission, CancellationToken cancellationToken)
     {

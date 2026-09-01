@@ -17,6 +17,7 @@ public sealed record Template(
     public const string NeutralCulture = "";
 }
 
+/// <summary>A template uses a construct the constrained renderer refuses (ADR 38).</summary>
 public sealed class TemplateValidationException(string message) : Exception(message);
 
 /// <summary>Constrained renderer and validator (ADR 38).</summary>

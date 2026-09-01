@@ -114,6 +114,19 @@ public class BoundaryRuleTests
             Assert.EndsWith(".Abstractions", pkg, StringComparison.Ordinal));
     }
 
+    /// <summary>Every first-party host that maps the admin shell requires a signed-in user (ADR 40).</summary>
+    [Fact]
+    public void Admin_shell_hosts_require_authorization()
+    {
+        string[] hosts = ["samples/Forge.ReferenceSaaS.Api", "src/Forge.Cli/templates/admin/src/__NAME__.Api"];
+
+        Assert.All(hosts.Select(dir => Path.Combine(RepoModel.Root, dir, "Program.cs")), program =>
+        {
+            var map = File.ReadLines(program).Single(l => l.Contains("MapForgeAdminShell(", StringComparison.Ordinal));
+            Assert.Contains("RequireAuthorization()", map, StringComparison.Ordinal);
+        });
+    }
+
     [Fact]
     public void Cli_stays_free_of_web_ui_and_ef_dependencies()
     {

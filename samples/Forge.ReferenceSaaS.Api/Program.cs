@@ -73,7 +73,8 @@ app.MapOpenApi().WithHostScope();
 app.MapForgeHealth(endpoint => endpoint.WithHostScope());
 app.MapIdentityEndpoints();
 app.MapCatalogEndpoints();
-app.MapForgeAdminShell(endpoint => endpoint.WithHostScope());
+// navigation visibility is never authorisation (ADR 40): the shell requires a signed-in user
+app.MapForgeAdminShell(endpoint => endpoint.WithHostScope().RequireAuthorization());
 
 app.MapPost("/auth/login", async Task<IResult> (
     LoginRequest request, SignInManager<ForgeUser> signIn, UserManager<ForgeUser> users) =>
