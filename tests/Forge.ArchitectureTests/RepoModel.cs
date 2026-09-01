@@ -35,6 +35,9 @@ public static class RepoModel
             .Select(d => System.IO.Path.Combine(Root, d))
             .Where(Directory.Exists)
             .SelectMany(d => Directory.EnumerateFiles(d, "*.csproj", SearchOption.AllDirectories))
+            .Where(p => !p.Contains(
+                System.IO.Path.DirectorySeparatorChar + "templates" + System.IO.Path.DirectorySeparatorChar,
+                StringComparison.Ordinal)) // forge new template sources are not repo projects
             .Order(StringComparer.Ordinal)
             .Select(Load)
             .ToList();
