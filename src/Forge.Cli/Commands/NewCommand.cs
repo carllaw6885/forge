@@ -12,7 +12,9 @@ public static class NewCommand
 {
     private const string ResourcePrefix = "Forge.Cli.templates.";
 
-    public static int Run(string name, string outputDirectory)
+    private const string AdminPrefix = "admin.";
+
+    public static int Run(string name, string outputDirectory, bool admin = false)
     {
         if (!name.All(c => char.IsAsciiLetterOrDigit(c)) || name.Length == 0 || !char.IsAsciiLetter(name[0]))
         {
@@ -28,28 +30,35 @@ public static class NewCommand
         }
 
         var assembly = Assembly.GetExecutingAssembly();
-        var written = new List<string>();
+        // base template first, then --admin variants override files at the same path
+        var files = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (var resource in assembly.GetManifestResourceNames()
                      .Where(r => r.StartsWith(ResourcePrefix, StringComparison.Ordinal))
-                     .Order(StringComparer.Ordinal))
+                     .OrderBy(r => r[ResourcePrefix.Length..].StartsWith(AdminPrefix, StringComparison.Ordinal))
+                     .ThenBy(r => r, StringComparer.Ordinal))
         {
+            var isAdmin = resource[ResourcePrefix.Length..].StartsWith(AdminPrefix, StringComparison.Ordinal);
+            if (isAdmin && !admin)
+            {
+                continue;
+            }
+
             using var stream = assembly.GetManifestResourceStream(resource)!;
             using var reader = new StreamReader(stream);
-            var content = reader.ReadToEnd()
+            files[ResourceToPath(resource, name)] = reader.ReadToEnd()
                 .Replace("{{NAME}}", name, StringComparison.Ordinal)
                 .Replace("{{NAME_LOWER}}", name.ToLower(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        }
 
-            var relativePath = ResourceToPath(resource, name);
+        foreach (var (relativePath, content) in files)
+        {
             var fullPath = Path.Combine(target, relativePath);
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
             File.WriteAllText(fullPath, content);
-            written.Add(relativePath);
+            Console.WriteLine($"created {relativePath.Replace(Path.DirectorySeparatorChar, '/')}");
         }
 
-        foreach (var path in written)
-        {
-            Console.WriteLine($"created {path.Replace(Path.DirectorySeparatorChar, '/')}");
-        }
+        var written = files.Keys;
 
         Console.WriteLine($"ok: {name} generated ({written.Count} files). Next: dotnet run --project {name}/src/{name}.AppHost");
         return 0;
@@ -70,6 +79,11 @@ public static class NewCommand
         ["modules.Notes.__NAME__.Notes.__NAME__.Notes.csproj"] = "modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj",
         ["modules.Notes.__NAME__.Notes.forge-module.json"] = "modules/Notes/{{NAME}}.Notes/forge-module.json",
         ["modules.Notes.__NAME__.Notes.NotesModule.cs"] = "modules/Notes/{{NAME}}.Notes/NotesModule.cs",
+        // --admin variants: same target paths, richer content (Identity + admin shell)
+        ["admin.src.__NAME__.Api.__NAME__.Api.csproj"] = "src/{{NAME}}.Api/{{NAME}}.Api.csproj",
+        ["admin.src.__NAME__.Api.Program.cs"] = "src/{{NAME}}.Api/Program.cs",
+        ["admin.src.__NAME__.DbMigrator.__NAME__.DbMigrator.csproj"] = "src/{{NAME}}.DbMigrator/{{NAME}}.DbMigrator.csproj",
+        ["admin.src.__NAME__.DbMigrator.Program.cs"] = "src/{{NAME}}.DbMigrator/Program.cs",
     };
 
     private static string ResourceToPath(string resource, string name)

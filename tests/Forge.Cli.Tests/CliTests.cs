@@ -184,6 +184,31 @@ public class CliTests : IDisposable
     }
 
     [Fact]
+    public void New_with_admin_overrides_api_and_migrator_with_shell_wiring()
+    {
+        var gen = Path.Combine(_root, "genAdmin");
+        Directory.CreateDirectory(gen);
+        Assert.Equal(0, Run("new", "Acme", "--root", gen, "--admin").ExitCode);
+
+        // same file set as the base template — admin variants override in place
+        Assert.Equal(12, Directory.EnumerateFiles(gen, "*", SearchOption.AllDirectories).Count());
+
+        var api = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.Api", "Program.cs"));
+        Assert.Contains("AddForgeAdminShell", api, StringComparison.Ordinal);
+        Assert.Contains("new IdentityModule(", api, StringComparison.Ordinal);
+        Assert.Contains("MapForgeAdminShell", api, StringComparison.Ordinal);
+
+        var apiProj = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.Api", "Acme.Api.csproj"));
+        Assert.Contains("ForgeStack.Admin.Blazor", apiProj, StringComparison.Ordinal);
+
+        var migrator = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.DbMigrator", "Program.cs"));
+        Assert.Contains("ForgeIdentityDbContext", migrator, StringComparison.Ordinal);
+
+        // module graph still validates
+        Assert.Equal(0, Run("modules", "validate", "--root", Path.Combine(gen, "Acme")).ExitCode);
+    }
+
+    [Fact]
     public void Upgrade_check_is_a_deterministic_dry_run()
     {
         var gen = Path.Combine(_root, "genU");

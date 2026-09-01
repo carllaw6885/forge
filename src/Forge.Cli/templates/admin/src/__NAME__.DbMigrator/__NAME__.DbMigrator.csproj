@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ForgeStack.Identity" Version="$(ForgeVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj" />
+  </ItemGroup>
+</Project>

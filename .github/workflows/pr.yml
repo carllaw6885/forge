@@ -47,13 +47,16 @@ jobs:
           FEED=$RUNNER_TEMP/forge-feed
           mkdir -p $FEED
           dotnet build Forge.slnx -c Release --verbosity quiet
-          for proj in Forge.Core Forge.Modularity Forge.Tenancy Forge.Events Forge.Auditing Forge.Settings Forge.Web Forge.Observability Forge.Persistence.SqlServer; do
+          for proj in Forge.Core Forge.Modularity Forge.Tenancy Forge.Events Forge.Auditing Forge.Settings Forge.Web Forge.Observability Forge.Persistence.SqlServer Forge.Security Forge.Identity Forge.Jobs Forge.Localization Forge.Admin.Blazor; do
             dotnet pack src/$proj -c Release -o $FEED --no-build --verbosity quiet
           done
-          dotnet run --project src/Forge.Cli -c Release --no-build -- new Acme --root $RUNNER_TEMP/gen
-          printf '<?xml version="1.0" encoding="utf-8"?>\n<configuration><packageSources><add key="forge-local" value="%s" /></packageSources></configuration>\n' "$FEED" > $RUNNER_TEMP/gen/Acme/nuget.config
-          dotnet build $RUNNER_TEMP/gen/Acme/Acme.slnx --verbosity quiet
-          dotnet run --project src/Forge.Cli -c Release --no-build -- modules validate --root $RUNNER_TEMP/gen/Acme
+          for variant in "" "--admin"; do
+            GEN=$RUNNER_TEMP/gen$variant
+            dotnet run --project src/Forge.Cli -c Release --no-build -- new Acme --root $GEN $variant
+            printf '<?xml version="1.0" encoding="utf-8"?>\n<configuration><packageSources><add key="forge-local" value="%s" /></packageSources></configuration>\n' "$FEED" > $GEN/Acme/nuget.config
+            dotnet build $GEN/Acme/Acme.slnx --verbosity quiet
+            dotnet run --project src/Forge.Cli -c Release --no-build -- modules validate --root $GEN/Acme
+          done
       - name: OCI container smoke (fresh install, no Aspire)
         run: |
           docker run -d --name smoke-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Smoke!Passw0rd42' -p 14433:1433 mcr.microsoft.com/mssql/server:2022-latest

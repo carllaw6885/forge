@@ -146,7 +146,13 @@ public static class ForgeCli
         var newCommand = new Command("new", "Generate a new Forge solution from the reference template (ordinary source, idempotent).");
         var nameArgument = new Argument<string>("name") { Description = "Solution/root namespace name, e.g. Acme." };
         newCommand.Arguments.Add(nameArgument);
-        newCommand.SetAction(pr => Commands.NewCommand.Run(pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!));
+        var adminOption = new Option<bool>("--admin")
+        {
+            Description = "Include the Blazor admin shell and Identity module (cookie sign-in, dev seed).",
+        };
+        newCommand.Options.Add(adminOption);
+        newCommand.SetAction(pr => Commands.NewCommand.Run(
+            pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!, pr.GetValue(adminOption)));
         root.Subcommands.Add(newCommand);
 
         var db = new Command("db", "Database operations, delegated to the solution's DbMigrator (the CLI itself stays EF-free).");
