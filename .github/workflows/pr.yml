@@ -62,7 +62,14 @@ jobs:
           export ConnectionStrings__forge="Server=127.0.0.1,14433;Database=forge;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true"
           dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release -- migrate
           dotnet publish samples/Forge.ReferenceSaaS.Api -t:PublishContainer -c Release --verbosity quiet
-          docker run -d --name smoke-api --add-host=host.docker.internal:host-gateway -p 5230:8080             -e ConnectionStrings__forge="Server=host.docker.internal,14433;Database=forge;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true"             forge/referencesaas-api:latest
+          # production-shaped smoke: persisted token key material is mandatory in Production
+          KEYS=$RUNNER_TEMP/forge-keys
+          mkdir -p $KEYS
+          openssl req -x509 -newkey rsa:2048 -keyout $KEYS/sign.key -out $KEYS/sign.crt -days 2 -nodes -subj "/CN=smoke-signing"
+          openssl pkcs12 -export -out $KEYS/signing.pfx -inkey $KEYS/sign.key -in $KEYS/sign.crt -passout pass:smokepwd
+          openssl req -x509 -newkey rsa:2048 -keyout $KEYS/enc.key -out $KEYS/enc.crt -days 2 -nodes -subj "/CN=smoke-encryption"
+          openssl pkcs12 -export -out $KEYS/encryption.pfx -inkey $KEYS/enc.key -in $KEYS/enc.crt -passout pass:smokepwd
+          docker run -d --name smoke-api --add-host=host.docker.internal:host-gateway -p 5230:8080 -v $KEYS:/keys:ro -e ConnectionStrings__forge="Server=host.docker.internal,14433;Database=forge;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true" -e Identity__SigningCertificate__PfxPath=/keys/signing.pfx -e Identity__SigningCertificate__PasswordEnvironmentVariable=FORGE_PFX_PWD -e Identity__EncryptionCertificate__PfxPath=/keys/encryption.pfx -e Identity__EncryptionCertificate__PasswordEnvironmentVariable=FORGE_PFX_PWD -e FORGE_PFX_PWD=smokepwd forge/referencesaas-api:latest
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:5230/healthz/live && break; sleep 2; done
           curl -sf http://127.0.0.1:5230/healthz/live
           curl -sf --max-time 60 http://127.0.0.1:5230/healthz/ready
