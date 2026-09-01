@@ -1,9 +1,9 @@
 name: Release
 
 # Tag-triggered release engineering (ADR 21/22): full conformance, fresh
-# install, packaging, SBOM and provenance. Publishing to NuGet only happens
-# when a maintainer has configured NUGET_API_KEY — the workflow otherwise
-# stops at staged, attested artefacts. Manual gates (WCAG checklist, security
+# install, packaging, SBOM and provenance. Publishing to NuGet uses Trusted
+# Publishing (OIDC) and only happens when a maintainer has configured
+# NUGET_USER — the workflow otherwise stops at staged, attested artefacts. Manual gates (WCAG checklist, security
 # sign-off) are recorded in the release notes by the maintainer.
 
 on:
