@@ -55,6 +55,8 @@ builder.Services.AddForge(
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddIdentityCookies();
 builder.Services.AddScoped<SignInManager<ForgeUser>>();
+// AddIdentityCore omits this; the identity cookie handler requires it on every authenticated request
+builder.Services.AddScoped<ISecurityStampValidator, SecurityStampValidator<ForgeUser>>();
 
 var app = builder.Build();
 app.Services.UseForge();

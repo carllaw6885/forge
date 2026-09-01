@@ -66,9 +66,24 @@ public sealed class IdentityFixture : IAsyncLifetime
             new IdentityKeyMaterial(signing, "FORGE_TEST_PFX_PASSWORD"),
             new IdentityKeyMaterial(encryption, "FORGE_TEST_PFX_PASSWORD")));
 
+        // cookie sign-in exactly as the admin template wires it — the cookie
+        // handler needs ISecurityStampValidator, which AddIdentityCore omits
+        builder.Services.AddHttpContextAccessor(); // the admin shell registers this in real apps
+        builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+            .AddIdentityCookies();
+        builder.Services.AddScoped<SignInManager<ForgeUser>>();
+        builder.Services.AddScoped<ISecurityStampValidator, SecurityStampValidator<ForgeUser>>();
+
         App = builder.Build();
         App.Services.UseForge();
         App.MapIdentityEndpoints();
+        App.MapPost("/test/login", async (SignInManager<ForgeUser> signIn, UserManager<ForgeUser> users) =>
+        {
+            await signIn.SignInAsync((await users.FindByNameAsync("cookie-user"))!, isPersistent: false);
+            return Results.Ok();
+        });
+        App.MapGet("/test/me", (ClaimsPrincipal user) =>
+            user.Identity?.IsAuthenticated == true ? Results.Ok(user.Identity.Name) : Results.Unauthorized());
         await App.StartAsync();
 
         // OpenIddict rightly refuses plain HTTP; keep transport security ON in
@@ -141,6 +156,33 @@ public class IdentityModuleTests(IdentityFixture fx) : IClassFixture<IdentityFix
 
         Assert.True(await checker.HasAsync(principal, "Catalog.Items.Create", ct));
         Assert.False(await checker.HasAsync(principal, "Catalog.Items.Delete", ct));
+    }
+
+    [Fact]
+    public async Task Cookie_sign_in_survives_the_next_authenticated_request()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+
+        using (var scope = fx.App.Services.CreateScope())
+        {
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+            if (await users.FindByNameAsync("cookie-user") is null)
+            {
+                Assert.True((await users.CreateAsync(new ForgeUser { UserName = "cookie-user" }, "Str0ng!Password!42")).Succeeded);
+            }
+        }
+
+        var login = await fx.Client.PostAsync("/test/login", content: null, ct);
+        Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync(ct));
+        var cookie = Assert.Single(login.Headers.GetValues("Set-Cookie")).Split(';')[0];
+
+        // the request after login is where a missing ISecurityStampValidator explodes
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/test/me");
+        request.Headers.Add("Cookie", cookie);
+        var me = await fx.Client.SendAsync(request, ct);
+        Assert.True(me.IsSuccessStatusCode, await me.Content.ReadAsStringAsync(ct));
+        Assert.Contains("cookie-user", await me.Content.ReadAsStringAsync(ct), StringComparison.Ordinal);
     }
 
     [Fact]
