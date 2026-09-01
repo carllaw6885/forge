@@ -30,15 +30,19 @@ Blazor Web App is the initial first-party UI implementation. Additional UI stack
 
 ## Consequences
 
-Modules should normally evolve toward a package shape similar to:
+Modules evolve toward three layers, packaged so that nothing is assumed beyond the headless capability:
 
 ```text
-Forge.Identity            capability (headless)
-Forge.Identity.Api        HTTP surface, where a separate package is a genuine boundary
+Forge.Identity            capability (headless) — includes the module's application contract
+Forge.Identity.Api        optional HTTP projection of that contract; added when a remote consumer exists
 Forge.Identity.Ui.Blazor  optional first-party UI
 ```
 
-Split packaging is used only where a separate package creates a genuine boundary; a capability whose endpoints are inseparable from the capability keeps them in one package. Published package IDs carry the `ForgeStack.` prefix (assemblies and namespaces stay `Forge.*`).
+- **Application contract (required, in the capability package).** Every module with a first-party UI defines the operations it exposes as plain interfaces inside the capability, with authorisation, tenant scope and auditing enforced inside them. This is the single front door: an in-process UI, an HTTP endpoint and a custom application all pass through the same checks. It is plain .NET, not a mediator or CQRS framework (ADR 30 spirit).
+- **`.Ui.Blazor` consumes only the application contract**, never stores or contexts directly (architecture test).
+- **`.Api` is a thin, optional projection** of the same contract using Minimal APIs. It exists for modules with a real remote consumer (mobile, another service, a non-Blazor frontend, interactive WebAssembly render modes) and is not required for the monolith to work — extraction enabled, never assumed. Starters do not include `.Api` packages by default. A capability whose HTTP surface is inseparable from it (Identity's OpenIddict endpoints) keeps that surface in the capability.
+
+Published package IDs carry the `ForgeStack.` prefix (assemblies and namespaces stay `Forge.*`). Package count is a cost against "explicit and inspectable": a new package must create a genuine boundary, never a convention.
 
 Applications may:
 

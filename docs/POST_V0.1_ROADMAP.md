@@ -34,7 +34,17 @@ forge new Acme --template saas
 
 The generated application runs immediately and is a cohesive, usable product, not an empty shell.
 
-Production-quality optional Blazor UIs (each an independent `ForgeStack.<Module>.Ui.Blazor` package, see [engineering rules](#first-party-ui-engineering-rules)):
+#### Module layering (ADR 40)
+
+Each module in scope gains, in this order:
+
+1. **Application contract** — inside the existing capability package. Plain interfaces (`IAuditQueries`, `IJobOperations`, …) with permission, tenant-scope and audit enforcement inside; no mediator/CQRS framework. Mandatory before any UI for that module ships.
+2. **`ForgeStack.<Module>.Ui.Blazor`** — consumes only the application contract.
+3. **`ForgeStack.<Module>.Api`** — optional Minimal-API projection of the contract, opt-in per module for remote consumers. v0.2 proves the pattern with **Identity** (account/session operations) and **Audit**; other modules add `.Api` when a real consumer appears. Not included by starters by default.
+
+Architecture tests: capability never references `.Ui.Blazor` or `.Api`; `.Ui.Blazor` references only the contract surface.
+
+Production-quality optional Blazor UIs (see [engineering rules](#first-party-ui-engineering-rules)):
 
 | Module | Surfaces |
 |---|---|
@@ -66,7 +76,7 @@ Developer         API · Modules · Diagnostics
 | Template | Status |
 |---|---|
 | `saas` | v0.2 priority — the complete experience |
-| `api` | v0.2, lighter composition (today's `forge new` output) |
+| `api` | v0.2, lighter composition (today's `forge new` output plus the available `.Api` packages) |
 | `modular` | v0.2, lighter composition |
 | `enterprise` | v0.3 headline deliverable |
 
@@ -79,6 +89,7 @@ forge new <Name> --template saas|enterprise|api|modular
 forge templates list
 forge ui add <module>        identity · tenancy · audit · jobs · settings · localisation · notifications · files
 forge ui remove <module>
+forge api add <module>       adds the optional .Api projection where one exists
 ```
 
 `forge new --admin` (v0.1.x) is the seed of `--template saas` and is retained as an alias until `saas` ships, then deprecated per ADR 22.
@@ -142,7 +153,8 @@ Not a feature-completion exercise. Focus: public API, module contract, manifest,
 Enforceable subset is in `AGENTS.md`.
 
 - **Capability independence** — a capability MUST NOT depend on its first-party UI package (architecture test).
-- **API parity** — first-party UI consumes supported capability contracts/APIs, not privileged internal shortcuts, wherever practical.
+- **API parity** — first-party UI consumes the module's application contract, never stores/contexts directly; an `.Api` package projects that same contract, so every consumer passes the same authorisation, tenant and audit checks.
+- **Package restraint** — a new package must create a genuine boundary. `.Api` is opt-in per module; starters stay as small as the chosen template allows.
 - **Replaceability** — an application can replace one Forge UI while keeping the underlying module.
 - **Design system** — all first-party UI uses the Forge design system and documented extension surfaces (ADR 37).
 - **Accessibility** — ADR 19 and the WCAG 2.2 AA release gate apply.
