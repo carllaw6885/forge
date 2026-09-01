@@ -169,6 +169,9 @@ public class CliTests : IDisposable
         // creates none and the api resource would run with no URL
         var appHost = File.ReadAllText(Path.Combine(genA, "Acme", "src", "Acme.AppHost", "Program.cs"));
         Assert.Contains(".WithHttpsEndpoint()", appHost, StringComparison.Ordinal);
+        // no launch profile in the template: without this the api runs as Production
+        // under Aspire and production validation refuses dev configuration
+        Assert.Contains("\"ASPNETCORE_ENVIRONMENT\", \"Development\"", appHost, StringComparison.Ordinal);
 
         // the generated module graph validates
         var validate = Run("modules", "validate", "--root", Path.Combine(genA, "Acme"));
