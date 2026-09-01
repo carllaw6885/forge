@@ -1,9 +1,6 @@
 @page "/admin/users"
 @using Forge.Identity
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.EntityFrameworkCore
-@inject UserManager<ForgeUser> UserManager
-@inject ForgeIdentityDbContext Db
+@inject IUserAdministration Admin
 
 <h1>Users</h1>
 
@@ -11,9 +8,9 @@
     <caption>Registered users</caption>
     <thead><tr><th scope="col">User name</th><th scope="col">Roles</th></tr></thead>
     <tbody>
-        @foreach (var (user, roles) in _users)
+        @foreach (var user in _users)
         {
-            <tr><td>@user</td><td>@string.Join(", ", roles)</td></tr>
+            <tr><td>@user.UserName</td><td>@string.Join(", ", user.Roles)</td></tr>
         }
     </tbody>
 </table>
@@ -44,7 +41,7 @@
 }
 
 @code {
-    private List<(string User, IList<string> Roles)> _users = [];
+    private IReadOnlyList<UserSummary> _users = [];
     private string? _message;
 
     [SupplyParameterFromForm(FormName = "create-user")]
@@ -74,31 +71,22 @@
 
     private async Task LoadAsync()
     {
-        _users = [];
-        foreach (var user in await Db.Users.AsNoTracking().OrderBy(u => u.UserName).Take(50).ToListAsync())
-        {
-            _users.Add((user.UserName!, await UserManager.GetRolesAsync(user)));
-        }
+        var result = await Admin.ListAsync(50, CancellationToken.None);
+        _users = result.IsSuccess ? result.Value : [];
+        _message ??= result.IsFailure ? result.Error.Message : null;
     }
 
     private async Task CreateAsync()
     {
-        var result = await UserManager.CreateAsync(new ForgeUser { UserName = Model!.UserName }, Model!.Password);
-        _message = result.Succeeded ? $"User '{Model!.UserName}' created." : string.Join("; ", result.Errors.Select(e => e.Description));
+        var result = await Admin.CreateAsync(Model!.UserName, Model!.Password, CancellationToken.None);
+        _message = result.IsSuccess ? $"User '{Model!.UserName}' created." : result.Error.Message;
         await LoadAsync();
     }
 
     private async Task AssignAsync()
     {
-        var user = await UserManager.FindByNameAsync(Assign!.UserName);
-        if (user is null)
-        {
-            _message = $"No user '{Assign!.UserName}'.";
-            return;
-        }
-
-        var result = await UserManager.AddToRoleAsync(user, Assign!.Role);
-        _message = result.Succeeded ? $"Role '{Assign!.Role}' assigned." : string.Join("; ", result.Errors.Select(e => e.Description));
+        var result = await Admin.AssignRoleAsync(Assign!.UserName, Assign!.Role, CancellationToken.None);
+        _message = result.IsSuccess ? $"Role '{Assign!.Role}' assigned." : result.Error.Message;
         await LoadAsync();
     }
 }

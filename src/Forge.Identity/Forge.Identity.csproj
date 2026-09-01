@@ -19,5 +19,6 @@
     <ProjectReference Include="../Forge.Modularity/Forge.Modularity.csproj" />
     <ProjectReference Include="../Forge.Persistence.SqlServer/Forge.Persistence.SqlServer.csproj" />
     <ProjectReference Include="../Forge.Security/Forge.Security.csproj" />
+    <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
   </ItemGroup>
 </Project>

@@ -1,9 +1,6 @@
 @page "/admin/roles"
 @using Forge.Identity
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.EntityFrameworkCore
-@inject RoleManager<IdentityRole> RoleManager
-@inject ForgeIdentityDbContext Db
+@inject IRoleAdministration Admin
 
 <h1>Roles &amp; permissions</h1>
 
@@ -11,9 +8,9 @@
     <caption>Roles and their aggregated permissions</caption>
     <thead><tr><th scope="col">Role</th><th scope="col">Permissions</th></tr></thead>
     <tbody>
-        @foreach (var (role, permissions) in _roles)
+        @foreach (var role in _roles)
         {
-            <tr><td>@role</td><td>@string.Join(", ", permissions)</td></tr>
+            <tr><td>@role.Name</td><td>@string.Join(", ", role.Permissions)</td></tr>
         }
     </tbody>
 </table>
@@ -42,7 +39,7 @@
 }
 
 @code {
-    private List<(string Role, List<string> Permissions)> _roles = [];
+    private IReadOnlyList<RoleSummary> _roles = [];
     private string? _message;
 
     [SupplyParameterFromForm(FormName = "create-role")]
@@ -66,24 +63,22 @@
 
     private async Task LoadAsync()
     {
-        var permissions = await Db.RolePermissions.AsNoTracking().ToListAsync();
-        _roles = (await Db.Roles.AsNoTracking().OrderBy(r => r.Name).ToListAsync())
-            .Select(r => (r.Name!, permissions.Where(p => p.RoleName == r.Name).Select(p => p.PermissionName).ToList()))
-            .ToList();
+        var result = await Admin.ListAsync(CancellationToken.None);
+        _roles = result.IsSuccess ? result.Value : [];
+        _message ??= result.IsFailure ? result.Error.Message : null;
     }
 
     private async Task CreateRoleAsync()
     {
-        var result = await RoleManager.CreateAsync(new IdentityRole(RoleName ?? ""));
-        _message = result.Succeeded ? $"Role '{RoleName}' created." : string.Join("; ", result.Errors.Select(e => e.Description));
+        var result = await Admin.CreateAsync(RoleName ?? "", CancellationToken.None);
+        _message = result.IsSuccess ? $"Role '{RoleName}' created." : result.Error.Message;
         await LoadAsync();
     }
 
     private async Task GrantAsync()
     {
-        Db.RolePermissions.Add(new RolePermission { RoleName = Grant!.Role, PermissionName = Grant.Permission });
-        await Db.SaveChangesAsync();
-        _message = $"Permission '{Grant!.Permission}' granted to '{Grant.Role}'.";
+        var result = await Admin.GrantPermissionAsync(Grant!.Role, Grant.Permission, CancellationToken.None);
+        _message = result.IsSuccess ? $"Permission '{Grant!.Permission}' granted to '{Grant.Role}'." : result.Error.Message;
         await LoadAsync();
     }
 }

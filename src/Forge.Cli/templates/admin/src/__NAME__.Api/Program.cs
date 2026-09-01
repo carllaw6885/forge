@@ -118,9 +118,17 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var users = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+    var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
     if (await users.FindByNameAsync("admin") is null)
     {
+        // an "Administrator" role holding every identity permission; the shell's pages are permission-checked
+        await roles.CreateAsync(new IdentityRole("Administrator"));
+        db.RolePermissions.AddRange(IdentityPermissions.All.Select(p =>
+            new RolePermission { RoleName = "Administrator", PermissionName = p.Name }));
+        await db.SaveChangesAsync();
         await users.CreateAsync(new ForgeUser { UserName = "admin" }, "{{NAME}}!Admin!Passw0rd");
+        await users.AddToRoleAsync((await users.FindByNameAsync("admin"))!, "Administrator");
     }
 }
 

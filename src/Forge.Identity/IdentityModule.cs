@@ -1,3 +1,4 @@
+using Forge.Auditing;
 using Forge.Core.Modules;
 using Forge.Modularity;
 using Forge.Security;
@@ -94,6 +95,15 @@ public sealed class IdentityModule(
 
         services.AddForgePermissions();
         services.Replace(ServiceDescriptor.Scoped<IRolePermissionMap, DbRolePermissionMap>());
+
+        // application contract (ADR 40): the one front door for UI, HTTP and custom callers;
+        // every denial and mutation is audited (TryAdd: a SQL audit store registered earlier wins)
+        services.AddForgeAuditing();
+        services.AddHttpContextAccessor();
+        services.AddScoped<IdentityOperations>();
+        services.AddScoped<IUserAdministration>(sp => sp.GetRequiredService<IdentityOperations>());
+        services.AddScoped<IRoleAdministration>(sp => sp.GetRequiredService<IdentityOperations>());
+        services.AddScoped<IAccountOperations>(sp => sp.GetRequiredService<IdentityOperations>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Forge.Core.Validation.IProductionConfigurationValidator>(
             new PersistedKeyMaterialValidator(signingCertificate is not null, encryptionCertificate is not null)));
 

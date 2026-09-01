@@ -60,6 +60,43 @@ public class BoundaryRuleTests
         Assert.Empty(violations);
     }
 
+    private static bool IsUi(string name) =>
+        name == "Forge.Admin.Blazor" || name.Contains(".Ui.", StringComparison.Ordinal);
+
+    // ADR 40: a capability never depends on its first-party UI (hosts and the CLI may)
+    [Fact]
+    public void Capabilities_never_reference_ui_packages()
+    {
+        var violations =
+            from p in RepoModel.SourceProjects()
+            where !IsUi(p.Name) && !p.Name.Contains("Reference", StringComparison.Ordinal)
+                && !p.Name.EndsWith("AppHost", StringComparison.Ordinal) && p.Name != "Forge.Cli"
+            from r in p.ProjectReferences
+            where IsUi(r)
+            select $"{p.Name} references {r}";
+
+        Assert.Empty(violations);
+    }
+
+    // ADR 40: first-party UI consumes the module application contract, never stores or managers
+    [Fact]
+    public void Ui_packages_consume_only_application_contracts()
+    {
+        string[] forbidden = ["DbContext", "UserManager<", "RoleManager<", "SignInManager<"];
+        var violations =
+            from p in RepoModel.SourceProjects()
+            where IsUi(p.Name)
+            from file in Directory.EnumerateFiles(System.IO.Path.GetDirectoryName(p.Path)!, "*.*", SearchOption.AllDirectories)
+            where (file.EndsWith(".razor", StringComparison.Ordinal) || file.EndsWith(".cs", StringComparison.Ordinal))
+                && !file.Contains($"{System.IO.Path.DirectorySeparatorChar}obj{System.IO.Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+            let text = File.ReadAllText(file)
+            from token in forbidden
+            where text.Contains(token, StringComparison.Ordinal)
+            select $"{System.IO.Path.GetRelativePath(RepoModel.Root, file)} uses {token}";
+
+        Assert.Empty(violations);
+    }
+
     [Fact]
     public void Core_has_no_package_references_at_all()
     {

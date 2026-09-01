@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Forge.Identity;
 using Forge.Modularity;
 using Forge.Security;
+using Forge.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
@@ -68,7 +69,7 @@ public sealed class IdentityFixture : IAsyncLifetime
 
         // cookie sign-in exactly as the admin template wires it — the cookie
         // handler needs ISecurityStampValidator, which AddIdentityCore omits
-        builder.Services.AddHttpContextAccessor(); // the admin shell registers this in real apps
+        builder.Services.AddForgeTenancy(); // the contract tests exercise host-vs-tenant scope
         builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
             .AddIdentityCookies();
         builder.Services.AddScoped<SignInManager<ForgeUser>>();

@@ -10,11 +10,13 @@ Rule for every item: the capability never references the UI; the UI consumes onl
 
 ## 6.1 Identity application contract (in `Forge.Identity`)
 
-- [ ] Define plain interfaces, no mediator: `IAccountOperations` (sign in/out, change password, profile, active sessions), `IUserAdministration` (list/search/create/disable users, assign roles), `IRoleAdministration` (roles ↔ permissions).
-- [ ] Enforce permission, tenant scope and audit *inside* the implementations; callers pass no authorisation state. Denied calls produce an audit event.
-- [ ] Register the contract from `IdentityModule` so it is available to any consumer (shell, `.Ui.Blazor`, custom apps) with no extra setup.
-- [ ] Tests: permission denied → typed failure + audit; tenant-scoped listing never crosses tenants; host scope explicit.
-- [ ] Remove direct `IdentityDbContext` / `UserManager` use from `Forge.Admin.Blazor` `Users.razor` / `Roles.razor` (today they query the context directly, which ADR 40 forbids for UI).
+- [x] Define plain interfaces, no mediator: `IAccountOperations` (me, change password), `IUserAdministration` (list/create users, assign roles), `IRoleAdministration` (roles ↔ permissions). Sign in/out, sessions, search and disable move to 6.2 with the UI that needs them.
+- [x] Enforce permission, tenant scope and audit *inside* the implementations; callers pass no authorisation state. Denied calls produce an audit event. (Identity data is host owned in v0.1: tenant scope is denied, host scope required.)
+- [x] Register the contract from `IdentityModule` so it is available to any consumer (shell, `.Ui.Blazor`, custom apps) with no extra setup.
+- [x] Tests: permission denied → typed failure + audit; tenant-scoped listing never crosses tenants; host scope explicit.
+- [x] Remove direct `IdentityDbContext` / `UserManager` use from `Forge.Admin.Blazor` `Users.razor` / `Roles.razor` (today they query the context directly, which ADR 40 forbids for UI).
+
+Not done in 6.1: `PermissionCatalog` population (`IdentityPermissions.All` is declared but the catalog has no module-contribution seam yet).
 
 ## 6.2 `ForgeStack.Identity.Ui.Blazor`
 
@@ -27,7 +29,7 @@ Rule for every item: the capability never references the UI; the UI consumes onl
 
 ## 6.3 Architecture and isolation proof
 
-- [ ] Architecture test: `Forge.Identity` has no reference to `Forge.Identity.Ui.Blazor` or `Forge.Admin.Blazor`; `Forge.Identity.Ui.Blazor` references no `DbContext`, `UserManager`, `SignInManager` or store types — only the 6.1 contract and `Forge.Admin.Blazor` contribution contracts.
+- [x] Architecture test: `Forge.Identity` has no reference to `Forge.Identity.Ui.Blazor` or `Forge.Admin.Blazor`; `Forge.Identity.Ui.Blazor` references no `DbContext`, `UserManager`, `SignInManager` or store types — only the 6.1 contract and `Forge.Admin.Blazor` contribution contracts.
 - [ ] Removal test: `forge new --admin` output builds and serves `/admin` with the Identity UI package reference deleted (capability still runs; shell shows no Identity pages).
 - [ ] Tenant-isolation test for user listing/administration through the UI's contract path.
 
