@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="Forge.Web" Version="$(ForgeVersion)" />
+    <PackageReference Include="Forge.Modularity" Version="$(ForgeVersion)" />
+    <PackageReference Include="Forge.Observability" Version="$(ForgeVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj" />
+  </ItemGroup>
+</Project>

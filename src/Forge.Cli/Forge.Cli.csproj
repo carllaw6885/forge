@@ -8,6 +8,12 @@
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="templates/**/*" />
+    <Content Remove="templates/**/*" />
+    <None Remove="templates/**/*" />
+    <EmbeddedResource Include="templates/**/*" Exclude="templates/**/obj/**;templates/**/bin/**" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
     <ProjectReference Include="../Forge.Core/Forge.Core.csproj" />
   </ItemGroup>

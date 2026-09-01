@@ -27,10 +27,10 @@
 
 ## 5.4 CLI v0.1 completion
 
-- [ ] Implement forge new against the reference template.
-- [ ] Implement forge db status/migrate and forge doctor core checks.
-- [ ] Implement forge upgrade check --dry-run.
-- [ ] Ensure generated output is ordinary source and commands are idempotent.
+- [x] Implement forge new against the reference template.
+- [x] Implement forge db status/migrate and forge doctor core checks.
+- [x] Implement forge upgrade check --dry-run.
+- [x] Ensure generated output is ordinary source and commands are idempotent.
 
 ## 5.5 Release engineering
 

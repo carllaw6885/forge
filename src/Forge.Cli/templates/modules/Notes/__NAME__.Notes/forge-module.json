@@ -1,0 +1,7 @@
+{
+  "id": "{{NAME}}.Notes",
+  "name": "Notes",
+  "version": "0.1.0",
+  "description": "Sample tenant-owned notes module.",
+  "ownedSchemas": ["notes"]
+}

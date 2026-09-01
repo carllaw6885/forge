@@ -100,6 +100,7 @@ public static class ForgeCli
             Check("Directory.Packages.props", File.Exists(Path.Combine(repoRoot, "Directory.Packages.props")));
             Check("tool manifest (.config/dotnet-tools.json)", File.Exists(Path.Combine(repoRoot, ".config", "dotnet-tools.json")));
             Check("module manifests valid", ModuleGraph.Validate(ModuleManifest.LoadAll(repoRoot)).Count == 0);
+            Check("db migrator project present", Commands.DbCommand.FindMigrator(repoRoot) is not null);
 
             return failed ? 1 : 0;
         });
@@ -137,6 +138,28 @@ public static class ForgeCli
         });
         audit.Subcommands.Add(verify);
         root.Subcommands.Add(audit);
+
+        var newCommand = new Command("new", "Generate a new Forge solution from the reference template (ordinary source, idempotent).");
+        var nameArgument = new Argument<string>("name") { Description = "Solution/root namespace name, e.g. Acme." };
+        newCommand.Arguments.Add(nameArgument);
+        newCommand.SetAction(pr => Commands.NewCommand.Run(pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!));
+        root.Subcommands.Add(newCommand);
+
+        var db = new Command("db", "Database operations, delegated to the solution's DbMigrator (the CLI itself stays EF-free).");
+        var dbStatus = new Command("status", "Show applied/pending migrations per module schema.");
+        dbStatus.SetAction(pr => Commands.DbCommand.Run(pr.GetValue(rootOption)!, "status"));
+        var dbMigrate = new Command("migrate", "Apply pending migrations (with --dry-run: list them without applying).");
+        dbMigrate.SetAction(pr => Commands.DbCommand.Run(
+            pr.GetValue(rootOption)!, pr.GetValue(dryRunOption) ? "status" : "migrate"));
+        db.Subcommands.Add(dbStatus);
+        db.Subcommands.Add(dbMigrate);
+        root.Subcommands.Add(db);
+
+        var upgrade = new Command("upgrade", "Forge version tooling.");
+        var check = new Command("check", "Compare the repository's pinned Forge package versions against this CLI (offline, deterministic).");
+        check.SetAction(pr => Commands.UpgradeCommand.Check(pr.GetValue(rootOption)!));
+        upgrade.Subcommands.Add(check);
+        root.Subcommands.Add(upgrade);
 
         return root;
     }

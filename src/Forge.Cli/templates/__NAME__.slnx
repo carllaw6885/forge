@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/{{NAME}}.Api/{{NAME}}.Api.csproj" />
+    <Project Path="src/{{NAME}}.DbMigrator/{{NAME}}.DbMigrator.csproj" />
+    <Project Path="src/{{NAME}}.AppHost/{{NAME}}.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/modules/">
+    <Project Path="modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj" />
+  </Folder>
+</Solution>

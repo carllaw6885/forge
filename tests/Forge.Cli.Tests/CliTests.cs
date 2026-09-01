@@ -142,6 +142,71 @@ public class CliTests : IDisposable
     }
 
     [Fact]
+    public void New_generates_a_deterministic_valid_solution_and_refuses_non_empty_targets()
+    {
+        var genA = Path.Combine(_root, "genA");
+        var genB = Path.Combine(_root, "genB");
+        Directory.CreateDirectory(genA);
+        Directory.CreateDirectory(genB);
+
+        Assert.Equal(0, Run("new", "Acme", "--root", genA).ExitCode);
+        Assert.Equal(0, Run("new", "Acme", "--root", genB).ExitCode);
+
+        // deterministic: two generations are byte-identical
+        var filesA = Directory.EnumerateFiles(genA, "*", SearchOption.AllDirectories)
+            .Select(f => Path.GetRelativePath(genA, f)).Order(StringComparer.Ordinal).ToList();
+        var filesB = Directory.EnumerateFiles(genB, "*", SearchOption.AllDirectories)
+            .Select(f => Path.GetRelativePath(genB, f)).Order(StringComparer.Ordinal).ToList();
+        Assert.Equal(filesA, filesB);
+        foreach (var relative in filesA)
+        {
+            Assert.Equal(File.ReadAllText(Path.Combine(genA, relative)), File.ReadAllText(Path.Combine(genB, relative)));
+        }
+
+        Assert.Equal(12, filesA.Count);
+
+        // the generated module graph validates
+        var validate = Run("modules", "validate", "--root", Path.Combine(genA, "Acme"));
+        Assert.Equal(0, validate.ExitCode);
+
+        // idempotent: refuses to overwrite
+        var again = Run("new", "Acme", "--root", genA);
+        Assert.Equal(1, again.ExitCode);
+        Assert.Contains("not empty", again.Err, StringComparison.Ordinal);
+
+        // invalid name is rejected before touching disk
+        Assert.Equal(1, Run("new", "1bad name", "--root", genA).ExitCode);
+    }
+
+    [Fact]
+    public void Upgrade_check_is_a_deterministic_dry_run()
+    {
+        var gen = Path.Combine(_root, "genU");
+        Directory.CreateDirectory(gen);
+        Run("new", "Acme", "--root", gen);
+
+        var first = Run("upgrade", "check", "--root", Path.Combine(gen, "Acme"));
+        var second = Run("upgrade", "check", "--root", Path.Combine(gen, "Acme"));
+
+        Assert.Equal(0, first.ExitCode);
+        Assert.Equal(first.Out, second.Out);
+        Assert.Contains("dry run; nothing changed", first.Out, StringComparison.Ordinal);
+        Assert.Contains("Forge.Modularity 0.1.0", first.Out, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Db_commands_locate_the_migrator_project()
+    {
+        var gen = Path.Combine(_root, "genD");
+        Directory.CreateDirectory(gen);
+        Run("new", "Acme", "--root", gen);
+
+        var migrator = Forge.Cli.Commands.DbCommand.FindMigrator(Path.Combine(gen, "Acme"));
+        Assert.NotNull(migrator);
+        Assert.EndsWith("Acme.DbMigrator.csproj", migrator, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Dry_run_option_is_accepted_globally()
     {
         WriteManifest("a", """{"id":"Alpha","name":"Alpha","version":"0.1.0"}""");
