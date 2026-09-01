@@ -165,6 +165,11 @@ public class CliTests : IDisposable
 
         Assert.Equal(12, filesA.Count);
 
+        // the AppHost declares an http(s) endpoint — WithExternalHttpEndpoints alone
+        // creates none and the api resource would run with no URL
+        var appHost = File.ReadAllText(Path.Combine(genA, "Acme", "src", "Acme.AppHost", "Program.cs"));
+        Assert.Contains(".WithHttpsEndpoint()", appHost, StringComparison.Ordinal);
+
         // the generated module graph validates
         var validate = Run("modules", "validate", "--root", Path.Combine(genA, "Acme"));
         Assert.Equal(0, validate.ExitCode);
