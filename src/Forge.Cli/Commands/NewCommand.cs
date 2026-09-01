@@ -14,6 +14,11 @@ public static class NewCommand
 
     private const string AdminPrefix = "admin.";
 
+    /// <summary>The CLI's own package version — generated apps pin the matching ForgeStack.* packages.</summary>
+    public static string ForgeVersion { get; } =
+        typeof(NewCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
+            .InformationalVersion.Split('+')[0];
+
     public static int Run(string name, string outputDirectory, bool admin = false)
     {
         if (!name.All(c => char.IsAsciiLetterOrDigit(c)) || name.Length == 0 || !char.IsAsciiLetter(name[0]))
@@ -47,7 +52,8 @@ public static class NewCommand
             using var reader = new StreamReader(stream);
             files[ResourceToPath(resource, name)] = reader.ReadToEnd()
                 .Replace("{{NAME}}", name, StringComparison.Ordinal)
-                .Replace("{{NAME_LOWER}}", name.ToLower(CultureInfo.InvariantCulture), StringComparison.Ordinal);
+                .Replace("{{NAME_LOWER}}", name.ToLower(CultureInfo.InvariantCulture), StringComparison.Ordinal)
+                .Replace("{{FORGE_VERSION}}", ForgeVersion, StringComparison.Ordinal);
         }
 
         foreach (var (relativePath, content) in files)

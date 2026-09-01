@@ -165,6 +165,10 @@ public class CliTests : IDisposable
 
         Assert.Equal(12, filesA.Count);
 
+        // generated apps pin the CLI's own package version, never a stale hardcoded one
+        var props = File.ReadAllText(Path.Combine(genA, "Acme", "Directory.Build.props"));
+        Assert.Contains($"<ForgeVersion>{Commands.NewCommand.ForgeVersion}</ForgeVersion>", props, StringComparison.Ordinal);
+
         // the AppHost declares an http(s) endpoint — WithExternalHttpEndpoints alone
         // creates none and the api resource would run with no URL
         var appHost = File.ReadAllText(Path.Combine(genA, "Acme", "src", "Acme.AppHost", "Program.cs"));
@@ -224,7 +228,7 @@ public class CliTests : IDisposable
         Assert.Equal(0, first.ExitCode);
         Assert.Equal(first.Out, second.Out);
         Assert.Contains("dry run; nothing changed", first.Out, StringComparison.Ordinal);
-        Assert.Contains("ForgeStack.Modularity 0.1.0", first.Out, StringComparison.Ordinal);
+        Assert.Contains($"ForgeStack.Modularity {Commands.NewCommand.ForgeVersion}", first.Out, StringComparison.Ordinal);
     }
 
     [Fact]
