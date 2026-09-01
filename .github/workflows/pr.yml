@@ -69,9 +69,10 @@ jobs:
           openssl pkcs12 -export -out $KEYS/signing.pfx -inkey $KEYS/sign.key -in $KEYS/sign.crt -passout pass:smokepwd
           openssl req -x509 -newkey rsa:2048 -keyout $KEYS/enc.key -out $KEYS/enc.crt -days 2 -nodes -subj "/CN=smoke-encryption"
           openssl pkcs12 -export -out $KEYS/encryption.pfx -inkey $KEYS/enc.key -in $KEYS/enc.crt -passout pass:smokepwd
+          chmod 644 $KEYS/*.pfx  # the container runs as non-root app; a real bind mount enforces file modes
           docker run -d --name smoke-api --add-host=host.docker.internal:host-gateway -p 5230:8080 -v $KEYS:/keys:ro -e ConnectionStrings__forge="Server=host.docker.internal,14433;Database=forge;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true" -e Identity__SigningCertificate__PfxPath=/keys/signing.pfx -e Identity__SigningCertificate__PasswordEnvironmentVariable=FORGE_PFX_PWD -e Identity__EncryptionCertificate__PfxPath=/keys/encryption.pfx -e Identity__EncryptionCertificate__PasswordEnvironmentVariable=FORGE_PFX_PWD -e FORGE_PFX_PWD=smokepwd forge/referencesaas-api:latest
           for i in $(seq 1 60); do curl -sf http://127.0.0.1:5230/healthz/live && break; sleep 2; done
-          curl -sf http://127.0.0.1:5230/healthz/live
+          curl -sf http://127.0.0.1:5230/healthz/live || { echo "== container logs =="; docker logs smoke-api; exit 1; }
           curl -sf --max-time 60 http://127.0.0.1:5230/healthz/ready
           test "$(docker exec smoke-api whoami)" = "app"
           code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:5230/api/catalog/items/ -H "X-Tenant: smoke" -H "Content-Type: application/json" -d '{"name":"Smoke Anvil"}')
