@@ -40,7 +40,7 @@ Each module in scope gains, in this order:
 
 1. **Application contract** — inside the existing capability package. Plain interfaces (`IAuditQueries`, `IJobOperations`, …) with permission, tenant-scope and audit enforcement inside; no mediator/CQRS framework. Mandatory before any UI for that module ships.
 2. **`ForgeStack.<Module>.Ui.Blazor`** — consumes only the application contract.
-3. **`ForgeStack.<Module>.Api`** — optional Minimal-API projection of the contract, opt-in per module for remote consumers. v0.2 proves the pattern with **Identity** (account/session operations) and **Audit**; other modules add `.Api` when a real consumer appears. Not included by starters by default.
+3. **`ForgeStack.<Module>.Api`** — optional Minimal-API projection of the contract, opt-in per module for remote consumers. v0.2 proves the pattern with **Identity** (account/session operations) and **Audit**; other modules add `.Api` when a real consumer appears. Not included by starters by default; `forge new --with-api` opts in at generation time (the `api` template implies it), `forge api add` opts in later.
 
 Architecture tests: capability never references `.Ui.Blazor` or `.Api`; `.Ui.Blazor` references only the contract surface.
 
@@ -86,6 +86,7 @@ The v0.1 CLI (`new`, `modules`, `db`, `doctor`, `upgrade check`, `audit verify`)
 
 ```text
 forge new <Name> --template saas|enterprise|api|modular
+forge new <Name> --template saas --with-api            include the available .Api projections at generation time
 forge templates list
 forge ui add <module>        identity · tenancy · audit · jobs · settings · localisation · notifications · files
 forge ui remove <module>
