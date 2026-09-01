@@ -1,3 +1,3 @@
 # Architecture
 
-The files in `decisions/` are normative. Later implementation notes may refine but not contradict them.
+The 40 accepted ADRs in `decisions/` are normative. Later implementation notes may refine but not contradict them.

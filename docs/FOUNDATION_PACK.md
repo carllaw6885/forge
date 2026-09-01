@@ -2,16 +2,16 @@
 
 **Consolidated baseline:** v0.2  
 **Implementation target:** v0.1  
-**Decision status:** 39 accepted ADRs  
+**Decision status:** 40 accepted ADRs (ADR 40 added 1 September 2026, after v0.1)  
 **Rebuilt:** 31 August 2026
 
 > This pack reconstructs the accepted decision record from the referenced review conversation. The previously referenced `/mnt/data/forge_foundation_pack` source directory was not present in the execution environment; this edition is therefore a coherent replacement baseline rather than a byte-preserving edit.
 
 ## Executive position
 
-Forge is an Apache-2.0, cloud-neutral, modular .NET application foundation. It favours explicit composition, standard .NET primitives, strong tenant/security boundaries, transparent tooling and deterministic proof. It begins as a modular monolith, preserves extraction seams, and refuses premature distributed-system complexity.
+Forge is an Apache-2.0, cloud-neutral, modular .NET application foundation, described as four composable layers: platform → headless enterprise capabilities → optional first-party module UIs → starter applications (ADR 40). It favours explicit composition, standard .NET primitives, strong tenant/security boundaries, transparent tooling and deterministic proof. It begins as a modular monolith, preserves extraction seams, and refuses premature distributed-system complexity.
 
-The 39 ADRs are normative. Summaries below are authoritative for v0.2; detailed implementation specifications may refine mechanics but cannot contradict them without a superseding ADR.
+The 40 ADRs are normative. Summaries below are authoritative for v0.2; detailed implementation specifications may refine mechanics but cannot contradict them without a superseding ADR.
 
 ## Architectural north stars
 
@@ -182,7 +182,15 @@ A unified, versioned capability serves notifications, communications and documen
 
 Reusable primitives cover multiple external identities, provenance, sync state, checkpoints, conflicts and reconciliation without a universal business model. Modules declare authority, direction and conflict strategy; sync is durable, resumable and idempotent; external deletion never implies automatic local deletion.
 
+### ADR 40 — First-Party UI & Starter Applications
+
+Forge stays headless at the capability boundary; major modules additionally ship optional, production-quality, independently consumable Blazor reference UIs that never become capability dependencies, consume the public contracts, and honour tenant/permission/entitlement/impersonation context, localisation and WCAG 2.2 AA. Starter applications compose these UIs into usable SaaS and enterprise experiences. A first-party UI is complete only when the capability remains usable without it.
+
 ## Consolidated interpretations and contradiction resolution
+
+### Admin shell vs first-party module UI
+
+ADR 37 owns the administration shell, design system and extension contracts; ADR 40 layers optional per-module UI packages and starter applications on top of them. The shell is the composition host, not the end-state product experience.
 
 ### Templates vs notifications
 
@@ -240,7 +248,7 @@ Billing, general-purpose BI, CMS, BPMN engines, universal canonical business ent
 | 3 — Reliable application services | Weeks 12-16 | Outbox, in-process event bus, Quartz jobs, idempotency, Problem Details/OpenAPI, OpenTelemetry and health/readiness. |
 | 4 — Foundational enterprise services | Weeks 17-22 | Settings/secrets/flags, localisation, privacy/classification, storage pipeline, notifications/templates and Redis adapter. |
 | 5 — Reference product surface | Weeks 23-28 | Blazor admin shell/design tokens, WCAG gates, tenant/security context, jobs/audit/settings UI, Aspire AppHost and OCI packaging. |
-| Post-0.1 | After acceptance | RabbitMQ/ASB providers, workflows, search, realtime, reporting/imports, organisation scopes, ecosystem verification and sync/reconciliation. |
+| Post-0.1 | After acceptance | Phases 0–5 are complete. See `docs/POST_V0.1_ROADMAP.md`: v0.2 Application Experience + Distributed Capability, v0.3 Enterprise, v0.4 Integration, v0.5 Ecosystem, v1.0 stability contract. |
 
 ## v0.1 acceptance criteria
 

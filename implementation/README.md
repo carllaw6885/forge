@@ -10,4 +10,4 @@ This directory decomposes the Foundation Baseline v0.2 into executable delivery 
 4. Foundational enterprise services
 5. Reference product surface
 
-Do not pull post-v0.1 capability products forward without an accepted scope change.
+All six phases are complete (0.1.x shipped). These files are retained as implementation history; post-v0.1 work is planned in `docs/POST_V0.1_ROADMAP.md` under ADR 40. Do not pull post-v0.1 capability products forward without an accepted scope change.

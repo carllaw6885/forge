@@ -3,7 +3,7 @@
 **Implementation-ready engineering plan aligned to Foundation Baseline v0.2**  
 **Date:** 31 August 2026
 
-> Source of truth: Forge Foundation Pack v0.2. The 39 accepted ADRs are normative. This implementation pack refines mechanics only and does not supersede them.
+> Source of truth: Forge Foundation Pack v0.2. The 40 accepted ADRs are normative (ADR 40 accepted after v0.1; see `docs/POST_V0.1_ROADMAP.md`). This implementation pack refines mechanics only and does not supersede them.
 
 ## 1. Executive implementation position
 
@@ -44,6 +44,8 @@ Forge v0.1 is a proof of the product thesis, not an attempt to implement all 39 
 - Public marketplace/verification service
 - Full external sync/reconciliation workbench
 - Full SSO/SCIM/SAML administration experiences
+
+Phases 0–5 are complete; post-v0.1 delivery is planned in `docs/POST_V0.1_ROADMAP.md`.
 
 ## 3. Target solution and package structure
 
@@ -483,7 +485,8 @@ A backlog item is Done only when:
 | 36 | Ecosystem | Post-0.1 | Module manifest designed for future verification |
 | 37 | Admin UX | Phase 5 | Blazor shell/accessibility tests |
 | 38 | Templates | Phase 4 | Sandbox/allow-list/localisation tests |
-| 39 | Integration sync | Post-0.1 | No v0.1 implementation |
+| 39 | Integration sync | Post-0.1 (v0.4) | No v0.1 implementation |
+| 40 | First-party UI & starters | Post-0.1 (v0.2 Application Experience; v0.3 Enterprise starter) | Capability runs without UI; UI package installs/removes independently; SaaS starter E2E; WCAG/localisation/tenant/permission tests |
 
 ## 15. Release milestone definition
 

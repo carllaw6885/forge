@@ -40,4 +40,5 @@
 | 36 | Ecosystem | Post-0.1 | Module manifest designed for future verification |
 | 37 | Admin UX | Phase 5 | Blazor shell/accessibility tests |
 | 38 | Templates | Phase 4 | Sandbox/allow-list/localisation tests |
-| 39 | Integration sync | Post-0.1 | No v0.1 implementation |
+| 39 | Integration sync | Post-0.1 (v0.4) | No v0.1 implementation |
+| 40 | First-party UI & starters | Post-0.1 (v0.2 Application Experience; v0.3 Enterprise starter) | Capability runs without UI; UI package installs/removes independently; SaaS starter E2E; WCAG/localisation/tenant/permission tests |

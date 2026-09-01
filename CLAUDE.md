@@ -1,6 +1,6 @@
 # Forge — Modular Monolith (.NET 10)
 
-Apache-2.0, cloud-neutral modular .NET application foundation. Modular monolith first, extraction seams preserved, no premature distributed-system complexity. The 39 accepted ADRs are normative — read `docs/FOUNDATION_PACK.md` and `docs/IMPLEMENTATION_PACK.md` before significant changes, and `AGENTS.md` for the operating contract.
+Apache-2.0, cloud-neutral modular .NET application foundation. Modular monolith first, extraction seams preserved, no premature distributed-system complexity. The 40 accepted ADRs are normative — read `docs/FOUNDATION_PACK.md`, `docs/IMPLEMENTATION_PACK.md` and `docs/POST_V0.1_ROADMAP.md` before significant changes, and `AGENTS.md` for the operating contract.
 
 ## Tech Stack
 

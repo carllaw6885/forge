@@ -1,6 +1,6 @@
-# Forge starter v0.2
+# Forge
 
-Architecture-first starter repository aligned to the 39 accepted ADRs. This is a foundation scaffold: use `docs/ROADMAP.md` and `docs/V0.1_ACCEPTANCE.md` as the implementation contract.
+Architecture-first starter repository aligned to the 40 accepted ADRs. v0.1 (`docs/ROADMAP.md`, `docs/V0.1_ACCEPTANCE.md`) is complete and published as `ForgeStack.*` packages; the living roadmap is `docs/POST_V0.1_ROADMAP.md` (ADR 40: optional first-party module UIs and starter applications).
 
 ## Getting started
 
