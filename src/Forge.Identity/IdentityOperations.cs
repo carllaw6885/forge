@@ -99,12 +99,15 @@ internal sealed class IdentityOperations(
             return Result.Failure<IReadOnlyList<UserSummary>>(denied);
         }
 
-        var list = new List<UserSummary>();
-        foreach (var user in await db.Users.AsNoTracking().OrderBy(u => u.UserName).Take(take).ToListAsync(ct))
-        {
-            list.Add(new UserSummary(user.UserName!, [.. await users.GetRolesAsync(user)]));
-        }
-
+        var list = await db.Users.AsNoTracking()
+            .OrderBy(u => u.UserName)
+            .Take(take)
+            .Select(u => new UserSummary(u.UserName!,
+                db.UserRoles.Where(ur => ur.UserId == u.Id)
+                    .Join(db.Roles, ur => ur.RoleId, r => r.Id, (_, r) => r.Name!)
+                    .OrderBy(n => n)
+                    .ToList()))
+            .ToListAsync(ct);
         return Result.Success<IReadOnlyList<UserSummary>>(list);
     }
 

@@ -136,4 +136,49 @@ public class IdentityContractTests(IdentityFixture fx) : IClassFixture<IdentityF
         Assert.Equal(IdentityErrors.NotFound, (await users.AssignRoleAsync("ghost", "editor", ct)).Error.Code);
         Assert.Equal(IdentityErrors.Invalid, (await users.CreateAsync("weak", "short", ct)).Error.Code);
     }
+
+    [Fact]
+    public async Task Anonymous_account_operations_are_denied()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+        using var scope = ActingAs(null, []);
+        var account = scope.ServiceProvider.GetRequiredService<IAccountOperations>();
+
+        Assert.Equal(IdentityErrors.Denied, (await account.MeAsync(ct)).Error.Code);
+        Assert.Equal(IdentityErrors.Denied, (await account.ChangePasswordAsync("x", "Str0ng!Password!42", ct)).Error.Code);
+    }
+
+    [Fact]
+    public async Task Signed_in_user_sees_self_and_changes_password_with_audit()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+        await SeedAdminRoleAsync();
+        using (var admin = ActingAs("root", ["contract-admin"]))
+        {
+            var users = admin.ServiceProvider.GetRequiredService<IUserAdministration>();
+            Assert.True((await users.CreateAsync("alice", "Str0ng!Password!42", ct)).IsSuccess);
+            Assert.True((await users.AssignRoleAsync("alice", "contract-admin", ct)).IsSuccess);
+        }
+
+        // the principal Identity itself issues (NameIdentifier claim); no permission needed for own account
+        using var scope = fx.App.Services.CreateScope();
+        var manager = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+        var principal = await scope.ServiceProvider.GetRequiredService<IUserClaimsPrincipalFactory<ForgeUser>>()
+            .CreateAsync((await manager.FindByNameAsync("alice"))!);
+        scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext =
+            new DefaultHttpContext { User = principal, RequestServices = scope.ServiceProvider };
+        var account = scope.ServiceProvider.GetRequiredService<IAccountOperations>();
+
+        var me = (await account.MeAsync(ct)).Value;
+        Assert.Equal("alice", me.UserName);
+        Assert.Equal(["contract-admin"], me.Roles);
+
+        Assert.Equal(IdentityErrors.Invalid, (await account.ChangePasswordAsync("wrong", "N3w!Password!42", ct)).Error.Code);
+        Assert.True((await account.ChangePasswordAsync("Str0ng!Password!42", "N3w!Password!42", ct)).IsSuccess);
+        Assert.Contains(await AuditAsync(scope, IdentityAuditActions.PasswordChanged),
+            r => r.Event.Actor == "alice" && r.Event.Subject == "alice" && r.Event.Outcome == "success");
+        Assert.True(await manager.CheckPasswordAsync((await manager.FindByNameAsync("alice"))!, "N3w!Password!42"));
+    }
 }
