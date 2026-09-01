@@ -28,7 +28,7 @@ Agents may edit code, tests, docs and migrations and may propose ADRs.
 Agents must not weaken gates, suppress vulnerabilities, change licensing, expose secrets, publish releases or contradict accepted ADRs.
 
 ## Required workflow
-1. Read the relevant milestone in `docs/POST_V0.1_ROADMAP.md` (v0.1 `implementation/phase-*` files are completed history).
+1. Read the active `implementation/phase-*` file (phase 6 onward is v0.2; phases 0–5 are completed v0.1 history) and the matching milestone in `docs/POST_V0.1_ROADMAP.md`.
 2. Identify affected ADRs using `implementation/TRACEABILITY.md`.
 3. Implement with tests proving tenancy/security/architecture implications.
 4. Run deterministic validation.

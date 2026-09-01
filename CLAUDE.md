@@ -28,7 +28,7 @@ Apache-2.0, cloud-neutral modular .NET application foundation. Modular monolith 
 
 ## Workflow
 
-1. Read the active `implementation/phase-*` file (currently phase 0: repository contract).
+1. Read the active `implementation/phase-*` file (currently phase 6: Identity application experience, v0.2).
 2. Identify affected ADRs via `implementation/TRACEABILITY.md`.
 3. Implement with tests proving tenancy/security/architecture implications.
 4. Run deterministic validation (`eng/QUALITY_GATES.md`); update the phase checklist.
