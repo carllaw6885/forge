@@ -16,7 +16,7 @@ Per ADR 22. This page ships with each release and is updated when support window
 ## Upgrading
 
 1. Read the release notes for the target version — breaking changes are deprecation-first (ADR 21) and called out explicitly.
-2. Update the `Forge.*` package pins (or `ForgeVersion`); `forge upgrade check` reports drift.
+2. Update the `ForgeStack.*` package pins (or `ForgeVersion`); `forge upgrade check` reports drift.
 3. Run the migrator (`forge db migrate` / your DbMigrator) **before** deploying app instances. Migrations are expand-and-contract where feasible; each release's fresh-install and supported-upgrade paths are CI-tested.
 4. Deploy the app. Aspire is a local-development experience only; production remains the OCI container + migrator pair.
 

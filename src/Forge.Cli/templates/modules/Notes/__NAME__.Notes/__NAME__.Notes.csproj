@@ -3,7 +3,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Forge.Modularity" Version="$(ForgeVersion)" />
-    <PackageReference Include="Forge.Persistence.SqlServer" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Modularity" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Persistence.SqlServer" Version="$(ForgeVersion)" />
   </ItemGroup>
 </Project>

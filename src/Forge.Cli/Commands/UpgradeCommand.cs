@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace Forge.Cli.Commands;
 
 /// <summary>
-/// forge upgrade check --dry-run (ADR 23): compares Forge package pins found in
+/// forge upgrade check --dry-run (ADR 23): compares ForgeStack package pins found in
 /// the repository against this CLI's own version. Offline and deterministic —
 /// no network, no mutation.
 /// </summary>
@@ -30,7 +30,7 @@ public static class UpgradeCommand
                 var include = element.Attribute("Include")?.Value;
                 var version = element.Attribute("Version")?.Value;
                 if (include is not null && version is not null
-                    && include.StartsWith("Forge.", StringComparison.Ordinal))
+                    && include.StartsWith("ForgeStack.", StringComparison.Ordinal))
                 {
                     pins.TryAdd(include, version);
                 }

@@ -18,5 +18,9 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- nuget.org package prefix: the bare Forge.* namespace is occupied by
+         other owners, so packages publish as ForgeStack.* while assemblies
+         and namespaces remain Forge.* -->
+    <PackageId Condition="$(MSBuildProjectName.StartsWith('Forge.'))">ForgeStack.$(MSBuildProjectName.Substring(6))</PackageId>
   </PropertyGroup>
 </Project>

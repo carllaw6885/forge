@@ -491,7 +491,7 @@ Forge v0.1 may be tagged only when every Foundation Pack v0.1 acceptance criteri
 
 ### Public developer journey
 ```bash
-dotnet tool install --global Forge.Cli
+dotnet tool install --global ForgeStack.Cli
 forge new Acme
 cd Acme
 dotnet run --project src/Acme.AppHost

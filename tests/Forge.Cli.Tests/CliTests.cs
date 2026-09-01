@@ -191,7 +191,7 @@ public class CliTests : IDisposable
         Assert.Equal(0, first.ExitCode);
         Assert.Equal(first.Out, second.Out);
         Assert.Contains("dry run; nothing changed", first.Out, StringComparison.Ordinal);
-        Assert.Contains("Forge.Modularity 0.1.0", first.Out, StringComparison.Ordinal);
+        Assert.Contains("ForgeStack.Modularity 0.1.0", first.Out, StringComparison.Ordinal);
     }
 
     [Fact]
