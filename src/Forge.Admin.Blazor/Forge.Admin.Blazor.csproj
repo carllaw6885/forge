@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <!-- default base path follows PackageId (ForgeStack.*); the shell links _content/Forge.Admin.Blazor -->
+    <StaticWebAssetBasePath>_content/Forge.Admin.Blazor</StaticWebAssetBasePath>
+  </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>

@@ -52,7 +52,9 @@ public sealed class AdminShellFixture : IAsyncLifetime
         }
 
         var cs = _container.GetConnectionString();
-        var builder = WebApplication.CreateBuilder();
+        // Development: static web assets from referenced libraries (the shell's stylesheet)
+        // are only mapped from the build manifest in this environment
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = Environments.Development });
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.Services.AddProblemDetails();
         builder.Services.AddForgeTenancy();

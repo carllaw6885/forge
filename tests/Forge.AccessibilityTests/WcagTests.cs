@@ -35,13 +35,18 @@ public class WcagTests(AdminShellFixture fx) : IClassFixture<AdminShellFixture>
     }
 
     [Theory]
-    [InlineData("light")]
-    [InlineData("dark")]
-    public async Task Both_themes_pass_axe_contrast_checks(string theme)
+    [InlineData("light", "rgb(247, 247, 245)")]
+    [InlineData("dark", "rgb(22, 24, 28)")]
+    public async Task Both_themes_pass_axe_contrast_checks(string theme, string expectedBackground)
     {
         RequireServer();
         var page = await fx.NewPageAsync();
         await page.GotoAsync($"{fx.BaseUrl}/admin/theme/{theme}?returnUrl=/admin/users");
+
+        // contrast checks are meaningless against browser defaults: prove the shell's
+        // stylesheet resolved and the theme token applied (--forge-bg on body)
+        Assert.Equal(theme, await page.EvaluateAsync<string>("document.documentElement.dataset.theme"));
+        Assert.Equal(expectedBackground, await page.EvaluateAsync<string>("getComputedStyle(document.body).backgroundColor"));
 
         var results = await page.RunAxe();
 
