@@ -3,6 +3,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Forge.Cli</RootNamespace>
     <AssemblyName>forge</AssemblyName>
+    <!-- installable as a global dotnet tool: Forge.Cli (ADR 23) -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>forge</ToolCommandName>
+    <PackageId>Forge.Cli</PackageId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine" />

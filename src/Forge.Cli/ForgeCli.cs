@@ -95,10 +95,14 @@ public static class ForgeCli
                 failed |= !ok;
             }
 
+            // advisory: recommended but their absence is not a defect
+            void Advise(string name, bool ok) =>
+                Console.WriteLine($"{(ok ? "ok  " : "warn")} {name}");
+
             Check("solution file (*.slnx)", Directory.EnumerateFiles(repoRoot, "*.slnx").Any());
             Check("Directory.Build.props", File.Exists(Path.Combine(repoRoot, "Directory.Build.props")));
-            Check("Directory.Packages.props", File.Exists(Path.Combine(repoRoot, "Directory.Packages.props")));
-            Check("tool manifest (.config/dotnet-tools.json)", File.Exists(Path.Combine(repoRoot, ".config", "dotnet-tools.json")));
+            Advise("central package management (Directory.Packages.props)", File.Exists(Path.Combine(repoRoot, "Directory.Packages.props")));
+            Advise("tool manifest (.config/dotnet-tools.json)", File.Exists(Path.Combine(repoRoot, ".config", "dotnet-tools.json")));
             Check("module manifests valid", ModuleGraph.Validate(ModuleManifest.LoadAll(repoRoot)).Count == 0);
             Check("db migrator project present", Commands.DbCommand.FindMigrator(repoRoot) is not null);
 

@@ -1,0 +1,109 @@
+name: Release
+
+# Tag-triggered release engineering (ADR 21/22): full conformance, fresh
+# install, packaging, SBOM and provenance. Publishing to NuGet only happens
+# when a maintainer has configured NUGET_API_KEY — the workflow otherwise
+# stops at staged, attested artefacts. Manual gates (WCAG checklist, security
+# sign-off) are recorded in the release notes by the maintainer.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Restore and build
+        run: |
+          dotnet tool restore
+          dotnet restore Forge.slnx
+          dotnet build Forge.slnx --no-restore -c Release
+      - name: Full test suites (unit, architecture, tenancy, security)
+        run: dotnet test Forge.slnx --no-build -c Release --filter "FullyQualifiedName!~Persistence.SqlServer.Tests&FullyQualifiedName!~ReferenceCatalog.Tests&FullyQualifiedName!~IdentityModuleTests&FullyQualifiedName!~QuartzSqlStoreTests&FullyQualifiedName!~SqlSettingStoreTests&FullyQualifiedName!~RedisTenantCacheTests&FullyQualifiedName!~AccessibilityTests"
+      - name: Container-backed suites (SQL Server, Quartz, identity, settings, Redis)
+        run: |
+          dotnet test tests/Forge.Persistence.SqlServer.Tests -c Release --no-build
+          dotnet test tests/Forge.ReferenceCatalog.Tests -c Release --no-build
+          dotnet test tests/Forge.SecurityTests -c Release --no-build --filter "FullyQualifiedName~IdentityModuleTests"
+          dotnet test tests/Forge.JobsTests -c Release --no-build --filter "FullyQualifiedName~QuartzSqlStoreTests"
+          dotnet test tests/Forge.SettingsTests -c Release --no-build --filter "FullyQualifiedName~SqlSettingStoreTests"
+          dotnet test tests/Forge.CachingTests -c Release --no-build
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
+      - name: WCAG 2.2 AA gate
+        run: |
+          pwsh tests/Forge.AccessibilityTests/bin/Release/net10.0/playwright.ps1 install chromium --with-deps
+          dotnet test tests/Forge.AccessibilityTests -c Release --no-build
+        env:
+          FORGE_REQUIRE_SQLSERVER: "true"
+      - name: Fresh install (migrator against empty database)
+        run: |
+          docker run -d --name rel-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Rel!Passw0rd42' -p 14533:1433 mcr.microsoft.com/mssql/server:2022-latest
+          for i in $(seq 1 60); do docker exec rel-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Rel!Passw0rd42' -C -Q "SELECT 1" >/dev/null 2>&1 && break; sleep 2; done
+          docker exec rel-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Rel!Passw0rd42' -C -Q "CREATE DATABASE forge"
+          export ConnectionStrings__forge="Server=127.0.0.1,14533;Database=forge;User Id=sa;Password=Rel!Passw0rd42;TrustServerCertificate=true"
+          dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release --no-build -- migrate
+          dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release --no-build -- migrate
+          dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release --no-build -- status
+      - name: Supported upgrade (previous release schema -> current migrations)
+        run: |
+          PREV=$(git tag --list 'v*' --sort=-v:refname | sed -n 2p)
+          if [ -z "$PREV" ]; then
+            echo "first release: no previous tag, upgrade path not applicable"
+          else
+            echo "upgrade test from $PREV"
+            git worktree add /tmp/prev "$PREV"
+            export ConnectionStrings__forge="Server=127.0.0.1,14533;Database=forgeupgrade;User Id=sa;Password=Rel!Passw0rd42;TrustServerCertificate=true"
+            docker exec rel-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Rel!Passw0rd42' -C -Q "CREATE DATABASE forgeupgrade"
+            dotnet run --project /tmp/prev/samples/Forge.ReferenceSaaS.DbMigrator -- migrate
+            dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release --no-build -- migrate
+          fi
+
+  package:
+    needs: conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Pack
+        run: |
+          dotnet tool restore
+          dotnet build Forge.slnx -c Release --verbosity quiet
+          mkdir -p artifacts/packages
+          for proj in src/*/; do
+            dotnet pack "$proj" -c Release -o artifacts/packages --no-build --verbosity quiet
+          done
+          ls artifacts/packages
+      - name: SBOM
+        run: dotnet tool run dotnet-CycloneDX -- Forge.slnx --json --output artifacts --filename sbom.json
+      - name: Provenance attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: artifacts/packages/*.nupkg
+      - name: Upload release artefacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artefacts
+          path: artifacts/
+          retention-days: 90
+      - name: Publish to NuGet (only when a maintainer configured the key)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "NUGET_API_KEY not configured — artefacts staged, publish skipped (maintainer action required)"
+            exit 0
+          fi
+          dotnet nuget push "artifacts/packages/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate

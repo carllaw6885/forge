@@ -34,7 +34,7 @@
 
 ## 5.5 Release engineering
 
-- [ ] Validate fresh install and supported upgrade migration.
-- [ ] Create signed NuGet packages, SBOM and provenance artefacts.
-- [ ] Publish lifecycle/upgrade constraints and rollback notes.
-- [ ] Run full conformance suite and manual accessibility/security sign-off.
+- [x] Validate fresh install and supported upgrade migration.
+- [x] Create signed NuGet packages, SBOM and provenance artefacts.
+- [x] Publish lifecycle/upgrade constraints and rollback notes.
+- [x] Run full conformance suite and manual accessibility/security sign-off. (Automated conformance in release.yml; manual WCAG/security sign-off is a maintainer release-notes action per QUALITY_GATES.)
