@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
 using Testcontainers.MsSql;
@@ -80,9 +78,7 @@ public sealed class IdentityFixture : IAsyncLifetime
         using (var scope = App.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
-            // ponytail: CreateTables from the compiled model; hand-rolled or
-            // generated migrations land with release engineering (Phase 5).
-            await db.GetService<IRelationalDatabaseCreator>().CreateTablesAsync();
+            await db.Database.MigrateAsync();
 
             await scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>()
                 .CreateAsync(new OpenIddictApplicationDescriptor

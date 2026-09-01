@@ -2,8 +2,6 @@ using Forge.Identity;
 using Forge.Persistence.SqlServer;
 using Forge.ReferenceCatalog;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 
 // Independent migration runner (ADR 25): migrations execute here, never at web
@@ -28,6 +26,7 @@ var migratedContexts = new (string Name, Func<Task> Migrate, Func<Task<string>> 
     Context("catalog", () => new CatalogDbContext(Options<CatalogDbContext>("catalog"), currentTenant: null!)),
     Context("audit", () => new AuditDbContext(Options<AuditDbContext>("audit"))),
     Context("settings", () => new SettingsDbContext(Options<SettingsDbContext>("settings"))),
+    Context("identity", () => new ForgeIdentityDbContext(Options<ForgeIdentityDbContext>("identity"))),
 };
 
 switch (command)
@@ -38,7 +37,6 @@ switch (command)
             Console.WriteLine($"{name}: {await status()}");
         }
 
-        Console.WriteLine("identity: managed via CreateTables (idempotent)");
         Console.WriteLine("jobs: managed via Quartz schema installer (idempotent)");
         return 0;
 
@@ -47,20 +45,6 @@ switch (command)
         {
             await migrate();
             Console.WriteLine($"{name}: migrated");
-        }
-
-        await using (var identity = new ForgeIdentityDbContext(Options<ForgeIdentityDbContext>("identity")))
-        {
-            var creator = identity.GetService<IRelationalDatabaseCreator>();
-            try
-            {
-                await creator.CreateTablesAsync();
-                Console.WriteLine("identity: tables created");
-            }
-            catch (Microsoft.Data.SqlClient.SqlException)
-            {
-                Console.WriteLine("identity: tables already present");
-            }
         }
 
         await Forge.Jobs.Quartz.ServiceCollectionExtensions.EnsureQuartzSchemaAsync(connectionString, CancellationToken.None);
