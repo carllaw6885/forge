@@ -5,6 +5,11 @@
     <PackageReference Include="ForgeStack.Observability" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Identity" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Admin.Blazor" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Security" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Settings" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Localization" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Jobs" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Persistence.SqlServer" Version="$(ForgeVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj" />

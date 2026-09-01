@@ -1,4 +1,5 @@
 using Forge.Identity;
+using Forge.Persistence.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using {{NAME}}.Notes;
@@ -17,6 +18,8 @@ var contexts = new (string Name, Func<DbContext> Factory)[]
 {
     ("notes", () => new NotesDbContext(Options<NotesDbContext>("notes"), currentTenant: null)),
     ("identity", () => new ForgeIdentityDbContext(Options<ForgeIdentityDbContext>("identity"))),
+    ("audit", () => new AuditDbContext(Options<AuditDbContext>("audit"))),
+    ("settings", () => new SettingsDbContext(Options<SettingsDbContext>("settings"))),
 };
 
 switch (command)

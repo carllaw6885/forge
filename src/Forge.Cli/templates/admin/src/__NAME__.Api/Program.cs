@@ -1,7 +1,13 @@
 using Forge.Admin.Blazor;
+using Forge.Auditing;
 using Forge.Identity;
+using Forge.Jobs;
+using Forge.Localization;
 using Forge.Modularity;
 using Forge.Observability;
+using Forge.Persistence.SqlServer;
+using Forge.Security;
+using Forge.Settings;
 using Forge.Web;
 using Microsoft.AspNetCore.Identity;
 using {{NAME}}.Notes;
@@ -15,6 +21,16 @@ builder.Services.AddForgeSecurityDefaults(builder.Configuration);
 builder.Services.AddForgeTenancy();
 builder.Services.AddForgeObservability("{{NAME_LOWER}}");
 builder.Services.AddForgeAdminShell();
+// the shell's system pages (audit, settings, jobs, localisation, impersonation banner)
+builder.Services.AddForgeSettings();
+builder.Services.AddForgeLocalization();
+builder.Services.AddSqlServerAuditStore(connectionString);
+builder.Services.AddForgeAuditing(); // after the SQL store: fills in the redaction policy, TryAdd keeps the SQL IAuditStore
+builder.Services.AddSqlServerSettingStore(connectionString);
+builder.Services.AddSingleton<ImpersonationService>();
+builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
+// ponytail: in-memory failure sink; switch to ForgeStack.Jobs.Quartz when you need durable jobs
+builder.Services.AddSingleton<ITerminalFailureSink, InMemoryTerminalFailureSink>();
 
 // persisted token keys (ADR 18): configure Identity:SigningCertificate/EncryptionCertificate
 // with PfxPath (+ PasswordEnvironmentVariable); without them the module falls back to
@@ -45,6 +61,7 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseForgeTenancy();
+app.UseForgeRequestCulture();
 app.UseAntiforgery();
 
 app.MapForgeHealth(endpoint => endpoint.WithHostScope());

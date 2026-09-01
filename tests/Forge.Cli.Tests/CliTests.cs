@@ -204,6 +204,10 @@ public class CliTests : IDisposable
         Assert.Contains("AddForgeAdminShell", api, StringComparison.Ordinal);
         Assert.Contains("new IdentityModule(", api, StringComparison.Ordinal);
         Assert.Contains("MapForgeAdminShell", api, StringComparison.Ordinal);
+        // the shell's system pages resolve these at render time (found by driving /admin live)
+        Assert.Contains("IImpersonationContext", api, StringComparison.Ordinal);
+        Assert.Contains("AddSqlServerAuditStore", api, StringComparison.Ordinal);
+        Assert.Contains("ITerminalFailureSink", api, StringComparison.Ordinal);
 
         var apiProj = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.Api", "Acme.Api.csproj"));
         Assert.Contains("ForgeStack.Admin.Blazor", apiProj, StringComparison.Ordinal);

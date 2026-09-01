@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ForgeStack.Identity" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Persistence.SqlServer" Version="$(ForgeVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj" />
