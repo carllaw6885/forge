@@ -24,6 +24,21 @@ public sealed class IdentityFixture : IAsyncLifetime
     public HttpClient Client { get; private set; } = null!;
     public string? UnavailableReason { get; private set; }
 
+    private static string SelfSignedPfx(string subject)
+    {
+        Environment.SetEnvironmentVariable("FORGE_TEST_PFX_PASSWORD", "test-pfx-password");
+        using var rsa = System.Security.Cryptography.RSA.Create(2048);
+        var request = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+            $"CN={subject}", rsa, System.Security.Cryptography.HashAlgorithmName.SHA256,
+            System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+        using var certificate = request.CreateSelfSigned(
+            DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        var path = Path.Combine(Path.GetTempPath(), $"{subject}-{Guid.NewGuid():N}.pfx");
+        File.WriteAllBytes(path, certificate.Export(
+            System.Security.Cryptography.X509Certificates.X509ContentType.Pfx, "test-pfx-password"));
+        return path;
+    }
+
     public async ValueTask InitializeAsync()
     {
         try
@@ -42,9 +57,16 @@ public sealed class IdentityFixture : IAsyncLifetime
             return;
         }
 
+        // run the whole identity suite on the persisted-certificate path
+        var signing = SelfSignedPfx("forge-test-signing");
+        var encryption = SelfSignedPfx("forge-test-encryption");
+
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
-        builder.Services.AddForge(new IdentityModule(_container.GetConnectionString()));
+        builder.Services.AddForge(new IdentityModule(
+            _container.GetConnectionString(),
+            new IdentityKeyMaterial(signing, "FORGE_TEST_PFX_PASSWORD"),
+            new IdentityKeyMaterial(encryption, "FORGE_TEST_PFX_PASSWORD")));
 
         App = builder.Build();
         App.Services.UseForge();

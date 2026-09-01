@@ -29,11 +29,50 @@ internal sealed class DbRolePermissionMap(ForgeIdentityDbContext db) : IRolePerm
 }
 
 /// <summary>
+/// Token key material (ADR 18): a PFX on disk, with its password supplied via
+/// an environment variable — inject it with your secret mechanism (the
+/// reference ISecretStore is environment-based, so the two compose).
+/// </summary>
+public sealed record IdentityKeyMaterial(string PfxPath, string? PasswordEnvironmentVariable = null)
+{
+    internal System.Security.Cryptography.X509Certificates.X509Certificate2 Load() =>
+        System.Security.Cryptography.X509Certificates.X509CertificateLoader.LoadPkcs12FromFile(
+            PfxPath,
+            PasswordEnvironmentVariable is null ? null : Environment.GetEnvironmentVariable(PasswordEnvironmentVariable));
+}
+
+/// <summary>
+/// Refuses production startup on ephemeral token keys (ADR 18): a restart
+/// would silently invalidate every issued token.
+/// </summary>
+internal sealed class PersistedKeyMaterialValidator(bool hasSigning, bool hasEncryption)
+    : Forge.Core.Validation.IProductionConfigurationValidator
+{
+    public IEnumerable<string> Validate()
+    {
+        if (!hasSigning)
+        {
+            yield return "Identity must use a persisted signing certificate in production (IdentityKeyMaterial), not ephemeral keys";
+        }
+
+        if (!hasEncryption)
+        {
+            yield return "Identity must use a persisted encryption certificate in production (IdentityKeyMaterial), not ephemeral keys";
+        }
+    }
+}
+
+/// <summary>
 /// The reference identity module (ADR 06): ASP.NET Core Identity + OpenIddict,
 /// minimal v0.1 surface — client-credentials token issuance and role-aggregated
 /// first-class permissions. SSO/SCIM/SAML stay data-model seams.
+/// Without key material, token keys are ephemeral — a development convenience
+/// that production validation refuses.
 /// </summary>
-public sealed class IdentityModule(string connectionString) : IForgeModule
+public sealed class IdentityModule(
+    string connectionString,
+    IdentityKeyMaterial? signingCertificate = null,
+    IdentityKeyMaterial? encryptionCertificate = null) : IForgeModule
 {
     public ModuleManifest Manifest { get; } = new()
     {
@@ -55,6 +94,8 @@ public sealed class IdentityModule(string connectionString) : IForgeModule
 
         services.AddForgePermissions();
         services.Replace(ServiceDescriptor.Scoped<IRolePermissionMap, DbRolePermissionMap>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Forge.Core.Validation.IProductionConfigurationValidator>(
+            new PersistedKeyMaterialValidator(signingCertificate is not null, encryptionCertificate is not null)));
 
         services.AddOpenIddict()
             .AddCore(options => options.UseEntityFrameworkCore().UseDbContext<ForgeIdentityDbContext>())
@@ -62,8 +103,23 @@ public sealed class IdentityModule(string connectionString) : IForgeModule
             {
                 options.SetTokenEndpointUris("connect/token");
                 options.AllowClientCredentialsFlow();
-                options.AddEphemeralEncryptionKey()
-                    .AddEphemeralSigningKey(); // ponytail: ephemeral keys; persisted certs land with release engineering (Phase 5)
+                if (encryptionCertificate is not null)
+                {
+                    options.AddEncryptionCertificate(encryptionCertificate.Load());
+                }
+                else
+                {
+                    options.AddEphemeralEncryptionKey(); // development only; production validation refuses this
+                }
+
+                if (signingCertificate is not null)
+                {
+                    options.AddSigningCertificate(signingCertificate.Load());
+                }
+                else
+                {
+                    options.AddEphemeralSigningKey(); // development only; production validation refuses this
+                }
                 options.UseAspNetCore().EnableTokenEndpointPassthrough();
             })
             .AddValidation(options =>

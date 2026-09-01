@@ -36,9 +36,20 @@ builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService
 builder.Services.AddSqlServerAuditStore(connectionString);
 builder.Services.AddSqlServerSettingStore(connectionString);
 builder.Services.AddForgeQuartzJobs(new ForgeQuartzOptions { ConnectionString = connectionString });
+// persisted token keys (ADR 18): configure Identity:SigningCertificate/EncryptionCertificate
+// with PfxPath (+ PasswordEnvironmentVariable); without them the module falls back to
+// ephemeral keys, which production validation refuses at startup.
+IdentityKeyMaterial? KeyMaterial(string section) =>
+    builder.Configuration[$"Identity:{section}:PfxPath"] is { Length: > 0 } pfxPath
+        ? new IdentityKeyMaterial(pfxPath, builder.Configuration[$"Identity:{section}:PasswordEnvironmentVariable"])
+        : null;
+
 builder.Services.AddForge(
     new CatalogModule(connectionString),
-    new IdentityModule(connectionString));
+    new IdentityModule(
+        connectionString,
+        KeyMaterial("SigningCertificate"),
+        KeyMaterial("EncryptionCertificate")));
 
 // cookie sign-in over the Identity module for the admin acceptance journey
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
