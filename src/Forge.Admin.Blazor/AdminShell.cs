@@ -1,26 +1,16 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using Forge.Admin;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
+// 0.2.0-preview.1 consumers compiled against these types living in the shell
+[assembly: TypeForwardedTo(typeof(AdminNavItem))]
+[assembly: TypeForwardedTo(typeof(IAdminContribution))]
+
 namespace Forge.Admin.Blazor;
-
-/// <summary>A navigation entry a module contributes to the admin shell (ADR 37).</summary>
-public sealed record AdminNavItem(string Section, string Title, string Href);
-
-/// <summary>
-/// Explicit module contribution contract (ADRs 01/37): modules add nav items
-/// and optionally an assembly containing routable admin components. Registered
-/// in DI by each module — never discovered.
-/// </summary>
-public interface IAdminContribution
-{
-    IReadOnlyList<AdminNavItem> NavItems { get; }
-
-    /// <summary>Assembly with additional routable components, or null.</summary>
-    Assembly? ComponentAssembly => null;
-}
 
 /// <summary>Composition surface for the reference admin shell.</summary>
 public static class AdminShellExtensions

@@ -25,8 +25,20 @@ public interface IAuditStore
 {
     Task<AuditRecord> AppendAsync(AuditEvent auditEvent, CancellationToken cancellationToken);
 
-    // ponytail: unpaged read; add sequence-windowed paging when trails grow.
+    /// <summary>The whole trail in sequence order: what chain verification and export need.</summary>
     Task<IReadOnlyList<AuditRecord>> ReadAllAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Newest-first window: up to <paramref name="take"/> records with Sequence below
+    /// <paramref name="beforeSequence"/>. Default walks <see cref="ReadAllAsync"/> so
+    /// existing custom stores keep working; real stores override with a ranged query.
+    /// </summary>
+    async Task<IReadOnlyList<AuditRecord>> ReadLatestAsync(long beforeSequence, int take, CancellationToken cancellationToken) =>
+        (await ReadAllAsync(cancellationToken))
+            .Where(r => r.Sequence < beforeSequence)
+            .OrderByDescending(r => r.Sequence)
+            .Take(take)
+            .ToList();
 }
 
 /// <summary>Hash-chain primitives shared by every store and the verifier.</summary>

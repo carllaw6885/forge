@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+    <data name="AuditTitle" xml:space="preserve">
+    <value>سجل التدقيق</value>
+  </data>
+  <data name="NavOperations" xml:space="preserve">
+    <value>العمليات</value>
+  </data>
+  <data name="NavAuditTrail" xml:space="preserve">
+    <value>سجل التدقيق</value>
+  </data>
+  <data name="FilterCaption" xml:space="preserve">
+    <value>تصفية السجل</value>
+  </data>
+  <data name="Actor" xml:space="preserve">
+    <value>الفاعل</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>الإجراء</value>
+  </data>
+  <data name="Subject" xml:space="preserve">
+    <value>الموضوع</value>
+  </data>
+  <data name="Correlation" xml:space="preserve">
+    <value>الترابط</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="VerifyChain" xml:space="preserve">
+    <value>التحقق من سلسلة التجزئة</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>تصدير إلى مخزن الأدلة</value>
+  </data>
+  <data name="TrailCaption" xml:space="preserve">
+    <value>أحدث أدلة التدقيق</value>
+  </data>
+  <data name="Seq" xml:space="preserve">
+    <value>التسلسل</value>
+  </data>
+  <data name="Tenant" xml:space="preserve">
+    <value>المستأجر</value>
+  </data>
+  <data name="Outcome" xml:space="preserve">
+    <value>النتيجة</value>
+  </data>
+  <data name="At" xml:space="preserve">
+    <value>الوقت (UTC)</value>
+  </data>
+  <data name="ActorBy" xml:space="preserve">
+    <value>{0} (بواسطة {1})</value>
+  </data>
+  <data name="NotPermitted" xml:space="preserve">
+    <value>غير مسموح لك بذلك.</value>
+  </data>
+  <data name="ChainIntact" xml:space="preserve">
+    <value>السلسلة سليمة: {0} سجل. مخزن الأدلة: {1}.</value>
+  </data>
+  <data name="ChainBroken" xml:space="preserve">
+    <value>السلسلة مكسورة: {0}</value>
+  </data>
+  <data name="NoEvidenceStore" xml:space="preserve">
+    <value>لم يتم تكوين مخزن أدلة ثابت.</value>
+  </data>
+  <data name="Exported" xml:space="preserve">
+    <value>تم التصدير باسم {0}.</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>لا يوجد</value>
+  </data>
+</root>

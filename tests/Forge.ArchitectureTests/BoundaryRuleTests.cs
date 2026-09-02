@@ -98,7 +98,7 @@ public class BoundaryRuleTests
     }
 
     // ADR 40: the shell hosts module UI packages, it never depends on one — removing
-    // ForgeStack.Identity.Ui.Blazor leaves the shell (minus its identity pages) intact
+    // ForgeStack.Identity.Ui.Blazor (or Audit.Ui.Blazor) leaves the shell minus those pages intact
     [Fact]
     public void Admin_shell_owns_no_module_ui()
     {
@@ -108,6 +108,13 @@ public class BoundaryRuleTests
         var layout = File.ReadAllText(Path.Combine(RepoModel.Root, "src/Forge.Admin.Blazor/Components/Layout/MainLayout.razor"));
         Assert.DoesNotContain("/admin/users", layout, StringComparison.Ordinal);
         Assert.DoesNotContain("/account", layout, StringComparison.Ordinal);
+        Assert.DoesNotContain("/admin/audit", layout, StringComparison.Ordinal);
+
+        // module UI packages depend on the contribution contract, never on the shell
+        foreach (var ui in RepoModel.SourceProjects().Where(p => p.Name.Contains(".Ui.", StringComparison.Ordinal)))
+        {
+            Assert.DoesNotContain(ui.ProjectReferences, r => r.Contains("Forge.Admin.Blazor", StringComparison.Ordinal));
+        }
     }
 
     [Fact]

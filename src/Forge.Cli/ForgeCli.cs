@@ -166,7 +166,7 @@ public static class ForgeCli
         root.Subcommands.Add(db);
 
         var ui = new Command("ui", "Attach or detach first-party module UI packages (ordinary source edits, idempotent).");
-        var moduleArgument = new Argument<string>("module") { Description = "Module UI to add or remove: identity." };
+        var moduleArgument = new Argument<string>("module") { Description = "Module UI to add or remove: identity, audit." };
         foreach (var verb in new[] { "add", "remove" })
         {
             var command = new Command(verb, $"{char.ToUpperInvariant(verb[0])}{verb[1..]} the module's UI package reference and registration in the admin host.");

@@ -1,6 +1,6 @@
 using System.Reflection;
 using System.Resources;
-using Forge.Admin.Blazor;
+using Forge.Admin;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ADR 37/40: the contribution contract only — module UI packages depend on this, never on the shell -->
+</Project>

@@ -10,7 +10,9 @@
     <Project Path="samples/Forge.ReferenceSaaS.ServiceDefaults/Forge.ReferenceSaaS.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Forge.Admin.Abstractions/Forge.Admin.Abstractions.csproj" />
     <Project Path="src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
+    <Project Path="src/Forge.Audit.Ui.Blazor/Forge.Audit.Ui.Blazor.csproj" />
     <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
     <Project Path="src/Forge.Caching.Redis/Forge.Caching.Redis.csproj" />
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />

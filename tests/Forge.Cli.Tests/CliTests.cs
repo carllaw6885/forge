@@ -226,7 +226,7 @@ public class CliTests : IDisposable
     }
 
     [Fact]
-    public void Ui_remove_and_add_identity_round_trip_the_admin_template_byte_for_byte()
+    public void Ui_remove_and_add_round_trip_the_admin_template_byte_for_byte()
     {
         var gen = Path.Combine(_root, "genUi");
         Directory.CreateDirectory(gen);
@@ -251,6 +251,21 @@ public class CliTests : IDisposable
         Assert.Equal(0, Run("ui", "add", "identity", "--root", root).ExitCode);
         Assert.Equal(originalProgram, File.ReadAllText(program));
         Assert.Equal(originalProj, File.ReadAllText(csproj));
+
+        // both modules, removed and re-added in either order, land back in template order
+        foreach (var order in new[] { new[] { "identity", "audit" }, new[] { "audit", "identity" } })
+        {
+            Assert.Equal(0, Run("ui", "remove", "identity", "--root", root).ExitCode);
+            Assert.Equal(0, Run("ui", "remove", "audit", "--root", root).ExitCode);
+            Assert.DoesNotContain(".Ui.Blazor", File.ReadAllText(csproj), StringComparison.Ordinal);
+            foreach (var module in order)
+            {
+                Assert.Equal(0, Run("ui", "add", module, "--root", root).ExitCode);
+            }
+
+            Assert.Equal(originalProgram, File.ReadAllText(program));
+            Assert.Equal(originalProj, File.ReadAllText(csproj));
+        }
 
         // unknown module and a host without the admin shell are refused, nothing touched
         Assert.Equal(1, Run("ui", "add", "tenancy", "--root", root).ExitCode);

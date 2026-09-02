@@ -1,3 +1,4 @@
+using Forge.Auditing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +58,10 @@ public static class SecurityExtensions
         services.TryAddScoped<IPermissionChecker, DefaultPermissionChecker>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthorizationHandler, PermissionAuthorizationHandler>());
         services.Replace(ServiceDescriptor.Singleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>());
+        // the audit application contract (ADR 40) rides on the permission checker registered above
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton(TimeProvider.System);
+        services.TryAddScoped<IAuditQueries, AuditQueries>();
         return services;
     }
 

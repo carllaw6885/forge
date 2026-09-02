@@ -14,8 +14,8 @@ All six phases are complete (0.1.x shipped). These files are retained as impleme
 
 ## v0.2 (in progress)
 
-6. Identity application experience — `phase-6-identity-experience.md` (active)
-7. Audit experience, `--template saas`, `--with-api` (planned)
+6. Identity application experience — `phase-6-identity-experience.md` (complete, 0.2.0-preview.1)
+7. Audit experience, `.Api` projections, starters — `phase-7-audit-and-starters.md` (active)
 8. Distributed capability, Stream B (planned)
 
 A release spans several phases; v0.2 ships when 6–8 are complete. Do not pull post-v0.1 capability products forward without an accepted scope change.

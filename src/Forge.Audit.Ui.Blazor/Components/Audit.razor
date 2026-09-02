@@ -1,0 +1,92 @@
+@page "/admin/audit"
+@inject IAuditQueries Queries
+@inject IStringLocalizer<AuditUiResources> L
+
+<PageTitle>@L["AuditTitle"]</PageTitle>
+<h1>@L["AuditTitle"]</h1>
+
+<form method="get" role="search" aria-label="@L["FilterCaption"]">
+    <label for="filter-actor">@L["Actor"]</label>
+    <input id="filter-actor" name="actor" value="@Actor" />
+    <label for="filter-action">@L["Action"]</label>
+    <input id="filter-action" name="action" value="@Action" />
+    <label for="filter-subject">@L["Subject"]</label>
+    <input id="filter-subject" name="subject" value="@Subject" />
+    <label for="filter-correlation">@L["Correlation"]</label>
+    <input id="filter-correlation" name="correlationId" value="@CorrelationId" />
+    <button type="submit">@L["Filter"]</button>
+</form>
+
+<form method="post" @onsubmit="VerifyAsync" @formname="verify-chain">
+    <AntiforgeryToken />
+    <button type="submit">@L["VerifyChain"]</button>
+</form>
+
+<form method="post" @onsubmit="ExportAsync" @formname="export-trail">
+    <AntiforgeryToken />
+    <button type="submit">@L["Export"]</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status" data-testid="chain-result">@_message</p>
+}
+
+<table>
+    <caption>@L["TrailCaption"]</caption>
+    <thead>
+        <tr>
+            <th scope="col">@L["Seq"]</th><th scope="col">@L["Action"]</th><th scope="col">@L["Tenant"]</th>
+            <th scope="col">@L["Actor"]</th><th scope="col">@L["Subject"]</th><th scope="col">@L["Outcome"]</th><th scope="col">@L["At"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in _records)
+        {
+            var evt = record.Event;
+            <tr>
+                <td>@record.Sequence</td><td>@evt.Action</td><td>@evt.TenantId</td>
+                <td>@(evt.ImpersonatorActor is null ? evt.Actor : L["ActorBy", evt.Actor, evt.ImpersonatorActor])</td>
+                <td>@evt.Subject</td><td>@evt.Outcome</td>
+                <td>@evt.OccurredAt.ToString("u", System.Globalization.CultureInfo.InvariantCulture)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private IReadOnlyList<AuditRecord> _records = [];
+    private string? _message;
+
+    [SupplyParameterFromQuery] public string? Actor { get; set; }
+    [SupplyParameterFromQuery] public string? Action { get; set; }
+    [SupplyParameterFromQuery] public string? Subject { get; set; }
+    [SupplyParameterFromQuery] public string? CorrelationId { get; set; }
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        var result = await Queries.ListAsync(new AuditQuery(Actor, Action, Subject, CorrelationId), CancellationToken.None);
+        _records = result.IsSuccess ? result.Value : [];
+        _message ??= result.IsFailure ? L["NotPermitted"].Value : null;
+    }
+
+    private async Task VerifyAsync()
+    {
+        var result = await Queries.VerifyAsync(CancellationToken.None);
+        _message = result.IsFailure ? L["NotPermitted"].Value
+            : result.Value.IsIntact ? L["ChainIntact", result.Value.RecordCount, result.Value.EvidenceStore ?? L["None"].Value]
+            : L["ChainBroken", string.Join("; ", result.Value.Errors)];
+        await LoadAsync();
+    }
+
+    private async Task ExportAsync()
+    {
+        var result = await Queries.ExportAsync(CancellationToken.None);
+        _message = result.IsSuccess ? L["Exported", result.Value]
+            : result.Error.Code == AuditErrors.NoEvidenceStore ? L["NoEvidenceStore"].Value
+            : L["NotPermitted"].Value;
+        await LoadAsync();
+    }
+}

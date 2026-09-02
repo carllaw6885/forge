@@ -86,6 +86,6 @@ public class AuditChainTests
     public void Store_contract_has_no_update_or_delete_members()
     {
         var members = typeof(IAuditStore).GetMethods().Select(m => m.Name).ToList();
-        Assert.Equal(["AppendAsync", "ReadAllAsync"], members.Order().ToList());
+        Assert.Equal(["AppendAsync", "ReadAllAsync", "ReadLatestAsync"], members.Order().ToList());
     }
 }

@@ -1,4 +1,5 @@
 using Forge.Admin.Blazor;
+using Forge.Audit.Ui.Blazor;
 using Forge.Identity;
 using Forge.Identity.Ui.Blazor;
 using Forge.Jobs;
@@ -33,6 +34,7 @@ builder.Services.AddForgeSettings();
 builder.Services.AddForgeLocalization();
 builder.Services.AddForgeAdminShell();
 builder.Services.AddForgeIdentityUi(); // sign-in, account and users/roles pages; delete this line and the reference to go headless
+builder.Services.AddForgeAuditUi(); // audit trail page; same deal
 builder.Services.AddSingleton<ImpersonationService>();
 builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
 builder.Services.AddSqlServerAuditStore(connectionString);

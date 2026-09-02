@@ -40,6 +40,7 @@ public static class AuditActions
 {
     public const string Exported = "audit.exported";
     public const string RetentionApplied = "audit.retention-applied";
+    public const string Verified = "audit.verified";
 }
 
 /// <summary>

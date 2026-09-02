@@ -1,4 +1,5 @@
 using Forge.Admin.Blazor;
+using Forge.Audit.Ui.Blazor;
 using Forge.Auditing;
 using Forge.Identity;
 using Forge.Identity.Ui.Blazor;
@@ -23,7 +24,8 @@ builder.Services.AddForgeTenancy();
 builder.Services.AddForgeObservability("{{NAME_LOWER}}");
 builder.Services.AddForgeAdminShell();
 builder.Services.AddForgeIdentityUi(); // sign-in, account, users/roles pages: `forge ui remove identity` goes headless
-// the shell's system pages (audit, settings, jobs, localisation, impersonation banner)
+builder.Services.AddForgeAuditUi(); // audit trail page: `forge ui remove audit` goes headless
+// the shell's system pages (settings, jobs, localisation, impersonation banner)
 builder.Services.AddForgeSettings();
 builder.Services.AddForgeLocalization();
 builder.Services.AddSqlServerAuditStore(connectionString);
@@ -78,9 +80,9 @@ if (app.Environment.IsDevelopment())
     var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
     if (await users.FindByNameAsync("admin") is null)
     {
-        // an "Administrator" role holding every identity permission; the shell's pages are permission-checked
+        // an "Administrator" role holding every identity and audit permission; the shell's pages are permission-checked
         await roles.CreateAsync(new IdentityRole("Administrator"));
-        db.RolePermissions.AddRange(IdentityPermissions.All.Select(p =>
+        db.RolePermissions.AddRange(IdentityPermissions.All.Concat(AuditPermissions.All).Select(p =>
             new RolePermission { RoleName = "Administrator", PermissionName = p.Name }));
         await db.SaveChangesAsync();
         await users.CreateAsync(new ForgeUser { UserName = "admin" }, "{{NAME}}!Admin!Passw0rd");

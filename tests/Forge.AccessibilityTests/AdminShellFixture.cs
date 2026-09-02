@@ -1,4 +1,5 @@
 using Forge.Admin.Blazor;
+using Forge.Audit.Ui.Blazor;
 using Forge.Identity;
 using Forge.Identity.Ui.Blazor;
 using Forge.Jobs;
@@ -64,6 +65,7 @@ public sealed class AdminShellFixture : IAsyncLifetime
         builder.Services.AddForgeLocalization();
         builder.Services.AddForgeAdminShell();
         builder.Services.AddForgeIdentityUi();
+        builder.Services.AddForgeAuditUi();
         builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
         builder.Services.AddSingleton<ImpersonationService>();
         builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());

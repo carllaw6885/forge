@@ -120,6 +120,17 @@ public sealed class SqlServerAuditStore(
             .Select(r => new AuditRecord(r.Sequence, r.EventJson, r.PreviousHash, r.Hash))
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<AuditRecord>> ReadLatestAsync(long beforeSequence, int take, CancellationToken cancellationToken)
+    {
+        await using var db = await contextFactory.CreateDbContextAsync(cancellationToken);
+        return await db.Records.AsNoTracking()
+            .Where(r => r.Sequence < beforeSequence)
+            .OrderByDescending(r => r.Sequence)
+            .Take(take)
+            .Select(r => new AuditRecord(r.Sequence, r.EventJson, r.PreviousHash, r.Hash))
+            .ToListAsync(cancellationToken);
+    }
 }
 
 /// <summary>DI registration for the SQL Server audit store.</summary>
