@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TenantsTitle" xml:space="preserve">
+    <value>Tenants</value>
+  </data>
+  <data name="NavAdministration" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="NavTenants" xml:space="preserve">
+    <value>Tenants</value>
+  </data>
+  <data name="SearchCaption" xml:space="preserve">
+    <value>Search tenants</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="TenantsCaption" xml:space="preserve">
+    <value>Known tenants</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="AuditHistory" xml:space="preserve">
+    <value>Audit history</value>
+  </data>
+  <data name="CreateTenant" xml:space="preserve">
+    <value>Create tenant</value>
+  </data>
+  <data name="CreateAction" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="RenameTenant" xml:space="preserve">
+    <value>Rename tenant</value>
+  </data>
+  <data name="RenameAction" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="SetState" xml:space="preserve">
+    <value>Enable or disable a tenant</value>
+  </data>
+  <data name="SetStateAction" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="TenantCreated" xml:space="preserve">
+    <value>Tenant {0} created.</value>
+  </data>
+  <data name="TenantRenamed" xml:space="preserve">
+    <value>Tenant {0} renamed.</value>
+  </data>
+  <data name="TenantEnabled" xml:space="preserve">
+    <value>Tenant {0} enabled.</value>
+  </data>
+  <data name="TenantDisabled" xml:space="preserve">
+    <value>Tenant {0} disabled.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>No such tenant.</value>
+  </data>
+  <data name="Duplicate" xml:space="preserve">
+    <value>A tenant with this id already exists.</value>
+  </data>
+  <data name="NoDirectory" xml:space="preserve">
+    <value>No tenant directory is configured.</value>
+  </data>
+  <data name="NotPermitted" xml:space="preserve">
+    <value>You are not permitted to do this.</value>
+  </data>
+</root>

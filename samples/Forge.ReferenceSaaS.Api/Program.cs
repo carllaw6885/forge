@@ -13,6 +13,7 @@ using Forge.ReferenceSaaS.ServiceDefaults;
 using Forge.Security;
 using Forge.Settings;
 using Forge.Tenancy;
+using Forge.Tenancy.Ui.Blazor;
 using Forge.Web;
 using Microsoft.AspNetCore.Identity;
 
@@ -35,10 +36,12 @@ builder.Services.AddForgeLocalization();
 builder.Services.AddForgeAdminShell();
 builder.Services.AddForgeIdentityUi(); // sign-in, account and users/roles pages; delete this line and the reference to go headless
 builder.Services.AddForgeAuditUi(); // audit trail page; same deal
+builder.Services.AddForgeTenancyUi(); // tenants page; same deal
 builder.Services.AddSingleton<ImpersonationService>();
 builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
 builder.Services.AddSqlServerAuditStore(connectionString);
 builder.Services.AddSqlServerSettingStore(connectionString);
+builder.Services.AddSqlServerTenantDirectory(connectionString); // makes tenant state authoritative: unknown/disabled tenants fail resolution
 builder.Services.AddForgeQuartzJobs(new ForgeQuartzOptions { ConnectionString = connectionString });
 // persisted token keys (ADR 18): configure Identity:SigningCertificate/EncryptionCertificate
 // with PfxPath (+ PasswordEnvironmentVariable); without them the module falls back to
@@ -90,7 +93,16 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Forge:Seed", 
         await users.AddToRoleAsync((await users.FindByNameAsync("admin"))!, "administrator");
         var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
         db.RolePermissions.Add(new RolePermission { RoleName = "administrator", PermissionName = "Catalog.Items.Create" });
+        db.RolePermissions.AddRange(TenancyPermissions.All.Select(p =>
+            new RolePermission { RoleName = "administrator", PermissionName = p.Name }));
         await db.SaveChangesAsync();
+    }
+
+    // the directory is authoritative, so the demo tenant must exist before any tenant-scoped request
+    var directory = scope.ServiceProvider.GetRequiredService<ITenantDirectory>();
+    if (await directory.GetAsync("smoke", CancellationToken.None) is null)
+    {
+        await directory.SaveAsync(new Tenant("smoke", "Smoke", Enabled: true, DateTimeOffset.UtcNow), CancellationToken.None);
     }
 }
 

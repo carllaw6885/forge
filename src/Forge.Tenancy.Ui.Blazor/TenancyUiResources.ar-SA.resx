@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TenantsTitle" xml:space="preserve">
+    <value>المستأجرون</value>
+  </data>
+  <data name="NavAdministration" xml:space="preserve">
+    <value>الإدارة</value>
+  </data>
+  <data name="NavTenants" xml:space="preserve">
+    <value>المستأجرون</value>
+  </data>
+  <data name="SearchCaption" xml:space="preserve">
+    <value>البحث في المستأجرين</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="Filter" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="TenantsCaption" xml:space="preserve">
+    <value>المستأجرون المعروفون</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>المعرّف</value>
+  </data>
+  <data name="DisplayName" xml:space="preserve">
+    <value>الاسم المعروض</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>الحالة</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>تاريخ الإنشاء</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>السجل</value>
+  </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>مفعّل</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>معطّل</value>
+  </data>
+  <data name="AuditHistory" xml:space="preserve">
+    <value>سجل التدقيق</value>
+  </data>
+  <data name="CreateTenant" xml:space="preserve">
+    <value>إنشاء مستأجر</value>
+  </data>
+  <data name="CreateAction" xml:space="preserve">
+    <value>إنشاء</value>
+  </data>
+  <data name="RenameTenant" xml:space="preserve">
+    <value>إعادة تسمية مستأجر</value>
+  </data>
+  <data name="RenameAction" xml:space="preserve">
+    <value>إعادة تسمية</value>
+  </data>
+  <data name="SetState" xml:space="preserve">
+    <value>تفعيل مستأجر أو تعطيله</value>
+  </data>
+  <data name="SetStateAction" xml:space="preserve">
+    <value>تطبيق</value>
+  </data>
+  <data name="TenantCreated" xml:space="preserve">
+    <value>تم إنشاء المستأجر {0}.</value>
+  </data>
+  <data name="TenantRenamed" xml:space="preserve">
+    <value>تمت إعادة تسمية المستأجر {0}.</value>
+  </data>
+  <data name="TenantEnabled" xml:space="preserve">
+    <value>تم تفعيل المستأجر {0}.</value>
+  </data>
+  <data name="TenantDisabled" xml:space="preserve">
+    <value>تم تعطيل المستأجر {0}.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>لا يوجد مستأجر بهذا المعرّف.</value>
+  </data>
+  <data name="Duplicate" xml:space="preserve">
+    <value>يوجد مستأجر بهذا المعرّف بالفعل.</value>
+  </data>
+  <data name="NoDirectory" xml:space="preserve">
+    <value>لم يتم تكوين دليل المستأجرين.</value>
+  </data>
+  <data name="NotPermitted" xml:space="preserve">
+    <value>غير مسموح لك بهذا الإجراء.</value>
+  </data>
+</root>

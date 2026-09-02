@@ -19,6 +19,7 @@ public class WcagTests(AdminShellFixture fx) : IClassFixture<AdminShellFixture>
     [InlineData("/admin/users")]
     [InlineData("/admin/roles")]
     [InlineData("/admin/audit")]
+    [InlineData("/admin/tenants")]
     [InlineData("/admin/jobs")]
     [InlineData("/admin/settings")]
     [InlineData("/admin/localisation")]

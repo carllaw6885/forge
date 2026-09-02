@@ -33,6 +33,7 @@
     <Project Path="src/Forge.Settings/Forge.Settings.csproj" />
     <Project Path="src/Forge.Storage/Forge.Storage.csproj" />
     <Project Path="src/Forge.Templates/Forge.Templates.csproj" />
+    <Project Path="src/Forge.Tenancy.Ui.Blazor/Forge.Tenancy.Ui.Blazor.csproj" />
     <Project Path="src/Forge.Tenancy/Forge.Tenancy.csproj" />
     <Project Path="src/Forge.Web/Forge.Web.csproj" />
   </Folder>

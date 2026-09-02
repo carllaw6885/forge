@@ -9,6 +9,7 @@ using Forge.ReferenceCatalog;
 using Forge.Security;
 using Forge.Settings;
 using Forge.Tenancy;
+using Forge.Tenancy.Ui.Blazor;
 using Forge.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -66,6 +67,7 @@ public sealed class AdminShellFixture : IAsyncLifetime
         builder.Services.AddForgeAdminShell();
         builder.Services.AddForgeIdentityUi();
         builder.Services.AddForgeAuditUi();
+        builder.Services.AddForgeTenancyUi();
         builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
         builder.Services.AddSingleton<ImpersonationService>();
         builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());

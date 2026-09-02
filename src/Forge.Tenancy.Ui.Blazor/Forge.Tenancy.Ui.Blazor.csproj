@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <!-- pinned like the shell: default base path would follow PackageId (ForgeStack.*) -->
+    <StaticWebAssetBasePath>_content/Forge.Tenancy.Ui.Blazor</StaticWebAssetBasePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- ADR 40: the application contract, plus the shell's contribution contract — no stores, no shell -->
+    <ProjectReference Include="../Forge.Admin.Abstractions/Forge.Admin.Abstractions.csproj" />
+    <ProjectReference Include="../Forge.Tenancy/Forge.Tenancy.csproj" />
+  </ItemGroup>
+</Project>

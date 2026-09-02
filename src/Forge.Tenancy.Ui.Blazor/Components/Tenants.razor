@@ -1,0 +1,142 @@
+@page "/admin/tenants"
+@inject ITenantAdministration Admin
+@inject IStringLocalizer<TenancyUiResources> L
+
+<PageTitle>@L["TenantsTitle"]</PageTitle>
+<h1>@L["TenantsTitle"]</h1>
+
+<form method="get" role="search" aria-label="@L["SearchCaption"]">
+    <label for="filter-search">@L["Search"]</label>
+    <input id="filter-search" name="search" value="@Search" />
+    <button type="submit">@L["Filter"]</button>
+</form>
+
+<table>
+    <caption>@L["TenantsCaption"]</caption>
+    <thead>
+        <tr>
+            <th scope="col">@L["Id"]</th><th scope="col">@L["DisplayName"]</th>
+            <th scope="col">@L["State"]</th><th scope="col">@L["Created"]</th><th scope="col">@L["History"]</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tenant in _tenants)
+        {
+            <tr>
+                <td>@tenant.Id</td><td>@tenant.DisplayName</td>
+                <td>@(tenant.Enabled ? L["Enabled"] : L["Disabled"])</td>
+                <td>@tenant.CreatedAt.ToString("u", System.Globalization.CultureInfo.InvariantCulture)</td>
+                <td><a href="/admin/audit?subject=@Uri.EscapeDataString(tenant.Id)">@L["AuditHistory"]</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>@L["CreateTenant"]</h2>
+<form method="post" @onsubmit="CreateAsync" @formname="create-tenant">
+    <AntiforgeryToken />
+    <label for="new-id">@L["Id"]</label>
+    <input id="new-id" name="Create.Id" required @bind="Create!.Id" />
+    <label for="new-name">@L["DisplayName"]</label>
+    <input id="new-name" name="Create.DisplayName" required @bind="Create!.DisplayName" />
+    <button type="submit">@L["CreateAction"]</button>
+</form>
+
+<h2>@L["RenameTenant"]</h2>
+<form method="post" @onsubmit="RenameAsync" @formname="rename-tenant">
+    <AntiforgeryToken />
+    <label for="rename-id">@L["Id"]</label>
+    <input id="rename-id" name="Rename.Id" required @bind="Rename!.Id" />
+    <label for="rename-name">@L["DisplayName"]</label>
+    <input id="rename-name" name="Rename.DisplayName" required @bind="Rename!.DisplayName" />
+    <button type="submit">@L["RenameAction"]</button>
+</form>
+
+<h2>@L["SetState"]</h2>
+<form method="post" @onsubmit="SetStateAsync" @formname="set-tenant-state">
+    <AntiforgeryToken />
+    <label for="state-id">@L["Id"]</label>
+    <input id="state-id" name="State.Id" required @bind="State!.Id" />
+    <input id="state-enabled" name="State.Enabled" type="checkbox" value="true" @bind="State!.Enabled" />
+    <label for="state-enabled">@L["Enabled"]</label>
+    <button type="submit">@L["SetStateAction"]</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status">@_message</p>
+}
+
+@code {
+    private IReadOnlyList<Tenant> _tenants = [];
+    private string? _message;
+
+    [SupplyParameterFromQuery] public string? Search { get; set; }
+
+    [SupplyParameterFromForm(FormName = "create-tenant")]
+    public EditModel? Create { get; set; }
+
+    [SupplyParameterFromForm(FormName = "rename-tenant")]
+    public EditModel? Rename { get; set; }
+
+    [SupplyParameterFromForm(FormName = "set-tenant-state")]
+    public StateModel? State { get; set; }
+
+    public sealed class EditModel
+    {
+        public string Id { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+    }
+
+    public sealed class StateModel
+    {
+        public string Id { get; set; } = "";
+        public bool Enabled { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Create ??= new();
+        Rename ??= new();
+        State ??= new();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var result = await Admin.ListAsync(Search, CancellationToken.None);
+        _tenants = result.IsSuccess ? result.Value : [];
+        _message ??= result.IsFailure ? Describe(result.Error) : null;
+    }
+
+    private async Task CreateAsync()
+    {
+        var result = await Admin.CreateAsync(new TenantEdit(Create!.Id, Create!.DisplayName), CancellationToken.None);
+        _message = result.IsSuccess ? L["TenantCreated", Create!.Id] : Describe(result.Error);
+        await LoadAsync();
+    }
+
+    private async Task RenameAsync()
+    {
+        var result = await Admin.RenameAsync(new TenantEdit(Rename!.Id, Rename!.DisplayName), CancellationToken.None);
+        _message = result.IsSuccess ? L["TenantRenamed", Rename!.Id] : Describe(result.Error);
+        await LoadAsync();
+    }
+
+    private async Task SetStateAsync()
+    {
+        var result = await Admin.SetEnabledAsync(State!.Id, State!.Enabled, CancellationToken.None);
+        _message = result.IsSuccess
+            ? (State!.Enabled ? L["TenantEnabled", State!.Id] : L["TenantDisabled", State!.Id])
+            : Describe(result.Error);
+        await LoadAsync();
+    }
+
+    private string Describe(Forge.Core.Primitives.Error error) => error.Code switch
+    {
+        TenancyErrors.NotFound => L["NotFound"].Value,
+        TenancyErrors.Duplicate => L["Duplicate"].Value,
+        TenancyErrors.NoDirectory => L["NoDirectory"].Value,
+        _ => L["NotPermitted"].Value,
+    };
+}

@@ -26,6 +26,7 @@ var migratedContexts = new (string Name, Func<Task> Migrate, Func<Task<string>> 
     Context("catalog", () => new CatalogDbContext(Options<CatalogDbContext>("catalog"), currentTenant: null!)),
     Context("audit", () => new AuditDbContext(Options<AuditDbContext>("audit"))),
     Context("settings", () => new SettingsDbContext(Options<SettingsDbContext>("settings"))),
+    Context("tenancy", () => new TenancyDbContext(Options<TenancyDbContext>("tenancy"))),
     Context("identity", () => new ForgeIdentityDbContext(Options<ForgeIdentityDbContext>("identity"))),
 };
 

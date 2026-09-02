@@ -129,6 +129,7 @@ public class BoundaryRuleTests
         Assert.DoesNotContain("/admin/users", layout, StringComparison.Ordinal);
         Assert.DoesNotContain("/account", layout, StringComparison.Ordinal);
         Assert.DoesNotContain("/admin/audit", layout, StringComparison.Ordinal);
+        Assert.DoesNotContain("/admin/tenants", layout, StringComparison.Ordinal);
 
         // module UI packages depend on the contribution contract, never on the shell
         foreach (var ui in RepoModel.SourceProjects().Where(p => p.Name.Contains(".Ui.", StringComparison.Ordinal)))
