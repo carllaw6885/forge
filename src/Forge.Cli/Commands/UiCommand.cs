@@ -28,6 +28,7 @@ public static class UiCommand
         [
             new("identity", "ForgeStack.Identity.Ui.Blazor", "builder.Services.AddForgeIdentityUi();", "sign-in, account, users/roles pages"),
             new("audit", "ForgeStack.Audit.Ui.Blazor", "builder.Services.AddForgeAuditUi();", "audit trail page"),
+            new("tenancy", "ForgeStack.Tenancy.Ui.Blazor", "builder.Services.AddForgeTenancyUi();", "tenants page"),
         ]),
         new("api", "app.MapIdentityEndpoints().WithHostScope();", "ForgeStack.Identity", "drops it",
         [

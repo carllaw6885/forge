@@ -326,11 +326,17 @@ public class CliTests : IDisposable
         Assert.Equal(originalProgram, File.ReadAllText(program));
         Assert.Equal(originalProj, File.ReadAllText(csproj));
 
-        // both modules, removed and re-added in either order, land back in template order
-        foreach (var order in new[] { new[] { "identity", "audit" }, new[] { "audit", "identity" } })
+        // all modules, removed and re-added in any order, land back in template order
+        foreach (var order in new[]
+                 {
+                     new[] { "identity", "audit", "tenancy" },
+                     new[] { "tenancy", "audit", "identity" },
+                     new[] { "audit", "tenancy", "identity" },
+                 })
         {
             Assert.Equal(0, Run("ui", "remove", "identity", "--root", root).ExitCode);
             Assert.Equal(0, Run("ui", "remove", "audit", "--root", root).ExitCode);
+            Assert.Equal(0, Run("ui", "remove", "tenancy", "--root", root).ExitCode);
             Assert.DoesNotContain(".Ui.Blazor", File.ReadAllText(csproj), StringComparison.Ordinal);
             foreach (var module in order)
             {
@@ -342,7 +348,7 @@ public class CliTests : IDisposable
         }
 
         // unknown module and a host without the admin shell are refused, nothing touched
-        Assert.Equal(1, Run("ui", "add", "tenancy", "--root", root).ExitCode);
+        Assert.Equal(1, Run("ui", "add", "jobs", "--root", root).ExitCode);
         var headless = Path.Combine(_root, "genHeadless");
         Directory.CreateDirectory(headless);
         Run("new", "Acme", "--root", headless);

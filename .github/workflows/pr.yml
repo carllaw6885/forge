@@ -111,6 +111,8 @@ jobs:
           docker exec smoke-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Smoke!Passw0rd42' -C -Q "CREATE DATABASE forge"
           export ConnectionStrings__forge="Server=127.0.0.1,14433;Database=forge;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true"
           dotnet run --project samples/Forge.ReferenceSaaS.DbMigrator -c Release -- migrate
+          # the tenant directory is authoritative: provision the smoke tenant the way an operator would
+          docker exec smoke-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Smoke!Passw0rd42' -C -d forge -Q "INSERT INTO tenancy.Tenants (Id, DisplayName, Enabled, CreatedAt) VALUES ('smoke', 'Smoke', 1, SYSDATETIMEOFFSET())"
           dotnet publish samples/Forge.ReferenceSaaS.Api -t:PublishContainer -c Release --verbosity quiet
           # production-shaped smoke: persisted token key material is mandatory in Production
           KEYS=$RUNNER_TEMP/forge-keys

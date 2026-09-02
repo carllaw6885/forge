@@ -7,6 +7,7 @@
     <PackageReference Include="ForgeStack.Admin.Blazor" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Identity.Ui.Blazor" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Audit.Ui.Blazor" Version="$(ForgeVersion)" />
+    <PackageReference Include="ForgeStack.Tenancy.Ui.Blazor" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Security" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Settings" Version="$(ForgeVersion)" />
     <PackageReference Include="ForgeStack.Localization" Version="$(ForgeVersion)" />

@@ -10,6 +10,8 @@ using Forge.Observability;
 using Forge.Persistence.SqlServer;
 using Forge.Security;
 using Forge.Settings;
+using Forge.Tenancy;
+using Forge.Tenancy.Ui.Blazor;
 using Forge.Web;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
@@ -26,12 +28,14 @@ builder.Services.AddForgeObservability("{{NAME_LOWER}}");
 builder.Services.AddForgeAdminShell();
 builder.Services.AddForgeIdentityUi(); // sign-in, account, users/roles pages: `forge ui remove identity` goes headless
 builder.Services.AddForgeAuditUi(); // audit trail page: `forge ui remove audit` goes headless
+builder.Services.AddForgeTenancyUi(); // tenants page: `forge ui remove tenancy` goes headless
 // the shell's system pages (settings, jobs, localisation, impersonation banner)
 builder.Services.AddForgeSettings();
 builder.Services.AddForgeLocalization();
 builder.Services.AddSqlServerAuditStore(connectionString);
 builder.Services.AddForgeAuditing(); // after the SQL store: fills in the redaction policy, TryAdd keeps the SQL IAuditStore
 builder.Services.AddSqlServerSettingStore(connectionString);
+builder.Services.AddSqlServerTenantDirectory(connectionString); // makes tenant state authoritative: unknown/disabled tenants fail resolution
 builder.Services.AddSingleton<ImpersonationService>();
 builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
 // ponytail: in-memory failure sink; switch to ForgeStack.Jobs.Quartz when you need durable jobs
@@ -83,7 +87,7 @@ if (app.Environment.IsDevelopment())
     {
         // an "Administrator" role holding every identity and audit permission; the shell's pages are permission-checked
         await roles.CreateAsync(new IdentityRole("Administrator"));
-        db.RolePermissions.AddRange(IdentityPermissions.All.Concat(AuditPermissions.All).Select(p =>
+        db.RolePermissions.AddRange(IdentityPermissions.All.Concat(AuditPermissions.All).Concat(TenancyPermissions.All).Select(p =>
             new RolePermission { RoleName = "Administrator", PermissionName = p.Name }));
         await db.SaveChangesAsync();
         await users.CreateAsync(new ForgeUser { UserName = "admin" }, "{{NAME}}!Admin!Passw0rd");
@@ -101,6 +105,13 @@ if (app.Environment.IsDevelopment())
                 IdentityEndpoints.RolePermissionPrefix + "Administrator",
             },
         });
+    }
+
+    // the directory is authoritative, so a default tenant must exist before any tenant-scoped request
+    var directory = scope.ServiceProvider.GetRequiredService<ITenantDirectory>();
+    if (await directory.GetAsync("{{NAME_LOWER}}", CancellationToken.None) is null)
+    {
+        await directory.SaveAsync(new Tenant("{{NAME_LOWER}}", "{{NAME}}", Enabled: true, DateTimeOffset.UtcNow), CancellationToken.None);
     }
 }
 

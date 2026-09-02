@@ -44,14 +44,14 @@ Each module in scope gains, in this order:
 
 Architecture tests: capability never references `.Ui.Blazor` or `.Api`; `.Ui.Blazor` references only the contract surface.
 
-**Status (phase 6):** Identity has its application contract (`IAccountOperations`, `ISignInOperations`, `IUserAdministration`, `IRoleAdministration` in `ForgeStack.Identity`) and its `.Ui.Blazor`. The Users and Roles pages moved out of `ForgeStack.Admin.Blazor` into `ForgeStack.Identity.Ui.Blazor`, which contributes them (plus sign-in and account pages) through `IAdminContribution`; the shell now owns only its system pages (dashboard, jobs, settings, localisation). **Phase 7:** Audit repeats the pattern (`IAuditQueries` in `ForgeStack.Auditing`, `ForgeStack.Audit.Ui.Blazor`), and `IAdminContribution` lives in `ForgeStack.Admin.Abstractions` so module UIs never depend on the shell. `.Api` projections shipped in the same phase (`ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`, [docs](module-apis.md)) — bearer-only Minimal-API groups over the same contracts, attached with `forge api add`, `forge new --template saas --with-api` or `forge new --template api`.
+**Status (phase 6):** Identity has its application contract (`IAccountOperations`, `ISignInOperations`, `IUserAdministration`, `IRoleAdministration` in `ForgeStack.Identity`) and its `.Ui.Blazor`. The Users and Roles pages moved out of `ForgeStack.Admin.Blazor` into `ForgeStack.Identity.Ui.Blazor`, which contributes them (plus sign-in and account pages) through `IAdminContribution`; the shell now owns only its system pages (dashboard, jobs, settings, localisation). **Phase 7:** Audit repeats the pattern (`IAuditQueries` in `ForgeStack.Auditing`, `ForgeStack.Audit.Ui.Blazor`), and `IAdminContribution` lives in `ForgeStack.Admin.Abstractions` so module UIs never depend on the shell. `.Api` projections shipped in the same phase (`ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`, [docs](module-apis.md)) — bearer-only Minimal-API groups over the same contracts, attached with `forge api add`, `forge new --template saas --with-api` or `forge new --template api`. **Phase 8:** Tenancy repeats the pattern with a first-class tenant directory (`ITenantDirectory` + `ITenantAdministration` in `ForgeStack.Tenancy`, `ForgeStack.Tenancy.Ui.Blazor`, [docs](tenancy-ui.md)); a registered directory makes unknown/disabled tenants fail resolution.
 
 Production-quality optional Blazor UIs (see [engineering rules](#first-party-ui-engineering-rules)):
 
 | Module | Surfaces |
 |---|---|
 | Account / Identity | **Shipped (phase 6, `ForgeStack.Identity.Ui.Blazor`, [docs](identity-ui.md)):** sign in/out, profile, password, sessions (sign out everywhere else), user/role/permission administration. *Designed for, not shipped:* MFA, passkeys, recovery, a session list, impersonation, security history |
-| Tenancy | tenant search/list, create/edit, enable/disable, tenant settings, tenant users, feature/entitlement management where supported, isolation information where appropriate, tenant audit history |
+| Tenancy | **Shipped (phase 8, `ForgeStack.Tenancy.Ui.Blazor`, [docs](tenancy-ui.md)):** tenant directory (`ITenantDirectory`, SQL Server store, unknown/disabled tenants fail resolution), tenants page with search, create, rename, enable/disable, per-tenant audit-history link. *Deferred from phase 8:* tenant settings and tenant users surfaces; feature/entitlement management (gated on ADR 07 maturity — capability first, then UI); a dedicated tenant audit view (the audit page pre-filtered covers it; extend `IAuditQueries` filters if they cannot express it); `.Api` projection (add via `forge api add tenancy` when a real remote consumer appears) |
 | Audit | **Shipped (phase 7, `ForgeStack.Audit.Ui.Blazor`, [docs](audit-ui.md)):** timeline with actor/action/subject/correlation filters, integrity verification, export, evidence-store status. *Designed for, not shipped:* entity views, security-event dashboard |
 | Jobs | queued/running/scheduled/recurring, retrying/failed/terminal/dead-letter, retry/requeue/cancel where supported, execution history/diagnostics; every intervention audited |
 | Settings | platform/tenant/user scope where authorised, type-aware editors, validation, scope/source visibility; secrets never exposed through ordinary settings UI |
@@ -90,7 +90,7 @@ The v0.1 CLI (`new`, `modules`, `db`, `doctor`, `upgrade check`, `audit verify`)
 forge new <Name> --template saas|enterprise|api|modular
 forge new <Name> --template saas --with-api            include the available .Api projections at generation time
 forge templates list
-forge ui add <module>        identity (shipped, phase 6) · audit (shipped, phase 7) · tenancy · jobs · settings · localisation · notifications · files
+forge ui add <module>        identity (shipped, phase 6) · audit (shipped, phase 7) · tenancy (shipped, phase 8) · jobs · settings · localisation · notifications · files
 forge ui remove <module>
 forge api add <module>       adds the optional .Api projection where one exists
 ```

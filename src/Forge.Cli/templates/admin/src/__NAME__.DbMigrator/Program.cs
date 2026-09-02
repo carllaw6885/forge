@@ -20,6 +20,7 @@ var contexts = new (string Name, Func<DbContext> Factory)[]
     ("identity", () => new ForgeIdentityDbContext(Options<ForgeIdentityDbContext>("identity"))),
     ("audit", () => new AuditDbContext(Options<AuditDbContext>("audit"))),
     ("settings", () => new SettingsDbContext(Options<SettingsDbContext>("settings"))),
+    ("tenancy", () => new TenancyDbContext(Options<TenancyDbContext>("tenancy"))),
 };
 
 switch (command)
