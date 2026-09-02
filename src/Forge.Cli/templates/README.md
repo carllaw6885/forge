@@ -8,3 +8,5 @@ dotnet run --project src/{{NAME}}.AppHost      # Aspire local topology
 ConnectionStrings__forge="..." dotnet run --project src/{{NAME}}.DbMigrator -- migrate
 ConnectionStrings__forge="..." dotnet run --project src/{{NAME}}.Api
 ```
+
+With `--admin`, the API seeds a development-only `admin` user (password `{{NAME}}!Admin!Passw0rd`, Administrator role) so `/admin` is reachable at once — see the seed block at the end of `src/{{NAME}}.Api/Program.cs`; it never runs outside `Development`. `forge ui remove identity` / `forge ui add identity` detach and reattach the identity pages.

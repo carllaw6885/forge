@@ -36,16 +36,16 @@ Not done in 6.1: `PermissionCatalog` population (`IdentityPermissions.All` is de
 ## 6.4 Template and CLI
 
 - [x] `--admin` template references `ForgeStack.Identity.Ui.Blazor`; `/auth/login` form and `LoginRequest` deleted from `Program.cs` (sample host too); `MapForgeAdminShell` still `RequireAuthorization`.
-- [ ] Dev seed stays; documented in generated README.
-- [ ] `forge ui add identity` / `forge ui remove identity` (first `forge ui` verbs; adds/removes the package reference + contribution registration, idempotent, ordinary source output per ADR 22).
-- [ ] E2E in CI: generated app, packed packages, browser sign-in → `/admin` → users page; anonymous `/admin` → sign-in page.
+- [x] Dev seed stays; documented in generated README (template `README.md`).
+- [x] `forge ui add identity` / `forge ui remove identity` (`Commands/UiCommand.cs`: one PackageReference + one registration line, idempotent, refuses hosts without the shell; remove ∘ add is byte-identical to the template — `CliTests`).
+- [x] E2E in CI (`pr.yml`): packs every `src/*` (glob, as `release.yml`), generates `--admin`, builds with the identity UI removed and re-added, then runs the app against SQL Server: anonymous `/admin` → `/account/sign-in?ReturnUrl=`, the sign-in form renders. The browser sign-in → `/admin` → users journey is gated by the accessibility suite on the same package rather than a second Playwright harness. `IdentityContractTests` now run in the SQL job too.
 
 ## 6.5 Docs and release
 
-- [ ] `docs/POST_V0.1_ROADMAP.md`: mark Identity contract/UI rows done; note what moved out of the shell.
+- [x] `docs/POST_V0.1_ROADMAP.md`: Identity row marked shipped, status note on the contract and what moved out of the shell; `IMPLEMENTATION_PACK.md` project table gained the package.
 - [x] `PONYTAIL-DEBT.md`: close the 0.1.7 login-form marker.
-- [ ] Package docs: install/remove instructions for `ForgeStack.Identity.Ui.Blazor`; upgrade note for apps that used shell Users/Roles pages.
-- [ ] Release 0.2.0-preview.1 on explicit instruction only.
+- [x] Package docs: `docs/identity-ui.md` (install/remove, routes and permissions, scope decisions, upgrading from 0.1.x).
+- [ ] Release 0.2.0-preview.1 on explicit instruction only. Everything above is complete; waiting for the maintainer's `release 0.2.0-preview.1`.
 
 ## Not in this phase
 

@@ -165,6 +165,18 @@ public static class ForgeCli
         db.Subcommands.Add(dbMigrate);
         root.Subcommands.Add(db);
 
+        var ui = new Command("ui", "Attach or detach first-party module UI packages (ordinary source edits, idempotent).");
+        var moduleArgument = new Argument<string>("module") { Description = "Module UI to add or remove: identity." };
+        foreach (var verb in new[] { "add", "remove" })
+        {
+            var command = new Command(verb, $"{char.ToUpperInvariant(verb[0])}{verb[1..]} the module's UI package reference and registration in the admin host.");
+            command.Arguments.Add(moduleArgument);
+            command.SetAction(pr => Commands.UiCommand.Run(pr.GetValue(moduleArgument)!, pr.GetValue(rootOption)!, add: verb == "add"));
+            ui.Subcommands.Add(command);
+        }
+
+        root.Subcommands.Add(ui);
+
         var upgrade = new Command("upgrade", "Forge version tooling.");
         var check = new Command("check", "Compare the repository's pinned Forge package versions against this CLI (offline, deterministic).");
         check.SetAction(pr => Commands.UpgradeCommand.Check(pr.GetValue(rootOption)!));

@@ -27,7 +27,7 @@ jobs:
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
       - name: Identity module tests
-        run: dotnet test tests/Forge.SecurityTests -c Release --filter "FullyQualifiedName~IdentityModuleTests"
+        run: dotnet test tests/Forge.SecurityTests -c Release --filter "FullyQualifiedName~IdentityModuleTests|FullyQualifiedName~IdentityContractTests"
         env:
           FORGE_REQUIRE_SQLSERVER: "true"
       - name: Quartz SQL store tests
@@ -47,16 +47,40 @@ jobs:
           FEED=$RUNNER_TEMP/forge-feed
           mkdir -p $FEED
           dotnet build Forge.slnx -c Release --verbosity quiet
-          for proj in Forge.Core Forge.Modularity Forge.Tenancy Forge.Events Forge.Auditing Forge.Settings Forge.Web Forge.Observability Forge.Persistence.SqlServer Forge.Security Forge.Identity Forge.Jobs Forge.Localization Forge.Admin.Blazor; do
-            dotnet pack src/$proj -c Release -o $FEED --no-build --verbosity quiet
+          # same glob as release.yml so a new package can never be missing from this feed
+          for proj in src/*/; do
+            dotnet pack "$proj" -c Release -o $FEED --no-build --verbosity quiet
           done
+          FORGE="dotnet run --project src/Forge.Cli -c Release --no-build --"
           for variant in "" "--admin"; do
             GEN=$RUNNER_TEMP/gen$variant
-            dotnet run --project src/Forge.Cli -c Release --no-build -- new Acme --root $GEN $variant
+            $FORGE new Acme --root $GEN $variant
             printf '<?xml version="1.0" encoding="utf-8"?>\n<configuration><packageSources><add key="forge-local" value="%s" /></packageSources></configuration>\n' "$FEED" > $GEN/Acme/nuget.config
             dotnet build $GEN/Acme/Acme.slnx --verbosity quiet
-            dotnet run --project src/Forge.Cli -c Release --no-build -- modules validate --root $GEN/Acme
+            $FORGE modules validate --root $GEN/Acme
           done
+          # ADR 40 removal proof on packed packages: the app builds with and without the identity UI
+          GEN=$RUNNER_TEMP/gen--admin/Acme
+          $FORGE ui remove identity --root $GEN
+          dotnet build $GEN/Acme.slnx --verbosity quiet
+          $FORGE ui add identity --root $GEN
+          dotnet build $GEN/Acme.slnx --verbosity quiet
+      - name: forge new --admin output serves the sign-in page
+        run: |
+          docker run -d --name gen-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Smoke!Passw0rd42' -p 14434:1433 mcr.microsoft.com/mssql/server:2022-latest
+          for i in $(seq 1 60); do docker exec gen-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Smoke!Passw0rd42' -C -Q "SELECT 1" >/dev/null 2>&1 && break; sleep 2; done
+          docker exec gen-sql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Smoke!Passw0rd42' -C -Q "CREATE DATABASE acme"
+          GEN=$RUNNER_TEMP/gen--admin/Acme
+          export ConnectionStrings__forge="Server=127.0.0.1,14434;Database=acme;User Id=sa;Password=Smoke!Passw0rd42;TrustServerCertificate=true"
+          export ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5240
+          dotnet run --project $GEN/src/Acme.DbMigrator --no-build -- migrate
+          dotnet run --project $GEN/src/Acme.Api --no-build > $RUNNER_TEMP/acme.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:5240/healthz/live && break; sleep 2; done
+          curl -sf http://127.0.0.1:5240/healthz/live || { cat $RUNNER_TEMP/acme.log; exit 1; }
+          # anonymous /admin → identity sign-in page; the sign-in page itself is anonymous
+          location=$(curl -s -o /dev/null -w "%{redirect_url}" http://127.0.0.1:5240/admin)
+          case "$location" in *"/account/sign-in?ReturnUrl="*) ;; *) echo "expected sign-in redirect, got '$location'"; cat $RUNNER_TEMP/acme.log; exit 1;; esac
+          curl -sf http://127.0.0.1:5240/account/sign-in | grep -q 'name="Model.Password"'
       - name: OCI container smoke (fresh install, no Aspire)
         run: |
           docker run -d --name smoke-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Smoke!Passw0rd42' -p 14433:1433 mcr.microsoft.com/mssql/server:2022-latest

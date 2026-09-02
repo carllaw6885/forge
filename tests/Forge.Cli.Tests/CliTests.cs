@@ -226,6 +226,43 @@ public class CliTests : IDisposable
     }
 
     [Fact]
+    public void Ui_remove_and_add_identity_round_trip_the_admin_template_byte_for_byte()
+    {
+        var gen = Path.Combine(_root, "genUi");
+        Directory.CreateDirectory(gen);
+        Run("new", "Acme", "--root", gen, "--admin");
+        var root = Path.Combine(gen, "Acme");
+        var program = Path.Combine(root, "src", "Acme.Api", "Program.cs");
+        var csproj = Path.Combine(root, "src", "Acme.Api", "Acme.Api.csproj");
+        var (originalProgram, originalProj) = (File.ReadAllText(program), File.ReadAllText(csproj));
+
+        // already present: no-op
+        var noop = Run("ui", "add", "identity", "--root", root);
+        Assert.Equal(0, noop.ExitCode);
+        Assert.Contains("nothing changed", noop.Out, StringComparison.Ordinal);
+        Assert.Equal(originalProgram, File.ReadAllText(program));
+
+        Assert.Equal(0, Run("ui", "remove", "identity", "--root", root).ExitCode);
+        Assert.DoesNotContain("AddForgeIdentityUi", File.ReadAllText(program), StringComparison.Ordinal);
+        Assert.DoesNotContain("Forge.Identity.Ui.Blazor", File.ReadAllText(program), StringComparison.Ordinal);
+        Assert.DoesNotContain("ForgeStack.Identity.Ui.Blazor", File.ReadAllText(csproj), StringComparison.Ordinal);
+        Assert.Contains("AddForgeAdminShell", File.ReadAllText(program), StringComparison.Ordinal);
+
+        Assert.Equal(0, Run("ui", "add", "identity", "--root", root).ExitCode);
+        Assert.Equal(originalProgram, File.ReadAllText(program));
+        Assert.Equal(originalProj, File.ReadAllText(csproj));
+
+        // unknown module and a host without the admin shell are refused, nothing touched
+        Assert.Equal(1, Run("ui", "add", "tenancy", "--root", root).ExitCode);
+        var headless = Path.Combine(_root, "genHeadless");
+        Directory.CreateDirectory(headless);
+        Run("new", "Acme", "--root", headless);
+        var refused = Run("ui", "add", "identity", "--root", Path.Combine(headless, "Acme"));
+        Assert.Equal(1, refused.ExitCode);
+        Assert.Contains("forge new --admin", refused.Err, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Upgrade_check_is_a_deterministic_dry_run()
     {
         var gen = Path.Combine(_root, "genU");

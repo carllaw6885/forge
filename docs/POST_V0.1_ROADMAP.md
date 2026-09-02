@@ -44,11 +44,13 @@ Each module in scope gains, in this order:
 
 Architecture tests: capability never references `.Ui.Blazor` or `.Api`; `.Ui.Blazor` references only the contract surface.
 
+**Status (phase 6):** Identity has its application contract (`IAccountOperations`, `ISignInOperations`, `IUserAdministration`, `IRoleAdministration` in `ForgeStack.Identity`) and its `.Ui.Blazor`. The Users and Roles pages moved out of `ForgeStack.Admin.Blazor` into `ForgeStack.Identity.Ui.Blazor`, which contributes them (plus sign-in and account pages) through `IAdminContribution`; the shell now owns only its system pages (dashboard, audit, jobs, settings, localisation). `.Api` projections are phase 7.
+
 Production-quality optional Blazor UIs (see [engineering rules](#first-party-ui-engineering-rules)):
 
 | Module | Surfaces |
 |---|---|
-| Account / Identity | sign in/out, profile, password/security, MFA, passkey-ready UX, recovery, active sessions, user/role/permission administration, impersonation where permitted, security history where supported |
+| Account / Identity | **Shipped (phase 6, `ForgeStack.Identity.Ui.Blazor`, [docs](identity-ui.md)):** sign in/out, profile, password, sessions (sign out everywhere else), user/role/permission administration. *Designed for, not shipped:* MFA, passkeys, recovery, a session list, impersonation, security history |
 | Tenancy | tenant search/list, create/edit, enable/disable, tenant settings, tenant users, feature/entitlement management where supported, isolation information where appropriate, tenant audit history |
 | Audit | timeline/list, filters, actor/entity/correlation views, security events, export, integrity verification, immutable evidence-store status |
 | Jobs | queued/running/scheduled/recurring, retrying/failed/terminal/dead-letter, retry/requeue/cancel where supported, execution history/diagnostics; every intervention audited |
@@ -88,7 +90,7 @@ The v0.1 CLI (`new`, `modules`, `db`, `doctor`, `upgrade check`, `audit verify`)
 forge new <Name> --template saas|enterprise|api|modular
 forge new <Name> --template saas --with-api            include the available .Api projections at generation time
 forge templates list
-forge ui add <module>        identity · tenancy · audit · jobs · settings · localisation · notifications · files
+forge ui add <module>        identity (shipped, phase 6) · tenancy · audit · jobs · settings · localisation · notifications · files
 forge ui remove <module>
 forge api add <module>       adds the optional .Api projection where one exists
 ```

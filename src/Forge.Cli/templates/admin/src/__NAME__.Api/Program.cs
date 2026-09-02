@@ -22,7 +22,7 @@ builder.Services.AddForgeSecurityDefaults(builder.Configuration);
 builder.Services.AddForgeTenancy();
 builder.Services.AddForgeObservability("{{NAME_LOWER}}");
 builder.Services.AddForgeAdminShell();
-builder.Services.AddForgeIdentityUi(); // sign-in, account and users/roles pages; delete this line and the package reference to go headless
+builder.Services.AddForgeIdentityUi(); // sign-in, account, users/roles pages: `forge ui remove identity` goes headless
 // the shell's system pages (audit, settings, jobs, localisation, impersonation banner)
 builder.Services.AddForgeSettings();
 builder.Services.AddForgeLocalization();
