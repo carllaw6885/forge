@@ -5,9 +5,16 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Forge.Identity.Api;
 
+/// <summary>Body of <c>POST /api/identity/users</c>.</summary>
 public sealed record CreateUserRequest(string UserName, string Password);
+
+/// <summary>Body of <c>POST /api/identity/users/{userName}/roles</c>.</summary>
 public sealed record AssignRoleRequest(string Role);
+
+/// <summary>Body of <c>POST /api/identity/roles</c>.</summary>
 public sealed record CreateRoleRequest(string Name);
+
+/// <summary>Body of <c>POST /api/identity/roles/{role}/permissions</c>.</summary>
 public sealed record GrantPermissionRequest(string Permission);
 
 /// <summary>

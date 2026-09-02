@@ -62,7 +62,7 @@ public sealed class InitSettings : Migration
 }
 
 /// <summary>SQL Server reference implementation of the scoped setting store.</summary>
-public sealed class SqlServerSettingStore(IDbContextFactory<SettingsDbContext> contextFactory) : ISettingStore
+internal sealed class SqlServerSettingStore(IDbContextFactory<SettingsDbContext> contextFactory) : ISettingStore
 {
     private const string NoScope = "-"; // key columns cannot be null
 

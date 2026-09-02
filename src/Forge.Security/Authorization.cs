@@ -14,7 +14,7 @@ public sealed class PermissionRequirement(string permission) : IAuthorizationReq
 }
 
 /// <summary>Fulfils <see cref="PermissionRequirement"/> via <see cref="IPermissionChecker"/>; protected checks fail closed (ADR 07/18).</summary>
-public sealed class PermissionAuthorizationHandler(IPermissionChecker checker)
+internal sealed class PermissionAuthorizationHandler(IPermissionChecker checker)
     : AuthorizationHandler<PermissionRequirement>
 {
     protected override async Task HandleRequirementAsync(
@@ -28,7 +28,7 @@ public sealed class PermissionAuthorizationHandler(IPermissionChecker checker)
 }
 
 /// <summary>Materialises "permission:X" policy names on demand — no per-permission registration boilerplate.</summary>
-public sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options)
+internal sealed class PermissionPolicyProvider(IOptions<AuthorizationOptions> options)
     : DefaultAuthorizationPolicyProvider(options)
 {
     public const string Prefix = "permission:";

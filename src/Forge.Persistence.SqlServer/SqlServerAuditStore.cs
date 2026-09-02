@@ -71,7 +71,7 @@ public sealed class InitAudit : Migration
 }
 
 /// <summary>SQL Server reference implementation of the append-only audit store (ADR 08).</summary>
-public sealed class SqlServerAuditStore(
+internal sealed class SqlServerAuditStore(
     IDbContextFactory<AuditDbContext> contextFactory,
     IAuditRedactionPolicy redaction) : IAuditStore
 {
