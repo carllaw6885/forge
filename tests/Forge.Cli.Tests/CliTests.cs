@@ -226,6 +226,46 @@ public class CliTests : IDisposable
     }
 
     [Fact]
+    public void Api_add_and_with_api_produce_the_same_host_and_round_trip()
+    {
+        var gen = Path.Combine(_root, "genApi");
+        Directory.CreateDirectory(gen);
+        Run("new", "Acme", "--root", gen, "--admin");
+        var root = Path.Combine(gen, "Acme");
+        var program = Path.Combine(root, "src", "Acme.Api", "Program.cs");
+        var csproj = Path.Combine(root, "src", "Acme.Api", "Acme.Api.csproj");
+        var (originalProgram, originalProj) = (File.ReadAllText(program), File.ReadAllText(csproj));
+        Assert.DoesNotContain("MapForgeIdentityApi", originalProgram, StringComparison.Ordinal);
+
+        Assert.Equal(0, Run("api", "add", "identity", "--root", root).ExitCode);
+        Assert.Equal(0, Run("api", "add", "audit", "--root", root).ExitCode);
+        var withApiProgram = File.ReadAllText(program);
+        var withApiProj = File.ReadAllText(csproj);
+        Assert.Contains("using Forge.Identity.Api;", withApiProgram, StringComparison.Ordinal);
+        Assert.Contains("app.MapForgeIdentityApi();", withApiProgram, StringComparison.Ordinal);
+        Assert.Contains("app.MapForgeAuditApi().WithHostScope();", withApiProgram, StringComparison.Ordinal);
+        Assert.Contains("Include=\"ForgeStack.Identity.Api\"", withApiProj, StringComparison.Ordinal);
+        Assert.Contains("Include=\"ForgeStack.Audit.Api\"", withApiProj, StringComparison.Ordinal);
+
+        // remove in the opposite order and add back: byte-identical to the template
+        Assert.Equal(0, Run("api", "remove", "audit", "--root", root).ExitCode);
+        Assert.Equal(0, Run("api", "remove", "identity", "--root", root).ExitCode);
+        Assert.Equal(originalProgram, File.ReadAllText(program));
+        Assert.Equal(originalProj, File.ReadAllText(csproj));
+
+        // forge new --with-api is exactly `forge api add` for every module
+        var gen2 = Path.Combine(_root, "genWithApi");
+        Directory.CreateDirectory(gen2);
+        Assert.Equal(0, Run("new", "Acme", "--root", gen2, "--admin", "--with-api").ExitCode);
+        Assert.Equal(withApiProgram, File.ReadAllText(Path.Combine(gen2, "Acme", "src", "Acme.Api", "Program.cs")));
+        Assert.Equal(withApiProj, File.ReadAllText(Path.Combine(gen2, "Acme", "src", "Acme.Api", "Acme.Api.csproj")));
+
+        var bare = Run("new", "Bare", "--root", gen2, "--with-api");
+        Assert.Equal(1, bare.ExitCode);
+        Assert.Contains("needs --admin", bare.Err, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Ui_remove_and_add_round_trip_the_admin_template_byte_for_byte()
     {
         var gen = Path.Combine(_root, "genUi");

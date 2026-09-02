@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- ADR 40: the application contract and the shared API shape — no stores -->
+    <ProjectReference Include="../Forge.Auditing/Forge.Auditing.csproj" />
+    <ProjectReference Include="../Forge.Web/Forge.Web.csproj" />
+  </ItemGroup>
+</Project>

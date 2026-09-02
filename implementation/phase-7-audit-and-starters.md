@@ -25,8 +25,9 @@ ADRs: 06, 08, 12, 22, 30, 37, 40. Roadmap: `docs/POST_V0.1_ROADMAP.md` § Module
 
 ## 7.4 `.Api` projections
 
-- [ ] `ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`: Minimal-API groups over the contracts, bearer-only, Problem Details from `Result` codes; architecture test for `.Api` (contract only); parity tests.
-- [ ] `forge api add|remove <module>`; `forge new --with-api`.
+- [x] `ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`: Minimal-API groups over the contracts, bearer-only, Problem Details from `Result` codes (`ForgeApi` in `ForgeStack.Web`); architecture tests for `.Api` (contract + web plumbing only); projection tests (`ApiProjectionTests`) and a real-token test through OpenIddict validation.
+- [x] `forge api add|remove <module>`; `forge new --with-api`; CI removal proof covers UI and API; served-app check asserts the API is a bare 401 anonymously.
+- [x] Bearer clients are authorised through roles: an OpenIddict application permission `role:<Role>` becomes a role claim (`IdentityEndpoints.RolePermissionPrefix`); the admin template seeds `dev-client` in Development. `MapIdentityEndpoints()` returns the convention builder so `/connect/token` runs host scoped. Docs: `docs/module-apis.md`.
 
 ## 7.5 Starters, CI, docs
 

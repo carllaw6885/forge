@@ -52,18 +52,18 @@ jobs:
             dotnet pack "$proj" -c Release -o $FEED --no-build --verbosity quiet
           done
           FORGE="dotnet run --project src/Forge.Cli -c Release --no-build --"
-          for variant in "" "--admin"; do
-            GEN=$RUNNER_TEMP/gen$variant
+          for variant in "" "--admin --with-api"; do
+            GEN=$RUNNER_TEMP/gen${variant%% *}
             $FORGE new Acme --root $GEN $variant
             printf '<?xml version="1.0" encoding="utf-8"?>\n<configuration><packageSources><add key="forge-local" value="%s" /></packageSources></configuration>\n' "$FEED" > $GEN/Acme/nuget.config
             dotnet build $GEN/Acme/Acme.slnx --verbosity quiet
             $FORGE modules validate --root $GEN/Acme
           done
-          # ADR 40 removal proof on packed packages: the app builds with and without the identity UI
+          # ADR 40 removal proof on packed packages: the app builds without any module UI or API projection, then with them back
           GEN=$RUNNER_TEMP/gen--admin/Acme
-          $FORGE ui remove identity --root $GEN
+          for kind in ui api; do $FORGE $kind remove identity --root $GEN; $FORGE $kind remove audit --root $GEN; done
           dotnet build $GEN/Acme.slnx --verbosity quiet
-          $FORGE ui add identity --root $GEN
+          for kind in ui api; do $FORGE $kind add audit --root $GEN; $FORGE $kind add identity --root $GEN; done
           dotnet build $GEN/Acme.slnx --verbosity quiet
       - name: forge new --admin output serves the sign-in page
         run: |
@@ -81,6 +81,9 @@ jobs:
           location=$(curl -s -o /dev/null -w "%{redirect_url}" http://127.0.0.1:5240/admin)
           case "$location" in *"/account/sign-in?ReturnUrl="*) ;; *) echo "expected sign-in redirect, got '$location'"; cat $RUNNER_TEMP/acme.log; exit 1;; esac
           curl -sf http://127.0.0.1:5240/account/sign-in | grep -q 'name="Model.Password"'
+          # the bearer-only API never redirects to the sign-in page: anonymous is a bare 401
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5240/api/identity/users)
+          test "$code" = "401" || { echo "expected 401 from the bearer-only API, got $code"; cat $RUNNER_TEMP/acme.log; exit 1; }
       - name: OCI container smoke (fresh install, no Aspire)
         run: |
           docker run -d --name smoke-sql -e ACCEPT_EULA=Y -e MSSQL_SA_PASSWORD='Smoke!Passw0rd42' -p 14433:1433 mcr.microsoft.com/mssql/server:2022-latest

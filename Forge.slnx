@@ -12,12 +12,14 @@
   <Folder Name="/src/">
     <Project Path="src/Forge.Admin.Abstractions/Forge.Admin.Abstractions.csproj" />
     <Project Path="src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
+    <Project Path="src/Forge.Audit.Api/Forge.Audit.Api.csproj" />
     <Project Path="src/Forge.Audit.Ui.Blazor/Forge.Audit.Ui.Blazor.csproj" />
     <Project Path="src/Forge.Auditing/Forge.Auditing.csproj" />
     <Project Path="src/Forge.Caching.Redis/Forge.Caching.Redis.csproj" />
     <Project Path="src/Forge.Cli/Forge.Cli.csproj" />
     <Project Path="src/Forge.Core/Forge.Core.csproj" />
     <Project Path="src/Forge.Events/Forge.Events.csproj" />
+    <Project Path="src/Forge.Identity.Api/Forge.Identity.Api.csproj" />
     <Project Path="src/Forge.Identity.Ui.Blazor/Forge.Identity.Ui.Blazor.csproj" />
     <Project Path="src/Forge.Identity/Forge.Identity.csproj" />
     <Project Path="src/Forge.Jobs.Quartz/Forge.Jobs.Quartz.csproj" />

@@ -151,8 +151,13 @@ public static class ForgeCli
             Description = "Include the Blazor admin shell and Identity module (cookie sign-in, dev seed).",
         };
         newCommand.Options.Add(adminOption);
+        var withApiOption = new Option<bool>("--with-api")
+        {
+            Description = "With --admin: also map the bearer-only Identity and Audit APIs (/api/identity, /api/audit).",
+        };
+        newCommand.Options.Add(withApiOption);
         newCommand.SetAction(pr => Commands.NewCommand.Run(
-            pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!, pr.GetValue(adminOption)));
+            pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!, pr.GetValue(adminOption), pr.GetValue(withApiOption)));
         root.Subcommands.Add(newCommand);
 
         var db = new Command("db", "Database operations, delegated to the solution's DbMigrator (the CLI itself stays EF-free).");
@@ -165,17 +170,23 @@ public static class ForgeCli
         db.Subcommands.Add(dbMigrate);
         root.Subcommands.Add(db);
 
-        var ui = new Command("ui", "Attach or detach first-party module UI packages (ordinary source edits, idempotent).");
-        var moduleArgument = new Argument<string>("module") { Description = "Module UI to add or remove: identity, audit." };
-        foreach (var verb in new[] { "add", "remove" })
+        foreach (var (kind, noun) in new[] { ("ui", "UI"), ("api", "API") })
         {
-            var command = new Command(verb, $"{char.ToUpperInvariant(verb[0])}{verb[1..]} the module's UI package reference and registration in the admin host.");
-            command.Arguments.Add(moduleArgument);
-            command.SetAction(pr => Commands.UiCommand.Run(pr.GetValue(moduleArgument)!, pr.GetValue(rootOption)!, add: verb == "add"));
-            ui.Subcommands.Add(command);
-        }
+            var family = new Command(kind, $"Attach or detach first-party module {noun} packages (ordinary source edits, idempotent).");
+            var moduleArgument = new Argument<string>("module")
+            {
+                Description = $"Module {noun} to add or remove: {string.Join(", ", Commands.UiCommand.Modules(kind))}.",
+            };
+            foreach (var verb in new[] { "add", "remove" })
+            {
+                var command = new Command(verb, $"{char.ToUpperInvariant(verb[0])}{verb[1..]} the module's {noun} package reference and registration in the admin host.");
+                command.Arguments.Add(moduleArgument);
+                command.SetAction(pr => Commands.UiCommand.Run(kind, pr.GetValue(moduleArgument)!, pr.GetValue(rootOption)!, add: verb == "add"));
+                family.Subcommands.Add(command);
+            }
 
-        root.Subcommands.Add(ui);
+            root.Subcommands.Add(family);
+        }
 
         var upgrade = new Command("upgrade", "Forge version tooling.");
         var check = new Command("check", "Compare the repository's pinned Forge package versions against this CLI (offline, deterministic).");

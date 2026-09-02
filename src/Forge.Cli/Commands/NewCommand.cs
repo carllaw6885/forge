@@ -19,11 +19,17 @@ public static class NewCommand
         typeof(NewCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion.Split('+')[0];
 
-    public static int Run(string name, string outputDirectory, bool admin = false)
+    public static int Run(string name, string outputDirectory, bool admin = false, bool withApi = false)
     {
         if (!name.All(c => char.IsAsciiLetterOrDigit(c)) || name.Length == 0 || !char.IsAsciiLetter(name[0]))
         {
             Console.Error.WriteLine($"error: '{name}' is not a valid project name (ascii letters/digits, starting with a letter)");
+            return 1;
+        }
+
+        if (withApi && !admin)
+        {
+            Console.Error.WriteLine("error: --with-api needs --admin (the APIs project the Identity module)");
             return 1;
         }
 
@@ -65,6 +71,17 @@ public static class NewCommand
         }
 
         var written = files.Keys;
+        if (withApi)
+        {
+            // the APIs are ordinary attachments, so the generated app is exactly what `forge api add` produces
+            foreach (var module in UiCommand.Modules("api"))
+            {
+                if (UiCommand.Run("api", module, target, add: true) != 0)
+                {
+                    return 1;
+                }
+            }
+        }
 
         Console.WriteLine($"ok: {name} generated ({written.Count} files). Next: dotnet run --project {name}/src/{name}.AppHost");
         return 0;

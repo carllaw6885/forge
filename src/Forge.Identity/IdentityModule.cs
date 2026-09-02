@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Forge.Identity;
 
@@ -142,5 +143,8 @@ public sealed class IdentityModule(
                 options.UseLocalServer();
                 options.UseAspNetCore();
             });
+        // plain-HTTP token requests only ever in Development (local hosts, CI smoke); production keeps HTTPS mandatory
+        services.AddOptions<OpenIddict.Server.AspNetCore.OpenIddictServerAspNetCoreOptions>()
+            .Configure<IHostEnvironment>((options, env) => options.DisableTransportSecurityRequirement = env.IsDevelopment());
     }
 }

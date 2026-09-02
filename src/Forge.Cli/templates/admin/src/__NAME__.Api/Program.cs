@@ -12,6 +12,7 @@ using Forge.Security;
 using Forge.Settings;
 using Forge.Web;
 using Microsoft.AspNetCore.Identity;
+using OpenIddict.Abstractions;
 using {{NAME}}.Notes;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,7 +67,7 @@ app.UseForgeRequestCulture();
 app.UseAntiforgery();
 
 app.MapForgeHealth(endpoint => endpoint.WithHostScope());
-app.MapIdentityEndpoints();
+app.MapIdentityEndpoints().WithHostScope();
 app.MapNotesEndpoints();
 // navigation visibility is never authorisation (ADR 40): the shell requires a signed-in user
 app.MapForgeAdminShell(endpoint => endpoint.WithHostScope().RequireAuthorization());
@@ -87,6 +88,19 @@ if (app.Environment.IsDevelopment())
         await db.SaveChangesAsync();
         await users.CreateAsync(new ForgeUser { UserName = "admin" }, "{{NAME}}!Admin!Passw0rd");
         await users.AddToRoleAsync((await users.FindByNameAsync("admin"))!, "Administrator");
+        // a bearer client in the same role for /connect/token (client_credentials) and any `forge api add` surface
+        await scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>().CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "dev-client",
+            ClientSecret = "{{NAME}}!Dev!Client!Secret",
+            DisplayName = "Development client",
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                IdentityEndpoints.RolePermissionPrefix + "Administrator",
+            },
+        });
     }
 }
 

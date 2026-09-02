@@ -72,7 +72,7 @@ app.UseAntiforgery();
 
 app.MapOpenApi().WithHostScope();
 app.MapForgeHealth(endpoint => endpoint.WithHostScope());
-app.MapIdentityEndpoints();
+app.MapIdentityEndpoints().WithHostScope();
 app.MapCatalogEndpoints();
 // navigation visibility is never authorisation (ADR 40): the shell requires a signed-in user
 app.MapForgeAdminShell(endpoint => endpoint.WithHostScope().RequireAuthorization());

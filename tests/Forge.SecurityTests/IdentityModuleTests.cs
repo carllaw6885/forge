@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
 using Forge.Identity;
+using Forge.Identity.Api;
 using Forge.Modularity;
 using Forge.Security;
 using Forge.Web;
@@ -74,14 +75,18 @@ public sealed class IdentityFixture : IAsyncLifetime
 
         App = builder.Build();
         App.Services.UseForge();
-        App.MapIdentityEndpoints();
+        App.UseAuthentication();
+        App.UseAuthorization();
+        App.UseForgeTenancy(); // the API group is host scoped; without the middleware scope stays Unresolved (denied)
+        App.MapIdentityEndpoints().WithHostScope();
+        App.MapForgeIdentityApi(); // default scheme: OpenIddict bearer validation
         App.MapPost("/test/login", async (SignInManager<ForgeUser> signIn, UserManager<ForgeUser> users) =>
         {
             await signIn.SignInAsync((await users.FindByNameAsync("cookie-user"))!, isPersistent: false);
             return Results.Ok();
-        });
+        }).WithHostScope();
         App.MapGet("/test/me", (ClaimsPrincipal user) =>
-            user.Identity?.IsAuthenticated == true ? Results.Ok(user.Identity.Name) : Results.Unauthorized());
+            user.Identity?.IsAuthenticated == true ? Results.Ok(user.Identity.Name) : Results.Unauthorized()).WithHostScope();
         await App.StartAsync();
 
         // OpenIddict rightly refuses plain HTTP; keep transport security ON in
@@ -103,6 +108,7 @@ public sealed class IdentityFixture : IAsyncLifetime
                     {
                         OpenIddictConstants.Permissions.Endpoints.Token,
                         OpenIddictConstants.Permissions.GrantTypes.ClientCredentials,
+                        IdentityEndpoints.RolePermissionPrefix + "Auditor",
                     },
                 });
         }
@@ -200,6 +206,42 @@ public class IdentityModuleTests(IdentityFixture fx) : IClassFixture<IdentityFix
         var payload = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct);
         Assert.True(payload!.ContainsKey("access_token"));
         Assert.Equal("Bearer", payload["token_type"].ToString());
+    }
+
+    [Fact]
+    public async Task Bearer_clients_reach_the_identity_api_through_their_role()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+        using (var scope = fx.App.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>();
+            if (!await db.RolePermissions.AnyAsync(p => p.RoleName == "Auditor", ct))
+            {
+                db.RolePermissions.Add(new RolePermission { RoleName = "Auditor", PermissionName = IdentityPermissions.UsersRead });
+                await db.SaveChangesAsync(ct);
+            }
+        }
+
+        var token = await fx.Client.PostAsync("/connect/token", new FormUrlEncodedContent(
+        [
+            new KeyValuePair<string, string>("grant_type", "client_credentials"),
+            new KeyValuePair<string, string>("client_id", "test-client"),
+            new KeyValuePair<string, string>("client_secret", "test-secret-with-plenty-of-entropy"),
+        ]), ct);
+        var accessToken = (await token.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct))!["access_token"].ToString();
+
+        Assert.Equal(System.Net.HttpStatusCode.Unauthorized, (await fx.Client.GetAsync("/api/identity/users", ct)).StatusCode);
+
+        using var users = new HttpRequestMessage(HttpMethod.Get, "/api/identity/users");
+        users.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        var listed = await fx.Client.SendAsync(users, ct);
+        Assert.True(listed.IsSuccessStatusCode, await listed.Content.ReadAsStringAsync(ct));
+
+        // the role grants read only: manage is a 403 Problem Details from the contract, not a redirect
+        using var create = new HttpRequestMessage(HttpMethod.Post, "/api/identity/roles") { Content = JsonContent.Create(new CreateRoleRequest("x")) };
+        create.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        Assert.Equal(System.Net.HttpStatusCode.Forbidden, (await fx.Client.SendAsync(create, ct)).StatusCode);
     }
 
     [Fact]

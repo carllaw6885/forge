@@ -63,29 +63,49 @@ public class BoundaryRuleTests
     private static bool IsUi(string name) =>
         name == "Forge.Admin.Blazor" || name.Contains(".Ui.", StringComparison.Ordinal);
 
-    // ADR 40: a capability never depends on its first-party UI (hosts and the CLI may)
+    // ADR 40: an optional HTTP projection of a module's application contract
+    private static bool IsApi(string name) => name.EndsWith(".Api", StringComparison.Ordinal);
+
+    // ADR 40: a capability never depends on its first-party UI or API projection (hosts and the CLI may)
     [Fact]
-    public void Capabilities_never_reference_ui_packages()
+    public void Capabilities_never_reference_ui_or_api_packages()
     {
         var violations =
             from p in RepoModel.SourceProjects()
-            where !IsUi(p.Name) && !p.Name.Contains("Reference", StringComparison.Ordinal)
+            where !IsUi(p.Name) && !IsApi(p.Name) && !p.Name.Contains("Reference", StringComparison.Ordinal)
                 && !p.Name.EndsWith("AppHost", StringComparison.Ordinal) && p.Name != "Forge.Cli"
             from r in p.ProjectReferences
-            where IsUi(r)
+            where IsUi(r) || IsApi(r)
             select $"{p.Name} references {r}";
 
         Assert.Empty(violations);
     }
 
-    // ADR 40: first-party UI consumes the module application contract, never stores or managers
+    // ADR 40: an .Api projection sees only its capability's contract plus the shared web/core plumbing —
+    // never a UI package, never another module, never persistence
     [Fact]
-    public void Ui_packages_consume_only_application_contracts()
+    public void Api_packages_reference_only_their_capability_and_web_plumbing()
+    {
+        var violations =
+            from p in RepoModel.SourceProjects()
+            where IsApi(p.Name)
+            let capability = p.Name[..^".Api".Length]
+            from r in p.ProjectReferences
+            where r != "Forge.Web" && r != "Forge.Core" && r != capability
+                && !(capability == "Forge.Audit" && r == "Forge.Auditing") // package name vs capability name
+            select $"{p.Name} references {r}";
+
+        Assert.Empty(violations);
+    }
+
+    // ADR 40: first-party UI and API projections consume the module application contract, never stores or managers
+    [Fact]
+    public void Ui_and_api_packages_consume_only_application_contracts()
     {
         string[] forbidden = ["DbContext", "UserManager<", "RoleManager<", "SignInManager<"];
         var violations =
             from p in RepoModel.SourceProjects()
-            where IsUi(p.Name)
+            where IsUi(p.Name) || IsApi(p.Name)
             from file in Directory.EnumerateFiles(System.IO.Path.GetDirectoryName(p.Path)!, "*.*", SearchOption.AllDirectories)
             where (file.EndsWith(".razor", StringComparison.Ordinal) || file.EndsWith(".cs", StringComparison.Ordinal))
                 && !file.Contains($"{System.IO.Path.DirectorySeparatorChar}obj{System.IO.Path.DirectorySeparatorChar}", StringComparison.Ordinal)

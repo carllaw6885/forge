@@ -72,6 +72,8 @@ Phases 0–5 are complete; post-v0.1 delivery is planned in `docs/POST_V0.1_ROAD
 | `src/Forge.Admin.Blazor` | Reference admin shell | Blazor Web App admin shell, nav extension points, tenant/impersonation banners, design tokens. |
 | `src/Forge.Identity.Ui.Blazor` | Identity first-party UI (ADR 40, v0.2) | Sign-in, account and users/roles pages contributed to the shell; consumes only the Identity application contract. See `docs/identity-ui.md`. |
 | `src/Forge.Audit.Ui.Blazor` | Audit first-party UI (ADR 40, v0.2) | Audit trail page (filters, verify, export) contributed to the shell; consumes only `IAuditQueries`. See `docs/audit-ui.md`. |
+| `src/Forge.Identity.Api` | Identity HTTP projection (ADR 40, v0.2) | Bearer-only `/api/identity` over the Identity contract; Problem Details from `Result` codes. See `docs/module-apis.md`. |
+| `src/Forge.Audit.Api` | Audit HTTP projection (ADR 40, v0.2) | Bearer-only `/api/audit` over `IAuditQueries`. See `docs/module-apis.md`. |
 | `src/Forge.Cli` | Developer CLI | new, modules list/graph/validate, db status/migrate, doctor, upgrade check --dry-run. |
 | `src/Forge.DbMigrator` | Independent migration runner | Host/shared tenant database migration execution; no web-startup auto-migrate. |
 | `src/Forge.AppHost` | Aspire reference topology | AppHost orchestration for SQL Server, app, migrator, telemetry; Redis optional in v0.1. |
@@ -110,6 +112,8 @@ forge/
     Forge.Admin.Blazor/
     Forge.Identity.Ui.Blazor/
     Forge.Audit.Ui.Blazor/
+    Forge.Identity.Api/
+    Forge.Audit.Api/
     Forge.Cli/
     Forge.DbMigrator/
     Forge.AppHost/

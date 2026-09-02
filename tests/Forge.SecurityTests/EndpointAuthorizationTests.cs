@@ -19,7 +19,7 @@ public sealed class AuthTestFixture : IAsyncLifetime
     public WebApplication App { get; private set; } = null!;
     public HttpClient Client { get; private set; } = null!;
 
-    private sealed class HeaderClaimsHandler(
+    internal sealed class HeaderClaimsHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
         : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
     {
