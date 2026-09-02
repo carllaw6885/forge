@@ -34,7 +34,7 @@ jobs:
         run: |
           dotnet test tests/Forge.Persistence.SqlServer.Tests -c Release --no-build
           dotnet test tests/Forge.ReferenceCatalog.Tests -c Release --no-build
-          dotnet test tests/Forge.SecurityTests -c Release --no-build --filter "FullyQualifiedName~IdentityModuleTests"
+          dotnet test tests/Forge.SecurityTests -c Release --no-build --filter "FullyQualifiedName~IdentityModuleTests|FullyQualifiedName~IdentityContractTests"
           dotnet test tests/Forge.JobsTests -c Release --no-build --filter "FullyQualifiedName~QuartzSqlStoreTests"
           dotnet test tests/Forge.SettingsTests -c Release --no-build --filter "FullyQualifiedName~SqlSettingStoreTests"
           dotnet test tests/Forge.CachingTests -c Release --no-build
