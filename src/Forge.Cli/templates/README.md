@@ -9,4 +9,6 @@ ConnectionStrings__forge="..." dotnet run --project src/{{NAME}}.DbMigrator -- m
 ConnectionStrings__forge="..." dotnet run --project src/{{NAME}}.Api
 ```
 
-With `--admin`, the API seeds a development-only `admin` user (password `{{NAME}}!Admin!Passw0rd`, Administrator role) so `/admin` is reachable at once — see the seed block at the end of `src/{{NAME}}.Api/Program.cs`; it never runs outside `Development`. `forge ui remove identity` / `forge ui add identity` detach and reattach the identity pages.
+Templates (`forge templates list`): `modular` (this layout, no identity), `saas` (adds the Identity module, the Blazor admin shell and the module UIs) and `api` (adds the Identity module in a headless host with the bearer-only module APIs).
+
+With `saas` the API seeds a development-only `admin` user (password `{{NAME}}!Admin!Passw0rd`, Administrator role) so `/admin` is reachable at once; `saas` and `api` seed a `dev-client` (`{{NAME}}!Dev!Client!Secret`) for `client_credentials` at `/connect/token`. See the seed block at the end of `src/{{NAME}}.Api/Program.cs`; it never runs outside `Development`. `forge ui add|remove` and `forge api add|remove` attach and detach module pages and APIs.

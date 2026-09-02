@@ -4,7 +4,7 @@ Optional first-party UI for the Audit capability (ADR 40): one `/admin/audit` pa
 
 ## Install
 
-`forge new --admin` includes it. For an existing host that maps the admin shell:
+`forge new --template saas` includes it. For an existing host that maps the admin shell:
 
 ```bash
 forge ui add audit           # adds the PackageReference and builder.Services.AddForgeAuditUi()

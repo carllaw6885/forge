@@ -31,7 +31,7 @@ ADRs: 06, 08, 12, 22, 30, 37, 40. Roadmap: `docs/POST_V0.1_ROADMAP.md` § Module
 
 ## 7.5 Starters, CI, docs
 
-- [ ] `forge new --template saas|api|modular` (`--admin` stays as an alias for `saas`), `forge templates list`; CI builds every template.
+- [x] `forge new --template saas|api|modular` (`--admin` stays as an alias for `saas`), `forge templates list`; CI builds every template and serves `saas` and `api`.
 - [x] Docs: `docs/audit-ui.md`; roadmap Audit row shipped; `IMPLEMENTATION_PACK.md` project table.
 - [ ] Release 0.2.0-preview.2 on explicit instruction only.
 

@@ -146,19 +146,41 @@ public static class ForgeCli
         var newCommand = new Command("new", "Generate a new Forge solution from the reference template (ordinary source, idempotent).");
         var nameArgument = new Argument<string>("name") { Description = "Solution/root namespace name, e.g. Acme." };
         newCommand.Arguments.Add(nameArgument);
+        var templateOption = new Option<string>("--template")
+        {
+            Description = $"Starter template: {string.Join(", ", Commands.NewCommand.Templates.Keys)} (see `forge templates list`).",
+            DefaultValueFactory = _ => "modular",
+        };
+        templateOption.AcceptOnlyFromAmong([.. Commands.NewCommand.Templates.Keys]);
+        newCommand.Options.Add(templateOption);
         var adminOption = new Option<bool>("--admin")
         {
-            Description = "Include the Blazor admin shell and Identity module (cookie sign-in, dev seed).",
+            Description = "Alias for --template saas (kept for v0.1 scripts; deprecated, ADR 22).",
         };
         newCommand.Options.Add(adminOption);
         var withApiOption = new Option<bool>("--with-api")
         {
-            Description = "With --admin: also map the bearer-only Identity and Audit APIs (/api/identity, /api/audit).",
+            Description = "With saas: also map the bearer-only Identity and Audit APIs (/api/identity, /api/audit). Implied by api.",
         };
         newCommand.Options.Add(withApiOption);
         newCommand.SetAction(pr => Commands.NewCommand.Run(
-            pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!, pr.GetValue(adminOption), pr.GetValue(withApiOption)));
+            pr.GetValue(nameArgument)!, pr.GetValue(rootOption)!,
+            pr.GetValue(adminOption) ? "saas" : pr.GetValue(templateOption)!, pr.GetValue(withApiOption)));
         root.Subcommands.Add(newCommand);
+
+        var templates = new Command("templates", "Starter templates for `forge new`.");
+        var templatesList = new Command("list", "List templates as 'name  description' lines.");
+        templatesList.SetAction(_ =>
+        {
+            foreach (var (name, (_, description)) in Commands.NewCommand.Templates)
+            {
+                Console.WriteLine($"{name,-8} {description}");
+            }
+
+            return 0;
+        });
+        templates.Subcommands.Add(templatesList);
+        root.Subcommands.Add(templates);
 
         var db = new Command("db", "Database operations, delegated to the solution's DbMigrator (the CLI itself stays EF-free).");
         var dbStatus = new Command("status", "Show applied/pending migrations per module schema.");

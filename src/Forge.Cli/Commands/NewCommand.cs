@@ -12,24 +12,40 @@ public static class NewCommand
 {
     private const string ResourcePrefix = "Forge.Cli.templates.";
 
-    private const string AdminPrefix = "admin.";
+    /// <summary>Template = base files + overlays applied in order (later overlays win at the same path).</summary>
+    public static readonly IReadOnlyDictionary<string, (string[] Layers, string Description)> Templates = new SortedDictionary<string, (string[], string)>(StringComparer.Ordinal)
+    {
+        ["modular"] = ([], "modules + Aspire app host; no identity (the default)"),
+        ["saas"] = (["admin"], "modular + Identity module, Blazor admin shell, module UIs; --with-api adds the module APIs"),
+        ["api"] = (["admin", "api"], "modular + Identity module, headless host with bearer-only module APIs"),
+    };
+
+    private static readonly string[] Overlays = ["admin", "api"];
 
     /// <summary>The CLI's own package version — generated apps pin the matching ForgeStack.* packages.</summary>
     public static string ForgeVersion { get; } =
         typeof(NewCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
             .InformationalVersion.Split('+')[0];
 
-    public static int Run(string name, string outputDirectory, bool admin = false, bool withApi = false)
+    public static int Run(string name, string outputDirectory, string template = "modular", bool withApi = false)
     {
+        if (!Templates.TryGetValue(template, out var chosen))
+        {
+            Console.Error.WriteLine($"error: unknown template '{template}' (available: {string.Join(", ", Templates.Keys)})");
+            return 1;
+        }
+
+        var layers = chosen.Layers;
+        withApi |= template == "api";
         if (!name.All(c => char.IsAsciiLetterOrDigit(c)) || name.Length == 0 || !char.IsAsciiLetter(name[0]))
         {
             Console.Error.WriteLine($"error: '{name}' is not a valid project name (ascii letters/digits, starting with a letter)");
             return 1;
         }
 
-        if (withApi && !admin)
+        if (withApi && layers.Length == 0)
         {
-            Console.Error.WriteLine("error: --with-api needs --admin (the APIs project the Identity module)");
+            Console.Error.WriteLine("error: --with-api needs a template with the Identity module (saas or api)");
             return 1;
         }
 
@@ -41,15 +57,16 @@ public static class NewCommand
         }
 
         var assembly = Assembly.GetExecutingAssembly();
-        // base template first, then --admin variants override files at the same path
+        // base files first, then each overlay in template order overrides files at the same path
+        static string Overlay(string resource) =>
+            Overlays.FirstOrDefault(o => resource[ResourcePrefix.Length..].StartsWith(o + ".", StringComparison.Ordinal)) ?? "";
         var files = new SortedDictionary<string, string>(StringComparer.Ordinal);
         foreach (var resource in assembly.GetManifestResourceNames()
                      .Where(r => r.StartsWith(ResourcePrefix, StringComparison.Ordinal))
-                     .OrderBy(r => r[ResourcePrefix.Length..].StartsWith(AdminPrefix, StringComparison.Ordinal))
+                     .OrderBy(r => Array.IndexOf(layers, Overlay(r)))
                      .ThenBy(r => r, StringComparer.Ordinal))
         {
-            var isAdmin = resource[ResourcePrefix.Length..].StartsWith(AdminPrefix, StringComparison.Ordinal);
-            if (isAdmin && !admin)
+            if (Overlay(resource) is { Length: > 0 } overlay && !layers.Contains(overlay))
             {
                 continue;
             }
@@ -102,11 +119,14 @@ public static class NewCommand
         ["modules.Notes.__NAME__.Notes.__NAME__.Notes.csproj"] = "modules/Notes/{{NAME}}.Notes/{{NAME}}.Notes.csproj",
         ["modules.Notes.__NAME__.Notes.forge-module.json"] = "modules/Notes/{{NAME}}.Notes/forge-module.json",
         ["modules.Notes.__NAME__.Notes.NotesModule.cs"] = "modules/Notes/{{NAME}}.Notes/NotesModule.cs",
-        // --admin variants: same target paths, richer content (Identity + admin shell)
+        // "admin" overlay (saas): same target paths, richer content (Identity + admin shell, migrator for every schema)
         ["admin.src.__NAME__.Api.__NAME__.Api.csproj"] = "src/{{NAME}}.Api/{{NAME}}.Api.csproj",
         ["admin.src.__NAME__.Api.Program.cs"] = "src/{{NAME}}.Api/Program.cs",
         ["admin.src.__NAME__.DbMigrator.__NAME__.DbMigrator.csproj"] = "src/{{NAME}}.DbMigrator/{{NAME}}.DbMigrator.csproj",
         ["admin.src.__NAME__.DbMigrator.Program.cs"] = "src/{{NAME}}.DbMigrator/Program.cs",
+        // "api" overlay: the headless host over the admin migrator
+        ["api.src.__NAME__.Api.__NAME__.Api.csproj"] = "src/{{NAME}}.Api/{{NAME}}.Api.csproj",
+        ["api.src.__NAME__.Api.Program.cs"] = "src/{{NAME}}.Api/Program.cs",
     };
 
     private static string ResourceToPath(string resource, string name)

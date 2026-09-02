@@ -5,8 +5,9 @@ Optional Minimal-API projections of the Identity and Audit application contracts
 ## Install
 
 ```bash
-forge new Acme --admin --with-api      # both APIs mapped in the generated host
-forge api add identity                 # or attach to an existing --admin host
+forge new Acme --template api          # headless host: both APIs, no admin shell
+forge new Acme --template saas --with-api  # admin shell plus both APIs
+forge api add identity                 # or attach to an existing saas/api host
 forge api add audit
 forge api remove identity              # idempotent; byte-for-byte round trip
 ```
@@ -61,7 +62,7 @@ curl -X POST https://host/connect/token -d 'grant_type=client_credentials&client
 curl -H "Authorization: Bearer $TOKEN" https://host/api/audit?action=security.login.failed
 ```
 
-`forge new --admin` seeds a `dev-client` (`{Name}!Dev!Client!Secret`) in the `Administrator` role in Development only, and the Identity module accepts plain-HTTP token requests only in Development.
+`forge new --template saas|api` seeds a `dev-client` (`{Name}!Dev!Client!Secret`) in the `Administrator` role in Development only, and the Identity module accepts plain-HTTP token requests only in Development.
 
 ## Upgrading from 0.2.0-preview.1
 

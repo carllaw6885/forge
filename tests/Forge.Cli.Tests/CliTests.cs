@@ -262,7 +262,41 @@ public class CliTests : IDisposable
 
         var bare = Run("new", "Bare", "--root", gen2, "--with-api");
         Assert.Equal(1, bare.ExitCode);
-        Assert.Contains("needs --admin", bare.Err, StringComparison.Ordinal);
+        Assert.Contains("needs a template with the Identity module", bare.Err, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Templates_select_overlays_and_admin_is_an_alias_for_saas()
+    {
+        var gen = Path.Combine(_root, "genTemplates");
+        Directory.CreateDirectory(gen);
+        var list = Run("templates", "list", "--root", gen);
+        Assert.Equal(0, list.ExitCode);
+        Assert.Equal(["api", "modular", "saas"], list.Out.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => l.Split(' ')[0]));
+
+        static string Host(string gen, string name) => File.ReadAllText(Path.Combine(gen, name, "src", $"{name}.Api", "Program.cs"));
+        Assert.Equal(0, Run("new", "Saas", "--root", gen, "--template", "saas").ExitCode);
+        Assert.Equal(0, Run("new", "Admin", "--root", gen, "--admin").ExitCode);
+        Assert.Equal(Host(gen, "Saas").Replace("Saas", "Admin", StringComparison.Ordinal).Replace("saas", "admin", StringComparison.Ordinal), Host(gen, "Admin"));
+
+        Assert.Equal(0, Run("new", "Plain", "--root", gen).ExitCode);
+        Assert.Equal(0, Run("new", "Modular", "--root", gen, "--template", "modular").ExitCode);
+        Assert.Equal(Host(gen, "Plain").Replace("Plain", "Modular", StringComparison.Ordinal).Replace("plain", "modular", StringComparison.Ordinal), Host(gen, "Modular"));
+        Assert.DoesNotContain("IdentityModule", Host(gen, "Plain"), StringComparison.Ordinal);
+
+        // api: headless host over the admin migrator, both APIs attached (so `forge api remove` still works)
+        Assert.Equal(0, Run("new", "Head", "--root", gen, "--template", "api").ExitCode);
+        var api = Host(gen, "Head");
+        Assert.Contains("new IdentityModule(", api, StringComparison.Ordinal);
+        Assert.Contains("app.MapForgeIdentityApi();", api, StringComparison.Ordinal);
+        Assert.Contains("app.MapForgeAuditApi().WithHostScope();", api, StringComparison.Ordinal);
+        Assert.DoesNotContain("AdminShell", api, StringComparison.Ordinal);
+        Assert.DoesNotContain("AddIdentityCookies", api, StringComparison.Ordinal);
+        Assert.Contains("ForgeIdentityDbContext", File.ReadAllText(Path.Combine(gen, "Head", "src", "Head.DbMigrator", "Program.cs")), StringComparison.Ordinal);
+        Assert.Equal(0, Run("api", "remove", "audit", "--root", Path.Combine(gen, "Head")).ExitCode);
+        Assert.DoesNotContain("MapForgeAuditApi", Host(gen, "Head"), StringComparison.Ordinal);
+
+        Assert.Equal(1, Run("new", "Nope", "--root", gen, "--template", "enterprise").ExitCode);
     }
 
     [Fact]

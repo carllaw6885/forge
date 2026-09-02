@@ -399,6 +399,8 @@ forge upgrade check --dry-run
 forge audit verify
 ```
 
+v0.2 additions: `forge new --template modular|saas|api` (`--admin` = alias for `saas`, deprecated), `forge templates list`, `forge ui add|remove <module>`, `forge api add|remove <module>`.
+
 CLI rules:
 - deterministic and idempotent
 - `--dry-run` for mutations where practical

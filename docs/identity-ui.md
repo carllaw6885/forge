@@ -4,7 +4,7 @@ Optional first-party UI for the Identity capability (ADR 40). Ships sign-in, acc
 
 ## Install
 
-`forge new --admin` includes it. To attach it to an existing host that already maps the admin shell:
+`forge new --template saas` includes it. To attach it to an existing host that already maps the admin shell:
 
 ```bash
 forge ui add identity        # adds the PackageReference and builder.Services.AddForgeIdentityUi()

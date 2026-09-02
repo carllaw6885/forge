@@ -44,7 +44,7 @@ Each module in scope gains, in this order:
 
 Architecture tests: capability never references `.Ui.Blazor` or `.Api`; `.Ui.Blazor` references only the contract surface.
 
-**Status (phase 6):** Identity has its application contract (`IAccountOperations`, `ISignInOperations`, `IUserAdministration`, `IRoleAdministration` in `ForgeStack.Identity`) and its `.Ui.Blazor`. The Users and Roles pages moved out of `ForgeStack.Admin.Blazor` into `ForgeStack.Identity.Ui.Blazor`, which contributes them (plus sign-in and account pages) through `IAdminContribution`; the shell now owns only its system pages (dashboard, jobs, settings, localisation). **Phase 7:** Audit repeats the pattern (`IAuditQueries` in `ForgeStack.Auditing`, `ForgeStack.Audit.Ui.Blazor`), and `IAdminContribution` lives in `ForgeStack.Admin.Abstractions` so module UIs never depend on the shell. `.Api` projections shipped in the same phase (`ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`, [docs](module-apis.md)) — bearer-only Minimal-API groups over the same contracts, attached with `forge api add` or `forge new --admin --with-api`.
+**Status (phase 6):** Identity has its application contract (`IAccountOperations`, `ISignInOperations`, `IUserAdministration`, `IRoleAdministration` in `ForgeStack.Identity`) and its `.Ui.Blazor`. The Users and Roles pages moved out of `ForgeStack.Admin.Blazor` into `ForgeStack.Identity.Ui.Blazor`, which contributes them (plus sign-in and account pages) through `IAdminContribution`; the shell now owns only its system pages (dashboard, jobs, settings, localisation). **Phase 7:** Audit repeats the pattern (`IAuditQueries` in `ForgeStack.Auditing`, `ForgeStack.Audit.Ui.Blazor`), and `IAdminContribution` lives in `ForgeStack.Admin.Abstractions` so module UIs never depend on the shell. `.Api` projections shipped in the same phase (`ForgeStack.Identity.Api`, `ForgeStack.Audit.Api`, [docs](module-apis.md)) — bearer-only Minimal-API groups over the same contracts, attached with `forge api add`, `forge new --template saas --with-api` or `forge new --template api`.
 
 Production-quality optional Blazor UIs (see [engineering rules](#first-party-ui-engineering-rules)):
 
@@ -77,9 +77,9 @@ Developer         API · Modules · Diagnostics
 
 | Template | Status |
 |---|---|
-| `saas` | v0.2 priority — the complete experience |
-| `api` | v0.2, lighter composition (today's `forge new` output plus the available `.Api` packages) |
-| `modular` | v0.2, lighter composition |
+| `saas` | shipped (phase 7): Identity module + Blazor admin shell + module UIs; `--with-api` adds the module APIs |
+| `api` | shipped (phase 7): Identity module in a headless host with the bearer-only module APIs |
+| `modular` | shipped (phase 7): modules + Aspire app host, no identity (the default) |
 | `enterprise` | v0.3 headline deliverable |
 
 #### CLI evolution
@@ -95,7 +95,7 @@ forge ui remove <module>
 forge api add <module>       adds the optional .Api projection where one exists
 ```
 
-`forge new --admin` (v0.1.x) is the seed of `--template saas` and is retained as an alias until `saas` ships, then deprecated per ADR 22.
+`forge new --admin` (v0.1.x) is an alias for `--template saas`; deprecated per ADR 22 and removed in v0.3. `forge templates list` prints the catalogue.
 
 ### Stream B — Distributed Capability
 
