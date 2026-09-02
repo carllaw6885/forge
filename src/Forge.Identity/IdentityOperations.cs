@@ -66,6 +66,31 @@ public interface IAccountOperations
     Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken cancellationToken);
 }
 
+/// <summary>Outcome of a password sign-in. An unknown user and a wrong password are indistinguishable.</summary>
+public enum SignInOutcome
+{
+    Succeeded,
+    Failed,
+    LockedOut,
+}
+
+/// <summary>
+/// Interactive (cookie) sign-in for hosts that registered identity cookies;
+/// first-party UI calls this, never <c>SignInManager</c> (ADR 40).
+/// </summary>
+public interface ISignInOperations
+{
+    Task<SignInOutcome> PasswordSignInAsync(string userName, string password, CancellationToken cancellationToken);
+    Task SignOutAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Ends every other session of the signed-in user by rotating the security
+    /// stamp; the current session is refreshed. Identity keeps no session table,
+    /// so "sign out everywhere else" is the v0.2 shape of session management.
+    /// </summary>
+    Task<Result> SignOutEverywhereElseAsync(CancellationToken cancellationToken);
+}
+
 /// <summary>Actions the identity contract audits.</summary>
 public static class IdentityAuditActions
 {
@@ -74,6 +99,83 @@ public static class IdentityAuditActions
     public const string RoleCreated = "identity.role.created";
     public const string PermissionGranted = "identity.role.permission-granted";
     public const string PasswordChanged = "identity.account.password-changed";
+    public const string SignedIn = "identity.account.signed-in";
+    public const string SignInFailed = "identity.account.sign-in-failed";
+    public const string SignedOut = "identity.account.signed-out";
+    public const string SessionsRevoked = "identity.account.sessions-revoked";
+}
+
+/// <summary>Cookie sign-in over <c>SignInManager</c>; lockout on failure, every outcome audited.</summary>
+internal sealed class SignInOperations(
+    SignInManager<ForgeUser> signIn,
+    UserManager<ForgeUser> users,
+    IAuditStore audit,
+    TimeProvider clock,
+    IHttpContextAccessor httpContext,
+    ICurrentTenant? tenant = null) : ISignInOperations
+{
+    private ClaimsPrincipal Caller => httpContext.HttpContext?.User ?? new ClaimsPrincipal(new ClaimsIdentity());
+
+    public async Task<SignInOutcome> PasswordSignInAsync(string userName, string password, CancellationToken ct)
+    {
+        var user = await users.FindByNameAsync(userName);
+        var check = user is null
+            ? SignInResult.Failed
+            : await signIn.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+        var outcome = check.Succeeded ? SignInOutcome.Succeeded
+            : check.IsLockedOut ? SignInOutcome.LockedOut
+            : SignInOutcome.Failed;
+        if (outcome == SignInOutcome.Succeeded)
+        {
+            await signIn.SignInAsync(user!, isPersistent: false);
+        }
+
+        await audit.AppendAsync(IdentityAudit.Event(
+            outcome == SignInOutcome.Succeeded ? IdentityAuditActions.SignedIn : IdentityAuditActions.SignInFailed,
+            userName, tenant?.Id, userName, outcome == SignInOutcome.Succeeded ? "success" : "denied", clock.GetUtcNow(),
+            new() { ["outcome"] = outcome.ToString() }), ct);
+        return outcome;
+    }
+
+    public async Task SignOutAsync(CancellationToken ct)
+    {
+        var actor = Caller.Identity?.Name ?? "anonymous";
+        await signIn.SignOutAsync();
+        await audit.AppendAsync(IdentityAudit.Event(
+            IdentityAuditActions.SignedOut, actor, tenant?.Id, actor, "success", clock.GetUtcNow(), []), ct);
+    }
+
+    public async Task<Result> SignOutEverywhereElseAsync(CancellationToken ct)
+    {
+        var user = Caller.Identity?.IsAuthenticated == true ? await users.GetUserAsync(Caller) : null;
+        if (user is null)
+        {
+            return Result.Failure(new Error(IdentityErrors.Denied, "Not signed in."));
+        }
+
+        await users.UpdateSecurityStampAsync(user);
+        await signIn.RefreshSignInAsync(user);
+        await audit.AppendAsync(IdentityAudit.Event(
+            IdentityAuditActions.SessionsRevoked, user.UserName!, tenant?.Id, user.UserName!, "success", clock.GetUtcNow(), []), ct);
+        return Result.Success();
+    }
+}
+
+internal static class IdentityAudit
+{
+    public static AuditEvent Event(
+        string action, string actor, string? tenantId, string subject, string outcome,
+        DateTimeOffset at, Dictionary<string, string> details) => new()
+        {
+            Action = action,
+            TenantId = tenantId,
+            Actor = actor,
+            CorrelationId = Activity.Current?.TraceId.ToString() ?? CorrelationId.New().ToString(),
+            Subject = subject,
+            Outcome = outcome,
+            OccurredAt = at,
+            Details = details,
+        };
 }
 
 /// <summary>
@@ -244,15 +346,6 @@ internal sealed class IdentityOperations(
         return Result.Success();
     }
 
-    private AuditEvent Event(string action, string subject, string outcome, Dictionary<string, string> details) => new()
-    {
-        Action = action,
-        TenantId = tenant?.Id,
-        Actor = Actor,
-        CorrelationId = Activity.Current?.TraceId.ToString() ?? CorrelationId.New().ToString(),
-        Subject = subject,
-        Outcome = outcome,
-        OccurredAt = clock.GetUtcNow(),
-        Details = details,
-    };
+    private AuditEvent Event(string action, string subject, string outcome, Dictionary<string, string> details) =>
+        IdentityAudit.Event(action, Actor, tenant?.Id, subject, outcome, clock.GetUtcNow(), details);
 }

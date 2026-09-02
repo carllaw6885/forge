@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="../../modules/ReferenceCatalog/Forge.ReferenceCatalog/Forge.ReferenceCatalog.csproj" />
     <ProjectReference Include="../../src/Forge.Admin.Blazor/Forge.Admin.Blazor.csproj" />
+    <ProjectReference Include="../../src/Forge.Identity.Ui.Blazor/Forge.Identity.Ui.Blazor.csproj" />
     <ProjectReference Include="../../src/Forge.Jobs.Quartz/Forge.Jobs.Quartz.csproj" />
     <ProjectReference Include="../../src/Forge.Localization/Forge.Localization.csproj" />
     <ProjectReference Include="../../src/Forge.Web/Forge.Web.csproj" />

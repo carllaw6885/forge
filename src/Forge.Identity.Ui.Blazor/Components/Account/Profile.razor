@@ -1,0 +1,45 @@
+@page "/account"
+@inject IAccountOperations Account
+@inject ISignInOperations SignIn
+@inject IStringLocalizer<IdentityUiResources> L
+@inject NavigationManager Navigation
+
+<PageTitle>@L["ProfileTitle"]</PageTitle>
+<h1>@L["ProfileTitle"]</h1>
+
+@if (_me is null)
+{
+    <p role="status">@_message</p>
+}
+else
+{
+    <dl>
+        <dt>@L["UserName"]</dt>
+        <dd>@_me.UserName</dd>
+        <dt>@L["Roles"]</dt>
+        <dd>@(_me.Roles.Count == 0 ? L["None"] : string.Join(", ", _me.Roles))</dd>
+    </dl>
+
+    <form method="post" @onsubmit="SignOutAsync" @formname="sign-out">
+        <AntiforgeryToken />
+        <button type="submit">@L["SignOutButton"]</button>
+    </form>
+}
+
+@code {
+    private UserSummary? _me;
+    private string? _message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Account.MeAsync(CancellationToken.None);
+        _me = result.IsSuccess ? result.Value : null;
+        _message = result.IsFailure ? L["NotSignedIn"].Value : null;
+    }
+
+    private async Task SignOutAsync()
+    {
+        await SignIn.SignOutAsync(CancellationToken.None);
+        Navigation.NavigateTo("/account/signed-out");
+    }
+}

@@ -28,5 +28,6 @@ Snapshot: v0.1 (2026-09-01) — 5 markers, 0 with lapsed triggers.
 | `src/Forge.Identity/IdentityModule.cs` | Ephemeral OpenIddict token keys | v0.1 pre-tag — persisted `IdentityKeyMaterial` certificates; production validation refuses ephemeral keys |
 | `Forge.Identity` schema via `CreateTables` | No schema-evolution path for identity tables | v0.1 pre-tag — generated EF `InitIdentity` migration; migrator-owned like every module schema |
 | `src/Forge.Jobs.Quartz` raw schema script at startup | Quartz schema install outside the migrator | Phase 5.3 — DbMigrator owns the Quartz schema |
+| `--admin` template `Program.cs` inline `/auth/login` form | Hand-rolled, unlocalised sign-in outside the shell | Phase 6.2 — `ForgeStack.Identity.Ui.Blazor` sign-in page over `ISignInOperations` |
 | `modules/ReferenceCatalog` in-memory audit seam | Audit evidence not hash-chained | Phase 2.3 — real `IAuditStore` |
 | `modules/ReferenceCatalog` direct in-process publish | Event lost if publish failed after commit | Phase 3.1 — transactional outbox |

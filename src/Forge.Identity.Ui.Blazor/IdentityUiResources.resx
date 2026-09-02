@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NavIdentity" xml:space="preserve">
+    <value>Identity</value>
+  </data>
+  <data name="NavUsers" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="NavRoles" xml:space="preserve">
+    <value>Roles &amp; permissions</value>
+  </data>
+  <data name="NavMyAccount" xml:space="preserve">
+    <value>My account</value>
+  </data>
+  <data name="NavProfile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="NavPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="NavSessions" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="SignInTitle" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="UserName" xml:space="preserve">
+    <value>User name</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="SignInButton" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="SignInFailed" xml:space="preserve">
+    <value>Sign-in failed. Check your user name and password.</value>
+  </data>
+  <data name="SignInLockedOut" xml:space="preserve">
+    <value>This account is temporarily locked after too many failed attempts. Try again later.</value>
+  </data>
+  <data name="SignedOutTitle" xml:space="preserve">
+    <value>You are signed out</value>
+  </data>
+  <data name="SignInAgain" xml:space="preserve">
+    <value>Sign in again</value>
+  </data>
+  <data name="ProfileTitle" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Roles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="NotSignedIn" xml:space="preserve">
+    <value>You are not signed in.</value>
+  </data>
+  <data name="SignOutButton" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="PasswordTitle" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="CurrentPassword" xml:space="preserve">
+    <value>Current password</value>
+  </data>
+  <data name="NewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="ChangePasswordButton" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="PasswordChanged" xml:space="preserve">
+    <value>Your password has been changed.</value>
+  </data>
+  <data name="SessionsTitle" xml:space="preserve">
+    <value>Sessions</value>
+  </data>
+  <data name="SessionsExplanation" xml:space="preserve">
+    <value>Signing out everywhere else ends every other session of this account; this one stays signed in.</value>
+  </data>
+  <data name="SignOutEverywhereElseButton" xml:space="preserve">
+    <value>Sign out everywhere else</value>
+  </data>
+  <data name="SessionsRevoked" xml:space="preserve">
+    <value>All other sessions have been signed out.</value>
+  </data>
+  <data name="UsersTitle" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="UsersCaption" xml:space="preserve">
+    <value>Registered users</value>
+  </data>
+  <data name="CreateUser" xml:space="preserve">
+    <value>Create user</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>Initial password</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="AssignRole" xml:space="preserve">
+    <value>Assign role</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Role</value>
+  </data>
+  <data name="Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="UserCreated" xml:space="preserve">
+    <value>User '{0}' created.</value>
+  </data>
+  <data name="RoleAssigned" xml:space="preserve">
+    <value>Role '{0}' assigned.</value>
+  </data>
+  <data name="RolesTitle" xml:space="preserve">
+    <value>Roles &amp; permissions</value>
+  </data>
+  <data name="RolesCaption" xml:space="preserve">
+    <value>Roles and their aggregated permissions</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Permissions</value>
+  </data>
+  <data name="CreateRole" xml:space="preserve">
+    <value>Create role</value>
+  </data>
+  <data name="RoleName" xml:space="preserve">
+    <value>Role name</value>
+  </data>
+  <data name="GrantPermission" xml:space="preserve">
+    <value>Grant permission to role</value>
+  </data>
+  <data name="Permission" xml:space="preserve">
+    <value>Permission</value>
+  </data>
+  <data name="Grant" xml:space="preserve">
+    <value>Grant</value>
+  </data>
+  <data name="RoleCreated" xml:space="preserve">
+    <value>Role '{0}' created.</value>
+  </data>
+  <data name="PermissionGranted" xml:space="preserve">
+    <value>Permission '{0}' granted to '{1}'.</value>
+  </data>
+  <data name="NotPermitted" xml:space="preserve">
+    <value>You are not permitted to do this.</value>
+  </data>
+</root>

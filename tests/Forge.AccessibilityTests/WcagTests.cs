@@ -22,6 +22,9 @@ public class WcagTests(AdminShellFixture fx) : IClassFixture<AdminShellFixture>
     [InlineData("/admin/jobs")]
     [InlineData("/admin/settings")]
     [InlineData("/admin/localisation")]
+    [InlineData("/account")]
+    [InlineData("/account/password")]
+    [InlineData("/account/sessions")]
     public async Task Admin_page_has_no_axe_violations(string path)
     {
         RequireServer();
@@ -32,6 +35,52 @@ public class WcagTests(AdminShellFixture fx) : IClassFixture<AdminShellFixture>
 
         Assert.True(results.Violations.Length == 0,
             $"{path}: " + string.Join("; ", results.Violations.Select(v => $"{v.Id} ({v.Nodes.Length} nodes)")));
+    }
+
+    [Theory]
+    [InlineData("/account/sign-in")]
+    [InlineData("/account/signed-out")]
+    public async Task Anonymous_page_has_no_axe_violations(string path)
+    {
+        RequireServer();
+        var page = await fx.NewPageAsync(signedIn: false);
+
+        await page.GotoAsync(fx.BaseUrl + path);
+        var results = await page.RunAxe();
+
+        Assert.True(results.Violations.Length == 0,
+            $"{path}: " + string.Join("; ", results.Violations.Select(v => $"{v.Id} ({v.Nodes.Length} nodes)")));
+    }
+
+    [Fact]
+    public async Task Anonymous_admin_request_lands_on_the_sign_in_page_and_a_failed_sign_in_is_announced()
+    {
+        RequireServer();
+        var page = await fx.NewPageAsync(signedIn: false);
+
+        await page.GotoAsync(fx.BaseUrl + "/admin/users");
+        Assert.Contains("/account/sign-in?ReturnUrl=", page.Url, StringComparison.Ordinal);
+
+        await page.FillAsync("#username", "nobody");
+        await page.FillAsync("#password", "wrong-password");
+        await page.ClickAsync("button[type=submit]");
+        Assert.Equal(1, await page.Locator("[role='alert']").CountAsync());
+        Assert.Contains("/account/sign-in", page.Url, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Signed_in_user_sees_their_profile_and_can_sign_out()
+    {
+        RequireServer();
+        var page = await fx.NewPageAsync();
+
+        await page.GotoAsync(fx.BaseUrl + "/account");
+        Assert.Contains(AdminShellFixture.User, await page.Locator("dd").First.InnerTextAsync());
+
+        await page.ClickAsync("form button");
+        await page.WaitForURLAsync(fx.BaseUrl + "/account/signed-out");
+        await page.GotoAsync(fx.BaseUrl + "/account");
+        Assert.Contains("/account/sign-in", page.Url, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -117,5 +166,9 @@ public class WcagTests(AdminShellFixture fx) : IClassFixture<AdminShellFixture>
         Assert.Equal("rtl", await page.EvaluateAsync<string>("document.documentElement.getAttribute('dir')"));
         Assert.Equal("ar-SA", await page.EvaluateAsync<string>("document.documentElement.lang"));
         Assert.Contains("right-to-left", await page.Locator("[data-testid='current-culture']").InnerTextAsync());
+
+        // the identity pages ship ar-SA strings, not English fallbacks
+        await page.GotoAsync(fx.BaseUrl + "/account/password");
+        Assert.Equal("تغيير كلمة المرور", await page.Locator("h1").InnerTextAsync());
     }
 }

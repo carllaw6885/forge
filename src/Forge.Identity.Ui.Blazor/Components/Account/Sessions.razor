@@ -1,0 +1,39 @@
+@page "/account/sessions"
+@inject ISignInOperations SignIn
+@inject IStringLocalizer<IdentityUiResources> L
+@inject NavigationManager Navigation
+
+<PageTitle>@L["SessionsTitle"]</PageTitle>
+<h1>@L["SessionsTitle"]</h1>
+<p>@L["SessionsExplanation"]</p>
+
+<form method="post" @onsubmit="RevokeAsync" @formname="sign-out-everywhere-else">
+    <AntiforgeryToken />
+    <button type="submit">@L["SignOutEverywhereElseButton"]</button>
+</form>
+
+<form method="post" @onsubmit="SignOutAsync" @formname="sign-out">
+    <AntiforgeryToken />
+    <button type="submit">@L["SignOutButton"]</button>
+</form>
+
+@if (_message is not null)
+{
+    <p role="status">@_message</p>
+}
+
+@code {
+    private string? _message;
+
+    private async Task RevokeAsync()
+    {
+        var result = await SignIn.SignOutEverywhereElseAsync(CancellationToken.None);
+        _message = result.IsSuccess ? L["SessionsRevoked"] : L["NotSignedIn"];
+    }
+
+    private async Task SignOutAsync()
+    {
+        await SignIn.SignOutAsync(CancellationToken.None);
+        Navigation.NavigateTo("/account/signed-out");
+    }
+}

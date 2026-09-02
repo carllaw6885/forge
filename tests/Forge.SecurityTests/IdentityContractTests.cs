@@ -181,4 +181,73 @@ public class IdentityContractTests(IdentityFixture fx) : IClassFixture<IdentityF
             r => r.Event.Actor == "alice" && r.Event.Subject == "alice" && r.Event.Outcome == "success");
         Assert.True(await manager.CheckPasswordAsync((await manager.FindByNameAsync("alice"))!, "N3w!Password!42"));
     }
+
+    [Fact]
+    public async Task Password_sign_in_hides_user_existence_locks_out_and_sets_the_cookie()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+        await SeedAdminRoleAsync();
+        using (var admin = ActingAs("root", ["contract-admin"]))
+        {
+            Assert.True((await admin.ServiceProvider.GetRequiredService<IUserAdministration>()
+                .CreateAsync("lockme", "Str0ng!Password!42", ct)).IsSuccess);
+        }
+
+        using var scope = ActingAs(null, []);
+        var signIn = scope.ServiceProvider.GetRequiredService<ISignInOperations>();
+        var http = scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext!;
+
+        // unknown user and wrong password: same outcome, both audited as failures
+        Assert.Equal(SignInOutcome.Failed, await signIn.PasswordSignInAsync("nobody", "whatever", ct));
+        Assert.Equal(SignInOutcome.Failed, await signIn.PasswordSignInAsync("lockme", "wrong", ct));
+        Assert.Equal(2, (await AuditAsync(scope, IdentityAuditActions.SignInFailed)).Count);
+
+        Assert.Equal(SignInOutcome.Succeeded, await signIn.PasswordSignInAsync("lockme", "Str0ng!Password!42", ct));
+        Assert.Contains(http.Response.Headers.SetCookie, c => c!.StartsWith(".AspNetCore.Identity.Application=", StringComparison.Ordinal));
+        Assert.Single(await AuditAsync(scope, IdentityAuditActions.SignedIn), r => r.Event.Subject == "lockme");
+
+        // default Identity lockout: five failures lock the account; the right password no longer helps
+        for (var i = 0; i < 5; i++)
+        {
+            await signIn.PasswordSignInAsync("lockme", "wrong", ct);
+        }
+
+        Assert.Equal(SignInOutcome.LockedOut, await signIn.PasswordSignInAsync("lockme", "Str0ng!Password!42", ct));
+    }
+
+    [Fact]
+    public async Task Sign_out_everywhere_else_rotates_the_security_stamp_with_audit()
+    {
+        RequireServer();
+        var ct = TestContext.Current.CancellationToken;
+        await SeedAdminRoleAsync();
+        using (var admin = ActingAs("root", ["contract-admin"]))
+        {
+            Assert.True((await admin.ServiceProvider.GetRequiredService<IUserAdministration>()
+                .CreateAsync("carol", "Str0ng!Password!42", ct)).IsSuccess);
+        }
+
+        using (var anonymous = ActingAs(null, []))
+        {
+            var denied = await anonymous.ServiceProvider.GetRequiredService<ISignInOperations>().SignOutEverywhereElseAsync(ct);
+            Assert.Equal(IdentityErrors.Denied, denied.Error.Code);
+        }
+
+        using var scope = fx.App.Services.CreateScope();
+        var manager = scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>();
+        var carol = (await manager.FindByNameAsync("carol"))!;
+        var before = await manager.GetSecurityStampAsync(carol);
+        scope.ServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = new DefaultHttpContext
+        {
+            User = await scope.ServiceProvider.GetRequiredService<IUserClaimsPrincipalFactory<ForgeUser>>().CreateAsync(carol),
+            RequestServices = scope.ServiceProvider,
+        };
+
+        var revoked = await scope.ServiceProvider.GetRequiredService<ISignInOperations>().SignOutEverywhereElseAsync(ct);
+        Assert.True(revoked.IsSuccess, revoked.IsFailure ? revoked.Error.Message : "");
+
+        Assert.NotEqual(before, await manager.GetSecurityStampAsync((await manager.FindByNameAsync("carol"))!));
+        Assert.Single(await AuditAsync(scope, IdentityAuditActions.SessionsRevoked), r => r.Event.Actor == "carol");
+    }
 }

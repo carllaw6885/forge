@@ -1,0 +1,55 @@
+@page "/account/sign-in"
+@attribute [AllowAnonymous]
+@inject ISignInOperations Operations
+@inject IStringLocalizer<IdentityUiResources> L
+@inject NavigationManager Navigation
+
+<PageTitle>@L["SignInTitle"]</PageTitle>
+<h1>@L["SignInTitle"]</h1>
+
+<form method="post" @onsubmit="SubmitAsync" @formname="sign-in">
+    <AntiforgeryToken />
+    <input type="hidden" name="Model.ReturnUrl" value="@Model!.ReturnUrl" />
+    <label for="username">@L["UserName"]</label>
+    <input id="username" name="Model.UserName" autocomplete="username" required @bind="Model!.UserName" />
+    <label for="password">@L["Password"]</label>
+    <input id="password" name="Model.Password" type="password" autocomplete="current-password" required @bind="Model!.Password" />
+    <button type="submit">@L["SignInButton"]</button>
+</form>
+
+@if (_error is not null)
+{
+    <p role="alert">@_error</p>
+}
+
+@code {
+    private string? _error;
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromForm(FormName = "sign-in")]
+    public SignInModel? Model { get; set; }
+
+    public sealed class SignInModel
+    {
+        public string UserName { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string? ReturnUrl { get; set; }
+    }
+
+    protected override void OnInitialized() => Model ??= new() { ReturnUrl = ReturnUrl };
+
+    private async Task SubmitAsync()
+    {
+        var outcome = await Operations.PasswordSignInAsync(Model!.UserName, Model.Password, CancellationToken.None);
+        if (outcome == SignInOutcome.Succeeded)
+        {
+            Navigation.NavigateTo(IdentityUiExtensions.SafeReturnUrl(Model.ReturnUrl));
+            return;
+        }
+
+        // one message for unknown user and wrong password: no user enumeration
+        _error = L[outcome == SignInOutcome.LockedOut ? "SignInLockedOut" : "SignInFailed"];
+    }
+}

@@ -91,7 +91,11 @@ public sealed class IdentityModule(
 
         services.AddIdentityCore<ForgeUser>(options => options.Password.RequiredLength = 12)
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ForgeIdentityDbContext>();
+            .AddEntityFrameworkStores<ForgeIdentityDbContext>()
+            .AddSignInManager();
+        // AddIdentityCore omits this; the identity cookie handler requires it on every authenticated request.
+        // Hosts still choose the scheme: AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies().
+        services.TryAddScoped<ISecurityStampValidator, SecurityStampValidator<ForgeUser>>();
 
         services.AddForgePermissions();
         services.Replace(ServiceDescriptor.Scoped<IRolePermissionMap, DbRolePermissionMap>());
@@ -104,6 +108,7 @@ public sealed class IdentityModule(
         services.AddScoped<IUserAdministration>(sp => sp.GetRequiredService<IdentityOperations>());
         services.AddScoped<IRoleAdministration>(sp => sp.GetRequiredService<IdentityOperations>());
         services.AddScoped<IAccountOperations>(sp => sp.GetRequiredService<IdentityOperations>());
+        services.AddScoped<ISignInOperations, SignInOperations>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Forge.Core.Validation.IProductionConfigurationValidator>(
             new PersistedKeyMaterialValidator(signingCertificate is not null, encryptionCertificate is not null)));
 

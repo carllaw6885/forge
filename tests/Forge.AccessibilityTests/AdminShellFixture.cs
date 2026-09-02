@@ -1,5 +1,6 @@
 using Forge.Admin.Blazor;
 using Forge.Identity;
+using Forge.Identity.Ui.Blazor;
 using Forge.Jobs;
 using Forge.Localization;
 using Forge.Modularity;
@@ -9,6 +10,7 @@ using Forge.Settings;
 using Forge.Tenancy;
 using Forge.Web;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -61,6 +63,8 @@ public sealed class AdminShellFixture : IAsyncLifetime
         builder.Services.AddForgeSettings();
         builder.Services.AddForgeLocalization();
         builder.Services.AddForgeAdminShell();
+        builder.Services.AddForgeIdentityUi();
+        builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
         builder.Services.AddSingleton<ImpersonationService>();
         builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
         builder.Services.AddSingleton<ITerminalFailureSink, InMemoryTerminalFailureSink>();
@@ -69,10 +73,13 @@ public sealed class AdminShellFixture : IAsyncLifetime
         _app = builder.Build();
         _app.Services.UseForge();
         _app.UseStaticFiles();
+        _app.UseAuthentication();
+        _app.UseAuthorization();
         _app.UseForgeTenancy();
         _app.UseForgeRequestCulture();
         _app.UseAntiforgery();
-        _app.MapForgeAdminShell(); // tenant-scoped: the banner must show the tenant
+        // as the hosts map it (signed-in user required); tenant-scoped so the banner shows the tenant
+        _app.MapForgeAdminShell(endpoint => endpoint.RequireAuthorization());
         await _app.StartAsync();
         BaseUrl = _app.Urls.First();
 
@@ -82,6 +89,12 @@ public sealed class AdminShellFixture : IAsyncLifetime
             await scope.ServiceProvider.GetRequiredService<CatalogDbContext>().Database.MigrateAsync();
             await scope.ServiceProvider.GetRequiredService<ForgeIdentityDbContext>()
                 .GetService<IRelationalDatabaseCreator>().CreateTablesAsync();
+        }
+
+        using (var scope = _app.Services.CreateScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<UserManager<ForgeUser>>()
+                .CreateAsync(new ForgeUser { UserName = User }, Password);
         }
 
         // seed the RTL tenant's culture
@@ -97,13 +110,27 @@ public sealed class AdminShellFixture : IAsyncLifetime
         Browser = await _playwright.Chromium.LaunchAsync();
     }
 
-    public async Task<IPage> NewPageAsync(string tenant = "tenant-a")
+    public const string User = "a11y";
+    public const string Password = "A11y!Passw0rd!Long";
+
+    /// <summary>A fresh browser context for <paramref name="tenant"/>, signed in through the real sign-in page unless told otherwise.</summary>
+    public async Task<IPage> NewPageAsync(string tenant = "tenant-a", bool signedIn = true)
     {
         var context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             ExtraHTTPHeaders = new Dictionary<string, string> { ["X-Tenant"] = tenant },
         });
-        return await context.NewPageAsync();
+        var page = await context.NewPageAsync();
+        if (signedIn)
+        {
+            await page.GotoAsync(BaseUrl + IdentityUiExtensions.SignInPath);
+            await page.FillAsync("#username", User);
+            await page.FillAsync("#password", Password);
+            await page.ClickAsync("button[type=submit]");
+            await page.WaitForURLAsync(BaseUrl + "/admin");
+        }
+
+        return page;
     }
 
     public async ValueTask DisposeAsync()

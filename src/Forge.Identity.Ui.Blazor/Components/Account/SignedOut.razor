@@ -1,0 +1,7 @@
+@page "/account/signed-out"
+@attribute [AllowAnonymous]
+@inject IStringLocalizer<IdentityUiResources> L
+
+<PageTitle>@L["SignedOutTitle"]</PageTitle>
+<h1>@L["SignedOutTitle"]</h1>
+<p><a href="@IdentityUiExtensions.SignInPath">@L["SignInAgain"]</a></p>

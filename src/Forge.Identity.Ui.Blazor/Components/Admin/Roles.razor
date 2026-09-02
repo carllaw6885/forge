@@ -1,12 +1,13 @@
 @page "/admin/roles"
-@using Forge.Identity
 @inject IRoleAdministration Admin
+@inject IStringLocalizer<IdentityUiResources> L
 
-<h1>Roles &amp; permissions</h1>
+<PageTitle>@L["RolesTitle"]</PageTitle>
+<h1>@L["RolesTitle"]</h1>
 
 <table>
-    <caption>Roles and their aggregated permissions</caption>
-    <thead><tr><th scope="col">Role</th><th scope="col">Permissions</th></tr></thead>
+    <caption>@L["RolesCaption"]</caption>
+    <thead><tr><th scope="col">@L["Role"]</th><th scope="col">@L["Permissions"]</th></tr></thead>
     <tbody>
         @foreach (var role in _roles)
         {
@@ -15,22 +16,22 @@
     </tbody>
 </table>
 
-<h2>Create role</h2>
+<h2>@L["CreateRole"]</h2>
 <form method="post" @onsubmit="CreateRoleAsync" @formname="create-role">
     <AntiforgeryToken />
-    <label for="role-name">Role name</label>
+    <label for="role-name">@L["RoleName"]</label>
     <input id="role-name" name="RoleName" required @bind="RoleName" />
-    <button type="submit">Create</button>
+    <button type="submit">@L["Create"]</button>
 </form>
 
-<h2>Grant permission to role</h2>
+<h2>@L["GrantPermission"]</h2>
 <form method="post" @onsubmit="GrantAsync" @formname="grant-permission">
     <AntiforgeryToken />
-    <label for="grant-role">Role</label>
+    <label for="grant-role">@L["Role"]</label>
     <input id="grant-role" name="Grant.Role" required @bind="Grant!.Role" />
-    <label for="grant-permission">Permission</label>
+    <label for="grant-permission">@L["Permission"]</label>
     <input id="grant-permission" name="Grant.Permission" required @bind="Grant!.Permission" />
-    <button type="submit">Grant</button>
+    <button type="submit">@L["Grant"]</button>
 </form>
 
 @if (_message is not null)
@@ -65,20 +66,20 @@
     {
         var result = await Admin.ListAsync(CancellationToken.None);
         _roles = result.IsSuccess ? result.Value : [];
-        _message ??= result.IsFailure ? result.Error.Message : null;
+        _message ??= result.IsFailure ? L["NotPermitted"].Value : null;
     }
 
     private async Task CreateRoleAsync()
     {
         var result = await Admin.CreateAsync(RoleName ?? "", CancellationToken.None);
-        _message = result.IsSuccess ? $"Role '{RoleName}' created." : result.Error.Message;
+        _message = result.IsSuccess ? L["RoleCreated", RoleName ?? ""] : result.Error.Message;
         await LoadAsync();
     }
 
     private async Task GrantAsync()
     {
         var result = await Admin.GrantPermissionAsync(Grant!.Role, Grant.Permission, CancellationToken.None);
-        _message = result.IsSuccess ? $"Permission '{Grant!.Permission}' granted to '{Grant.Role}'." : result.Error.Message;
+        _message = result.IsSuccess ? L["PermissionGranted", Grant!.Permission, Grant.Role] : result.Error.Message;
         await LoadAsync();
     }
 }

@@ -67,13 +67,10 @@ public sealed class IdentityFixture : IAsyncLifetime
             new IdentityKeyMaterial(signing, "FORGE_TEST_PFX_PASSWORD"),
             new IdentityKeyMaterial(encryption, "FORGE_TEST_PFX_PASSWORD")));
 
-        // cookie sign-in exactly as the admin template wires it — the cookie
-        // handler needs ISecurityStampValidator, which AddIdentityCore omits
+        // cookie sign-in exactly as the admin template wires it
         builder.Services.AddForgeTenancy(); // the contract tests exercise host-vs-tenant scope
         builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
             .AddIdentityCookies();
-        builder.Services.AddScoped<SignInManager<ForgeUser>>();
-        builder.Services.AddScoped<ISecurityStampValidator, SecurityStampValidator<ForgeUser>>();
 
         App = builder.Build();
         App.Services.UseForge();

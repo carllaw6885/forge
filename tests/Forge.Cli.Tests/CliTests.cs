@@ -205,6 +205,10 @@ public class CliTests : IDisposable
         Assert.Contains("new IdentityModule(", api, StringComparison.Ordinal);
         Assert.Contains("MapForgeAdminShell", api, StringComparison.Ordinal);
         Assert.Contains("RequireAuthorization", api, StringComparison.Ordinal);
+        // 0.2: first-party identity UI replaces the hand-rolled login form
+        Assert.Contains("AddForgeIdentityUi()", api, StringComparison.Ordinal);
+        Assert.DoesNotContain("/auth/login", api, StringComparison.Ordinal);
+        Assert.DoesNotContain("SignInManager", api, StringComparison.Ordinal);
         // the shell's system pages resolve these at render time (found by driving /admin live)
         Assert.Contains("IImpersonationContext", api, StringComparison.Ordinal);
         Assert.Contains("AddSqlServerAuditStore", api, StringComparison.Ordinal);
@@ -212,6 +216,7 @@ public class CliTests : IDisposable
 
         var apiProj = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.Api", "Acme.Api.csproj"));
         Assert.Contains("ForgeStack.Admin.Blazor", apiProj, StringComparison.Ordinal);
+        Assert.Contains("ForgeStack.Identity.Ui.Blazor", apiProj, StringComparison.Ordinal);
 
         var migrator = File.ReadAllText(Path.Combine(gen, "Acme", "src", "Acme.DbMigrator", "Program.cs"));
         Assert.Contains("ForgeIdentityDbContext", migrator, StringComparison.Ordinal);

@@ -1,5 +1,6 @@
 using Forge.Admin.Blazor;
 using Forge.Identity;
+using Forge.Identity.Ui.Blazor;
 using Forge.Jobs;
 using Forge.Jobs.Quartz;
 using Forge.Localization;
@@ -31,6 +32,7 @@ builder.Services.AddForgeIdempotency();
 builder.Services.AddForgeSettings();
 builder.Services.AddForgeLocalization();
 builder.Services.AddForgeAdminShell();
+builder.Services.AddForgeIdentityUi(); // sign-in, account and users/roles pages; delete this line and the reference to go headless
 builder.Services.AddSingleton<ImpersonationService>();
 builder.Services.AddSingleton<IImpersonationContext>(sp => sp.GetRequiredService<ImpersonationService>());
 builder.Services.AddSqlServerAuditStore(connectionString);
@@ -54,9 +56,6 @@ builder.Services.AddForge(
 // cookie sign-in over the Identity module for the admin acceptance journey
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
     .AddIdentityCookies();
-builder.Services.AddScoped<SignInManager<ForgeUser>>();
-// AddIdentityCore omits this; the identity cookie handler requires it on every authenticated request
-builder.Services.AddScoped<ISecurityStampValidator, SecurityStampValidator<ForgeUser>>();
 
 var app = builder.Build();
 app.Services.UseForge();
@@ -76,25 +75,6 @@ app.MapCatalogEndpoints();
 // navigation visibility is never authorisation (ADR 40): the shell requires a signed-in user
 app.MapForgeAdminShell(endpoint => endpoint.WithHostScope().RequireAuthorization());
 
-app.MapPost("/auth/login", async Task<IResult> (
-    LoginRequest request, SignInManager<ForgeUser> signIn, UserManager<ForgeUser> users) =>
-{
-    var user = await users.FindByNameAsync(request.UserName ?? "");
-    if (user is null)
-    {
-        return TypedResults.Unauthorized();
-    }
-
-    var result = await signIn.CheckPasswordSignInAsync(user, request.Password ?? "", lockoutOnFailure: true);
-    if (!result.Succeeded)
-    {
-        return TypedResults.Unauthorized();
-    }
-
-    await signIn.SignInAsync(user, isPersistent: false);
-    return TypedResults.Ok();
-}).WithHostScope().WithName("Login");
-
 // development seed: admin user, editor role/permission, demo tenant item
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Forge:Seed", false))
 {
@@ -113,5 +93,3 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue("Forge:Seed", 
 }
 
 app.Run();
-
-internal sealed record LoginRequest(string? UserName, string? Password);

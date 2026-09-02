@@ -54,11 +54,10 @@
 </div>
 
 @code {
+    // module pages (identity users/roles, account) arrive via IAdminContribution — the shell owns only system pages
     private static readonly AdminNavItem[] ShellNav =
     [
         new("Platform", "Dashboard", "/admin"),
-        new("Identity", "Users", "/admin/users"),
-        new("Identity", "Roles & permissions", "/admin/roles"),
         new("Operations", "Audit trail", "/admin/audit"),
         new("Operations", "Jobs", "/admin/jobs"),
         new("Configuration", "Settings", "/admin/settings"),

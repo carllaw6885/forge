@@ -1,12 +1,13 @@
 @page "/admin/users"
-@using Forge.Identity
 @inject IUserAdministration Admin
+@inject IStringLocalizer<IdentityUiResources> L
 
-<h1>Users</h1>
+<PageTitle>@L["UsersTitle"]</PageTitle>
+<h1>@L["UsersTitle"]</h1>
 
 <table>
-    <caption>Registered users</caption>
-    <thead><tr><th scope="col">User name</th><th scope="col">Roles</th></tr></thead>
+    <caption>@L["UsersCaption"]</caption>
+    <thead><tr><th scope="col">@L["UserName"]</th><th scope="col">@L["Roles"]</th></tr></thead>
     <tbody>
         @foreach (var user in _users)
         {
@@ -15,24 +16,24 @@
     </tbody>
 </table>
 
-<h2>Create user</h2>
+<h2>@L["CreateUser"]</h2>
 <form method="post" @onsubmit="CreateAsync" @formname="create-user">
     <AntiforgeryToken />
-    <label for="new-username">User name</label>
+    <label for="new-username">@L["UserName"]</label>
     <input id="new-username" name="Model.UserName" required @bind="Model!.UserName" />
-    <label for="new-password">Initial password</label>
+    <label for="new-password">@L["InitialPassword"]</label>
     <input id="new-password" name="Model.Password" type="password" required @bind="Model!.Password" />
-    <button type="submit">Create</button>
+    <button type="submit">@L["Create"]</button>
 </form>
 
-<h2>Assign role</h2>
+<h2>@L["AssignRole"]</h2>
 <form method="post" @onsubmit="AssignAsync" @formname="assign-role">
     <AntiforgeryToken />
-    <label for="assign-user">User name</label>
+    <label for="assign-user">@L["UserName"]</label>
     <input id="assign-user" name="Assign.UserName" required @bind="Assign!.UserName" />
-    <label for="assign-role">Role</label>
+    <label for="assign-role">@L["Role"]</label>
     <input id="assign-role" name="Assign.Role" required @bind="Assign!.Role" />
-    <button type="submit">Assign</button>
+    <button type="submit">@L["Assign"]</button>
 </form>
 
 @if (_message is not null)
@@ -73,20 +74,20 @@
     {
         var result = await Admin.ListAsync(50, CancellationToken.None);
         _users = result.IsSuccess ? result.Value : [];
-        _message ??= result.IsFailure ? result.Error.Message : null;
+        _message ??= result.IsFailure ? L["NotPermitted"].Value : null;
     }
 
     private async Task CreateAsync()
     {
         var result = await Admin.CreateAsync(Model!.UserName, Model!.Password, CancellationToken.None);
-        _message = result.IsSuccess ? $"User '{Model!.UserName}' created." : result.Error.Message;
+        _message = result.IsSuccess ? L["UserCreated", Model!.UserName] : result.Error.Message;
         await LoadAsync();
     }
 
     private async Task AssignAsync()
     {
         var result = await Admin.AssignRoleAsync(Assign!.UserName, Assign!.Role, CancellationToken.None);
-        _message = result.IsSuccess ? $"Role '{Assign!.Role}' assigned." : result.Error.Message;
+        _message = result.IsSuccess ? L["RoleAssigned", Assign!.Role] : result.Error.Message;
         await LoadAsync();
     }
 }
