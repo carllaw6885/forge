@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -10,5 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="../../src/Forge.Cli/Forge.Cli.csproj" />
     <ProjectReference Include="../../src/Forge.Tenancy/Forge.Tenancy.csproj" />
+    <ProjectReference Include="../../src/Forge.Web/Forge.Web.csproj" />
   </ItemGroup>
 </Project>

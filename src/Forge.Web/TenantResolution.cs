@@ -76,6 +76,19 @@ public static class TenancyWebExtensions
             {
                 if (await resolver.ResolveAsync(context) is { } tenantId)
                 {
+                    // a registered directory makes tenant state authoritative:
+                    // unknown or disabled tenants fail resolution (ADR 05)
+                    if (context.RequestServices.GetService<ITenantDirectory>() is { } directory
+                        && await directory.GetAsync(tenantId, context.RequestAborted) is not { Enabled: true })
+                    {
+                        await Results.Problem(
+                                statusCode: StatusCodes.Status403Forbidden,
+                                title: "Tenant not available",
+                                detail: "The resolved tenant is unknown or disabled.")
+                            .ExecuteAsync(context);
+                        return;
+                    }
+
                     currentTenant.SetTenant(tenantId);
                     await next(context);
                     return;

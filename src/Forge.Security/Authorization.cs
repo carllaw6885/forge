@@ -1,4 +1,5 @@
 using Forge.Auditing;
+using Forge.Tenancy;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,6 +63,7 @@ public static class SecurityExtensions
         services.AddHttpContextAccessor();
         services.TryAddSingleton(TimeProvider.System);
         services.TryAddScoped<IAuditQueries, AuditQueries>();
+        services.TryAddScoped<ITenantAdministration, TenantAdministration>();
         return services;
     }
 
